@@ -30,10 +30,18 @@ mod canvas_test {
     fn ppm_header() {
         let canvas = Canvas::new(5, 3, color(0.0, 0.0, 0.0));
 
-        assert_eq!(get_ppm_body(canvas.to_ppm()), "P3\n5 3\n255")
+        assert_eq!(
+            canvas
+                .to_ppm()
+                .lines()
+                .take(3)
+                .collect::<Vec<&str>>()
+                .join("\n"),
+            "P3\n5 3\n255"
+        )
     }
 
-    fn get_ppm_body(ppm: String) -> String {
+    fn get_ppm_body(ppm: &str) -> String {
         ppm.lines().skip(3).collect::<Vec<&str>>().join("\n")
     }
 
@@ -52,7 +60,7 @@ mod canvas_test {
 
         println!("canvas is {:?}", &canvas);
         assert_eq!(
-            get_ppm_body(canvas.to_ppm()),
+            get_ppm_body(&canvas.to_ppm()),
             "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"
@@ -65,7 +73,7 @@ mod canvas_test {
 
         println!("canvas is {:?}", &canvas);
         assert_eq!(
-            get_ppm_body(canvas.to_ppm()),
+            get_ppm_body(&canvas.to_ppm()),
             "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
 153 255 204 153 255 204 153 255 204 153 255 204 153
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
