@@ -1,3 +1,6 @@
+mod canvas;
+mod color;
+mod io;
 mod tuple;
 
 fn main() {

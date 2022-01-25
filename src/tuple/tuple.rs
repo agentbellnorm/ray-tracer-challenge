@@ -1,13 +1,13 @@
-use std::ops::{Add, Sub, Neg, Mul, Div};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
-const EPSILON: f32 = 0.00001;
+pub const EPSILON: f32 = 0.00001;
 
-#[derive(Debug, Copy, Clone, )]
+#[derive(Debug, Copy, Clone)]
 pub struct Tuple {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub w: f32
+    pub w: f32,
 }
 
 impl Tuple {
@@ -27,10 +27,7 @@ impl Tuple {
     pub fn dot(&self, other: &Self) -> f32 {
         assert!(is_vector(self) && is_vector(other));
 
-        self.x * other.x
-        + self.y * other.y
-        + self.z * other.z
-        + self.w * other.w
+        self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
     pub fn cross(&self, other: &Self) -> Self {
@@ -39,7 +36,7 @@ impl Tuple {
         vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
-            self.x * other.y - self.y * other.x
+            self.x * other.y - self.y * other.x,
         )
     }
 }
@@ -115,11 +112,11 @@ fn is_equal_float(a: f32, b: f32) -> bool {
 }
 
 pub fn vector(x: f32, y: f32, z: f32) -> Tuple {
-    Tuple {x, y, z, w: 0.0}
+    Tuple { x, y, z, w: 0.0 }
 }
 
 pub fn point(x: f32, y: f32, z: f32) -> Tuple {
-    Tuple {x, y, z, w: 1.0}
+    Tuple { x, y, z, w: 1.0 }
 }
 
 pub fn is_point(t: &Tuple) -> bool {
@@ -131,5 +128,8 @@ pub fn is_vector(t: &Tuple) -> bool {
 }
 
 pub fn is_equal(t1: &Tuple, t2: &Tuple) -> bool {
-    is_equal_float(t1.x, t2.x) && is_equal_float(t1.y, t2.y) && is_equal_float(t1.z, t2.z) && is_equal_float(t1.w, t2.w)
+    is_equal_float(t1.x, t2.x)
+        && is_equal_float(t1.y, t2.y)
+        && is_equal_float(t1.z, t2.z)
+        && is_equal_float(t1.w, t2.w)
 }
