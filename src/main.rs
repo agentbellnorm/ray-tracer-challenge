@@ -1,6 +1,7 @@
 mod canvas;
 mod color;
 mod io;
+mod matrix;
 mod tuple;
 
 fn main() {
