@@ -62,7 +62,7 @@ impl Matrix {
         assert_eq!(self.n_rows, 2);
         assert_eq!(self.n_cols, 2);
 
-        self.storage[0] * self.storage[3] - self.storage[1] * self.storage[2]
+        self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1)
     }
 
     pub fn submatrix(self, row: usize, col: usize) -> Matrix {
@@ -74,7 +74,7 @@ impl Matrix {
                     continue;
                 }
 
-                submatrix.push(self.storage[self.i(r, c)])
+                submatrix.push(self.get(r, c));
             }
         }
 
