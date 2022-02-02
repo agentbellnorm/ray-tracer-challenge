@@ -42,7 +42,7 @@ impl Matrix {
         }
     }
 
-    pub fn transpose(self) -> Matrix {
+    pub fn transpose(&self) -> Matrix {
         let mut transposed = Vec::with_capacity(self.n_rows * self.n_cols);
 
         for i in 0..self.n_cols {
@@ -58,14 +58,14 @@ impl Matrix {
         }
     }
 
-    pub fn determinant(self) -> f32 {
+    pub fn determinant(&self) -> f32 {
         assert_eq!(self.n_rows, 2);
         assert_eq!(self.n_cols, 2);
 
         self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1)
     }
 
-    pub fn submatrix(self, row: usize, col: usize) -> Matrix {
+    pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
         let mut submatrix = Vec::with_capacity((self.n_rows - 1) * (self.n_cols - 1));
 
         for r in 0..self.n_rows {
@@ -83,6 +83,21 @@ impl Matrix {
             n_cols: self.n_cols - 1,
             storage: submatrix,
         }
+    }
+
+    pub fn minor(&self, row: usize, col: usize) -> f32 {
+        assert_eq!(self.n_cols, 3);
+        assert_eq!(self.n_rows, 3);
+
+        self.submatrix(row, col).determinant()
+    }
+
+    pub fn cofactor(&self, row: usize, col: usize) -> f32 {
+        if (row + col) % 2 == 0 {
+            return self.minor(row, col);
+        }
+
+        -self.minor(row, col)
     }
 }
 

@@ -22,7 +22,7 @@ mod matrix_test {
     }
 
     #[test]
-    fn create_two_by_two() {
+    fn create_2x2() {
         let matrix = Matrix::from_values(vec![vec![-3.0, 5.0], vec![1.0, -2.0]]);
 
         assert_eq!(matrix.get(0, 0), -3.0);
@@ -32,7 +32,7 @@ mod matrix_test {
     }
 
     #[test]
-    fn create_three_by_three() {
+    fn create_3x3() {
         let matrix = Matrix::from_values(vec![
             vec![-3.0, 5.0, 0.0],
             vec![1.0, -2.0, -7.0],
@@ -174,7 +174,7 @@ mod matrix_test {
     }
 
     #[test]
-    fn determinant() {
+    fn determinant_2x2() {
         assert_eq!(
             Matrix::from_values(vec![vec![1.0, 5.0], vec![-3.0, 2.0]]).determinant(),
             17.0
@@ -212,5 +212,65 @@ mod matrix_test {
                 vec![-7.0, -1.0, 1.0],
             ])
         )
+    }
+
+    #[test]
+    fn minor_3x3() {
+        let a = Matrix::from_values(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![-6.0, -1.0, 5.0],
+        ]);
+
+        let b = a.submatrix(1, 0);
+
+        assert_eq!(b.determinant(), 25.0);
+
+        assert_eq!(a.minor(1, 0), 25.0);
+    }
+
+    #[test]
+    fn cofactor_3x3() {
+        let a = Matrix::from_values(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![-6.0, -1.0, 5.0],
+        ]);
+
+        assert_eq!(a.minor(0, 0), -12.0);
+        assert_eq!(a.cofactor(0, 0), -12.0);
+
+        assert_eq!(a.minor(1, 0), 25.0);
+        assert_eq!(a.cofactor(1, 0), -25.0);
+    }
+
+    #[test]
+    fn determinant_3x3() {
+        let a = Matrix::from_values(vec![
+            vec![1.0, 2.0, 6.0],
+            vec![-5.0, 8.0, -4.0],
+            vec![2.0, 6.0, 4.0],
+        ]);
+
+        assert_eq!(a.cofactor(0, 0), 56.0);
+        assert_eq!(a.cofactor(0, 1), 12.0);
+        assert_eq!(a.cofactor(0, 2), -46.0);
+        assert_eq!(a.determinant(), -196.0);
+    }
+
+    #[test]
+    fn determinant_4x4() {
+        let a = Matrix::from_values(vec![
+            vec![-2.0, -8.0, 3.0, 5.0],
+            vec![-3.0, 1.0, 7.0, 3.0],
+            vec![1.0, 2.0, -9.0, 6.0],
+            vec![-6.0, 7.0, 7.0, -9.0],
+        ]);
+
+        assert_eq!(a.cofactor(0, 0), 690.0);
+        assert_eq!(a.cofactor(0, 1), 447.0);
+        assert_eq!(a.cofactor(0, 2), 210.0);
+        assert_eq!(a.cofactor(0, 3), 51.0);
+        assert_eq!(a.determinant(), -4071.0);
     }
 }
