@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod matrix_test {
-    use crate::matrix::Matrix;
+    use crate::matrix::{is_equal_float, Matrix};
     use crate::tuple::Tuple;
 
     #[test]
@@ -272,5 +272,58 @@ mod matrix_test {
         assert_eq!(a.cofactor(0, 2), 210.0);
         assert_eq!(a.cofactor(0, 3), 51.0);
         assert_eq!(a.determinant(), -4071.0);
+    }
+
+    #[test]
+    fn invertibility_invertible() {
+        let a = Matrix::from_values(vec![
+            vec![6.0, 4.0, 4.0, 4.0],
+            vec![5.0, 5.0, 7.0, 6.0],
+            vec![4.0, -9.0, 3.0, -7.0],
+            vec![9.0, 1.0, 7.0, -6.0],
+        ]);
+
+        assert_eq!(a.determinant(), -2120.0);
+        assert!(a.is_invertible());
+    }
+    #[test]
+    fn invertibility_not_invertible() {
+        let a = Matrix::from_values(vec![
+            vec![-4.0, 2.0, -2.0, -3.0],
+            vec![9.0, 6.0, 2.0, 6.0],
+            vec![0.0, -5.0, 1.0, -5.0],
+            vec![0.0, 0.0, 0.0, 0.0],
+        ]);
+
+        assert_eq!(a.determinant(), 0.0);
+        assert!(!a.is_invertible());
+    }
+
+    #[test]
+    fn inverse() {
+        let a = Matrix::from_values(vec![
+            vec![-5.0, 2.0, 6.0, -8.0],
+            vec![1.0, -5.0, 1.0, 8.0],
+            vec![7.0, 7.0, -6.0, -7.0],
+            vec![1.0, -3.0, 7.0, 4.0],
+        ]);
+
+        let b = a.inverse();
+
+        assert_eq!(a.determinant(), 532.0);
+        assert_eq!(a.cofactor(2, 3), -160.0);
+        assert!(is_equal_float(b.get(3, 2), -160.0 / 532.0));
+        assert_eq!(a.cofactor(3, 2), 105.0);
+        assert!(is_equal_float(b.get(2, 3), 105.0 / 532.0));
+
+        assert_eq!(
+            b,
+            Matrix::from_values(vec![
+                vec![0.21805, 0.45113, 0.24060, -0.04511],
+                vec![-0.80827, -1.45677, -0.44361, 0.52068],
+                vec![-0.07895, -0.22368, -0.05263, 0.19737],
+                vec![-0.52256, -0.813391, -0.30075, 0.30639],
+            ])
+        );
     }
 }

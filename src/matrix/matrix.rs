@@ -59,10 +59,17 @@ impl Matrix {
     }
 
     pub fn determinant(&self) -> f32 {
-        assert_eq!(self.n_rows, 2);
-        assert_eq!(self.n_cols, 2);
+        if self.n_cols == 2 {
+            return self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1);
+        }
 
-        self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1)
+        let mut determinant = 0.0;
+
+        for col in 0..self.n_cols {
+            determinant += self.get(0, col) * self.cofactor(0, col);
+        }
+
+        determinant
     }
 
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
@@ -86,9 +93,6 @@ impl Matrix {
     }
 
     pub fn minor(&self, row: usize, col: usize) -> f32 {
-        assert_eq!(self.n_cols, 3);
-        assert_eq!(self.n_rows, 3);
-
         self.submatrix(row, col).determinant()
     }
 
@@ -99,9 +103,31 @@ impl Matrix {
 
         -self.minor(row, col)
     }
+
+    pub fn is_invertible(&self) -> bool {
+        self.determinant() != 0.0
+    }
+
+    pub fn inverse(&self) -> Matrix {
+        let mut inverse = vec![0.0; self.n_cols * self.n_rows];
+
+        let determinant = self.determinant();
+
+        for row in 0..self.n_rows {
+            for col in 0..self.n_cols {
+                inverse[self.i(col, row)] = self.cofactor(row, col) / determinant;
+            }
+        }
+
+        Matrix {
+            storage: inverse,
+            n_cols: self.n_cols,
+            n_rows: self.n_rows,
+        }
+    }
 }
 
-fn is_equal_float(a: f32, b: f32) -> bool {
+pub fn is_equal_float(a: f32, b: f32) -> bool {
     (a - b).abs() < EPSILON
 }
 
