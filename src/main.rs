@@ -2,6 +2,7 @@ mod canvas;
 mod color;
 mod io;
 mod matrix;
+mod translation;
 mod tuple;
 
 fn main() {

@@ -8,6 +8,10 @@ pub struct Matrix {
 }
 
 impl Matrix {
+    pub fn from_vec(v: Vec<f32>, size: usize) -> Matrix {
+        Matrix { storage: v, size }
+    }
+
     pub fn from_values(from: Vec<Vec<f32>>) -> Matrix {
         let size = from.len();
         let n_cols = from.first().unwrap().len();
@@ -119,6 +123,12 @@ impl Matrix {
             storage: inverse,
             size: self.size,
         }
+    }
+
+    pub fn set(mut self, row: usize, col: usize, v: f32) -> Matrix {
+        let i = self.i(row, col);
+        self.storage[i] = v;
+        self
     }
 }
 
