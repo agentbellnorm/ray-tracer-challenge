@@ -4,23 +4,21 @@ use std::ops::Mul;
 #[derive(Debug, Clone)]
 pub struct Matrix {
     storage: Vec<f32>,
-    n_cols: usize,
-    n_rows: usize,
+    size: usize,
 }
 
 impl Matrix {
     pub fn from_values(from: Vec<Vec<f32>>) -> Matrix {
-        let n_rows = from.len();
+        let size = from.len();
         let n_cols = from.first().unwrap().len();
 
         Matrix {
             storage: from
                 .into_iter()
-                .fold(Vec::with_capacity(n_rows * n_cols), |acc, v| {
+                .fold(Vec::with_capacity(size * n_cols), |acc, v| {
                     [acc, v].concat()
                 }),
-            n_cols,
-            n_rows,
+            size: n_cols,
         }
     }
 
@@ -29,13 +27,12 @@ impl Matrix {
     }
 
     fn i(&self, row: usize, col: usize) -> usize {
-        (self.n_cols * row) + col
+        (self.size * row) + col
     }
 
     pub fn identity() -> Matrix {
         Matrix {
-            n_rows: 4,
-            n_cols: 4,
+            size: 4,
             storage: vec![
                 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
             ],
@@ -43,29 +40,28 @@ impl Matrix {
     }
 
     pub fn transpose(&self) -> Matrix {
-        let mut transposed = Vec::with_capacity(self.n_rows * self.n_cols);
+        let mut transposed = Vec::with_capacity(self.size * self.size);
 
-        for i in 0..self.n_cols {
-            for j in 0..self.n_rows {
-                transposed.push(self.storage[i + j * self.n_rows]);
+        for i in 0..self.size {
+            for j in 0..self.size {
+                transposed.push(self.storage[i + j * self.size]);
             }
         }
 
         Matrix {
-            n_rows: self.n_rows,
-            n_cols: self.n_cols,
+            size: self.size,
             storage: transposed,
         }
     }
 
     pub fn determinant(&self) -> f32 {
-        if self.n_cols == 2 {
+        if self.size == 2 {
             return self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1);
         }
 
         let mut determinant = 0.0;
 
-        for col in 0..self.n_cols {
+        for col in 0..self.size {
             determinant += self.get(0, col) * self.cofactor(0, col);
         }
 
@@ -73,10 +69,10 @@ impl Matrix {
     }
 
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
-        let mut submatrix = Vec::with_capacity((self.n_rows - 1) * (self.n_cols - 1));
+        let mut submatrix = Vec::with_capacity((self.size - 1) * (self.size - 1));
 
-        for r in 0..self.n_rows {
-            for c in 0..self.n_cols {
+        for r in 0..self.size {
+            for c in 0..self.size {
                 if r == row || c == col {
                     continue;
                 }
@@ -86,8 +82,7 @@ impl Matrix {
         }
 
         Matrix {
-            n_rows: self.n_rows - 1,
-            n_cols: self.n_cols - 1,
+            size: self.size - 1,
             storage: submatrix,
         }
     }
@@ -109,20 +104,20 @@ impl Matrix {
     }
 
     pub fn inverse(&self) -> Matrix {
-        let mut inverse = vec![0.0; self.n_cols * self.n_rows];
+        let mut inverse = vec![0.0; self.size * self.size];
 
         let determinant = self.determinant();
 
-        for row in 0..self.n_rows {
-            for col in 0..self.n_cols {
+        for row in 0..self.size {
+            for col in 0..self.size {
+                // transpose by swapping row and col in self.i call
                 inverse[self.i(col, row)] = self.cofactor(row, col) / determinant;
             }
         }
 
         Matrix {
             storage: inverse,
-            n_cols: self.n_cols,
-            n_rows: self.n_rows,
+            size: self.size,
         }
     }
 }
@@ -133,10 +128,7 @@ pub fn is_equal_float(a: f32, b: f32) -> bool {
 
 impl PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
-        if self.storage.len() != other.storage.len()
-            || self.n_cols != other.n_cols
-            || self.n_rows != other.n_rows
-        {
+        if self.storage.len() != other.storage.len() || self.size != other.size {
             return false;
         }
 
@@ -154,19 +146,17 @@ impl PartialEq for Matrix {
     }
 }
 
-impl Mul for Matrix {
-    type Output = Self;
+impl<'a> Mul for &'a Matrix {
+    type Output = Matrix;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        assert_eq!(self.n_cols, 4);
-        assert_eq!(self.n_rows, 4);
-        assert_eq!(rhs.n_rows, 4);
-        assert_eq!(rhs.n_rows, 4);
+        assert_eq!(self.size, 4);
+        assert_eq!(rhs.size, 4);
 
-        let mut result_vals = Vec::with_capacity(self.n_cols * self.n_rows);
+        let mut result_vals = Vec::with_capacity(self.size * self.size);
 
-        for row in 0..self.n_rows {
-            for col in 0..self.n_cols {
+        for row in 0..self.size {
+            for col in 0..self.size {
                 result_vals.push(
                     self.get(row, 0) * rhs.get(0, col)
                         + self.get(row, 1) * rhs.get(1, col)
@@ -178,8 +168,7 @@ impl Mul for Matrix {
 
         Matrix {
             storage: result_vals,
-            n_rows: self.n_rows,
-            n_cols: self.n_cols,
+            size: self.size,
         }
     }
 }
@@ -190,7 +179,7 @@ impl Mul<Matrix> for Tuple {
     fn mul(self, matrix: Matrix) -> Tuple {
         let mut result_vals = Vec::with_capacity(4);
 
-        for row in 0..matrix.n_rows {
+        for row in 0..matrix.size {
             result_vals.push(
                 matrix.get(row, 0) * self.x
                     + matrix.get(row, 1) * self.y
