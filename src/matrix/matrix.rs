@@ -125,10 +125,56 @@ impl Matrix {
         }
     }
 
-    pub fn set(mut self, row: usize, col: usize, v: f32) -> Matrix {
+    fn set(mut self, row: usize, col: usize, v: f32) -> Matrix {
         let i = self.i(row, col);
         self.storage[i] = v;
         self
+    }
+
+    pub fn translate(&self, x: f32, y: f32, z: f32) -> Matrix {
+        &Matrix::identity().set(0, 3, x).set(1, 3, y).set(2, 3, z) * self
+    }
+
+    pub fn scale(&self, x: f32, y: f32, z: f32) -> Matrix {
+        &Matrix::identity().set(0, 0, x).set(1, 1, y).set(2, 2, z) * self
+    }
+
+    pub fn rotate_x(&self, rad: f32) -> Matrix {
+        &Matrix::identity()
+            .set(1, 1, f32::cos(rad))
+            .set(1, 2, -f32::sin(rad))
+            .set(2, 1, f32::sin(rad))
+            .set(2, 2, f32::cos(rad))
+            * self
+    }
+
+    pub fn rotate_y(&self, rad: f32) -> Matrix {
+        &Matrix::identity()
+            .set(0, 0, f32::cos(rad))
+            .set(0, 2, f32::sin(rad))
+            .set(2, 0, -f32::sin(rad))
+            .set(2, 2, f32::cos(rad))
+            * self
+    }
+
+    pub fn rotate_z(&self, rad: f32) -> Matrix {
+        &Matrix::identity()
+            .set(0, 0, f32::cos(rad))
+            .set(0, 1, -f32::sin(rad))
+            .set(1, 0, f32::sin(rad))
+            .set(1, 1, f32::cos(rad))
+            * self
+    }
+
+    pub fn shear(&self, xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix {
+        &Matrix::identity()
+            .set(0, 1, xy)
+            .set(0, 2, xz)
+            .set(1, 0, yx)
+            .set(1, 2, yz)
+            .set(2, 0, zx)
+            .set(2, 1, zy)
+            * self
     }
 }
 

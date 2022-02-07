@@ -2,3 +2,6 @@
 .idea
 
 src/tuple/kanon.ppm
+src/matrix/klocka.ppm
+
+*DS_Store

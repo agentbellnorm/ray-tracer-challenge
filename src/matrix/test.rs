@@ -388,3 +388,208 @@ mod matrix_test {
         assert_eq!(&c * &b.inverse(), a);
     }
 }
+
+#[cfg(test)]
+mod translation {
+    use crate::canvas::Canvas;
+    use crate::color::color;
+    use crate::io::save_to_file;
+    use crate::matrix::Matrix;
+    use crate::tuple::{point, vector};
+    use std::f32::consts::PI;
+
+    #[test]
+    fn multiplying_by_translation_matrix() {
+        let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
+        let p = point(-3.0, 4.0, 5.0);
+
+        assert_eq!(p * transform, point(2.0, 1.0, 7.0));
+    }
+
+    #[test]
+    fn multiplying_with_inverse_of_translation_matrix() {
+        let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
+        let inv = transform.inverse();
+        let p = point(-3.0, 4.0, 5.0);
+
+        assert_eq!(p * inv, point(-8.0, 7.0, 3.0));
+    }
+
+    #[test]
+    fn translation_does_not_affect_vectors() {
+        let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
+        let v = vector(-3.0, 4.0, 5.0);
+
+        assert_eq!(v * transform, v);
+    }
+
+    #[test]
+    fn scaling_matrix_applied_to_point() {
+        let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
+        let p = point(-4.0, 6.0, 8.0);
+
+        assert_eq!(p * scaling, point(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn scaling_matrix_applied_to_vector() {
+        let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
+        let v = vector(-4.0, 6.0, 8.0);
+
+        assert_eq!(v * scaling, vector(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn multiplying_with_invers_of_scaling_matrix() {
+        let s = Matrix::identity().scale(2.0, 3.0, 4.0);
+        let inv_s = s.inverse();
+        let v = vector(-4.0, 6.0, 8.0);
+
+        assert_eq!(v * inv_s, vector(-2.0, 2.0, 2.0));
+    }
+
+    #[test]
+    fn reflection_by_scaling_with_negative() {
+        let s = Matrix::identity().scale(-1.0, 1.0, 1.0);
+        let p = vector(2.0, 3.0, 4.0);
+
+        assert_eq!(p * s, vector(-2.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn rotating_point_around_x_axis() {
+        let p = point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix::identity().rotate_x(PI / 4.0);
+        let full_quarter = Matrix::identity().rotate_x(PI / 2.0);
+
+        assert_eq!(
+            p * half_quarter,
+            point(0.0, f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0)
+        );
+        assert_eq!(p * full_quarter, point(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn inverse_of_x_rotation_rotates_in_opposite_direction() {
+        let p = point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix::identity().rotate_x(PI / 4.0);
+        let inv = half_quarter.inverse();
+
+        assert_eq!(
+            p * inv,
+            point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)
+        )
+    }
+
+    #[test]
+    fn rotating_point_around_y_axis() {
+        let p = point(0.0, 0.0, 1.0);
+        let half_quarter = Matrix::identity().rotate_y(PI / 4.0);
+        let full_quarter = Matrix::identity().rotate_y(PI / 2.0);
+
+        assert_eq!(
+            p * half_quarter,
+            point(f32::sqrt(2.0) / 2.0, 0.0, f32::sqrt(2.0) / 2.0)
+        );
+        assert_eq!(p * full_quarter, point(1.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn rotating_point_around_z_axis() {
+        let p = point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix::identity().rotate_z(PI / 4.0);
+        let full_quarter = Matrix::identity().rotate_z(PI / 2.0);
+
+        assert_eq!(
+            p * half_quarter,
+            point(-f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0)
+        );
+        assert_eq!(p * full_quarter, point(-1.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn shearing_x_y() {
+        let transform = Matrix::identity().shear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(5.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn shearing_x_z() {
+        let transform = Matrix::identity().shear(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(6.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn shearing_y_x() {
+        let transform = Matrix::identity().shear(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(2.0, 5.0, 4.0));
+    }
+
+    #[test]
+    fn shearing_y_z() {
+        let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(2.0, 7.0, 4.0));
+    }
+
+    #[test]
+    fn shearing_z_x() {
+        let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(2.0, 3.0, 6.0));
+    }
+
+    #[test]
+    fn shearing_z_y() {
+        let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = point(2.0, 3.0, 4.0);
+
+        assert_eq!(p * transform, point(2.0, 3.0, 7.0));
+    }
+
+    #[test]
+    fn chained_transformations() {
+        let p = point(1.0, 0.0, 1.0);
+
+        let transform = Matrix::identity()
+            .rotate_x(PI / 2.0)
+            .scale(5.0, 5.0, 5.0)
+            .translate(10.0, 5.0, 7.0);
+
+        assert_eq!(p * transform, point(15.0, 0.0, 7.0));
+    }
+
+    #[test]
+    fn draw_clock() {
+        let mut canvas = Canvas::new(200, 200, color(0.0, 0.0, 0.0));
+
+        for i in 0..12 {
+            let p = point(0.0, 0.0, 0.0);
+            let t = Matrix::identity()
+                .translate(0.0, 1.0, 0.0)
+                .rotate_z(i as f32 * ((2.0 * PI) / 12.0))
+                .scale(75.0, 75.0, 75.0)
+                .translate(100.0, 100.0, 0.0);
+
+            let time = p * t;
+
+            canvas = canvas.write_pixel(
+                time.x.round() as i32,
+                time.y.round() as i32,
+                color(255.0, 255.0, 255.0),
+            );
+        }
+
+        let res = save_to_file("src/matrix/klocka.ppm", canvas.to_ppm());
+
+        assert!(res.is_ok());
+    }
+}
