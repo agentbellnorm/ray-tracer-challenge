@@ -11,7 +11,9 @@ mod tuple_test {
         let p = point(4.3, -4.2, 3.1);
 
         assert!(is_vector(&v));
+        assert!(v.is_vector());
         assert!(is_point(&p));
+        assert!(p.is_point());
         assert!(!is_vector(&p));
         assert!(!is_point(&v));
     }

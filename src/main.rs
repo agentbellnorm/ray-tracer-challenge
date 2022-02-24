@@ -1,7 +1,9 @@
 mod canvas;
 mod color;
+mod intersection;
 mod io;
 mod matrix;
+mod rays;
 mod tuple;
 
 fn main() {

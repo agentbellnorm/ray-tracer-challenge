@@ -39,6 +39,14 @@ impl Tuple {
             self.x * other.y - self.y * other.x,
         )
     }
+
+    pub fn is_vector(&self) -> bool {
+        self.w == 0.0
+    }
+
+    pub fn is_point(&self) -> bool {
+        self.w == 1.0
+    }
 }
 
 impl PartialEq for Tuple {

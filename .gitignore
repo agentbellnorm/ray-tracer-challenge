@@ -3,5 +3,6 @@
 
 src/tuple/kanon.ppm
 src/matrix/klocka.ppm
+src/template_module
 
 *DS_Store
