@@ -4,6 +4,7 @@ mod intersection;
 mod io;
 mod matrix;
 mod rays;
+mod sphere;
 mod tuple;
 
 fn main() {

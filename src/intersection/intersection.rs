@@ -1,4 +1,4 @@
-use crate::rays::Sphere;
+use crate::sphere::Sphere;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {

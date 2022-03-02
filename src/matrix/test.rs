@@ -116,7 +116,7 @@ mod matrix_test {
         };
 
         assert_eq!(
-            tuple * matrix,
+            tuple * &matrix,
             Tuple {
                 x: 18.0,
                 y: 24.0,
@@ -403,7 +403,7 @@ mod translation {
         let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
         let p = point(-3.0, 4.0, 5.0);
 
-        assert_eq!(p * transform, point(2.0, 1.0, 7.0));
+        assert_eq!(p * &transform, point(2.0, 1.0, 7.0));
     }
 
     #[test]
@@ -412,7 +412,7 @@ mod translation {
         let inv = transform.inverse();
         let p = point(-3.0, 4.0, 5.0);
 
-        assert_eq!(p * inv, point(-8.0, 7.0, 3.0));
+        assert_eq!(p * &inv, point(-8.0, 7.0, 3.0));
     }
 
     #[test]
@@ -420,7 +420,7 @@ mod translation {
         let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
         let v = vector(-3.0, 4.0, 5.0);
 
-        assert_eq!(v * transform, v);
+        assert_eq!(v * &transform, v);
     }
 
     #[test]
@@ -428,7 +428,7 @@ mod translation {
         let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
         let p = point(-4.0, 6.0, 8.0);
 
-        assert_eq!(p * scaling, point(-8.0, 18.0, 32.0));
+        assert_eq!(p * &scaling, point(-8.0, 18.0, 32.0));
     }
 
     #[test]
@@ -436,7 +436,7 @@ mod translation {
         let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
         let v = vector(-4.0, 6.0, 8.0);
 
-        assert_eq!(v * scaling, vector(-8.0, 18.0, 32.0));
+        assert_eq!(v * &scaling, vector(-8.0, 18.0, 32.0));
     }
 
     #[test]
@@ -445,7 +445,7 @@ mod translation {
         let inv_s = s.inverse();
         let v = vector(-4.0, 6.0, 8.0);
 
-        assert_eq!(v * inv_s, vector(-2.0, 2.0, 2.0));
+        assert_eq!(v * &inv_s, vector(-2.0, 2.0, 2.0));
     }
 
     #[test]
@@ -453,7 +453,7 @@ mod translation {
         let s = Matrix::identity().scale(-1.0, 1.0, 1.0);
         let p = vector(2.0, 3.0, 4.0);
 
-        assert_eq!(p * s, vector(-2.0, 3.0, 4.0));
+        assert_eq!(p * &s, vector(-2.0, 3.0, 4.0));
     }
 
     #[test]
@@ -463,10 +463,10 @@ mod translation {
         let full_quarter = Matrix::identity().rotate_x(PI / 2.0);
 
         assert_eq!(
-            p * half_quarter,
+            p * &half_quarter,
             point(0.0, f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0)
         );
-        assert_eq!(p * full_quarter, point(0.0, 0.0, 1.0));
+        assert_eq!(p * &full_quarter, point(0.0, 0.0, 1.0));
     }
 
     #[test]
@@ -476,7 +476,7 @@ mod translation {
         let inv = half_quarter.inverse();
 
         assert_eq!(
-            p * inv,
+            p * &inv,
             point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)
         )
     }
@@ -488,10 +488,10 @@ mod translation {
         let full_quarter = Matrix::identity().rotate_y(PI / 2.0);
 
         assert_eq!(
-            p * half_quarter,
+            p * &half_quarter,
             point(f32::sqrt(2.0) / 2.0, 0.0, f32::sqrt(2.0) / 2.0)
         );
-        assert_eq!(p * full_quarter, point(1.0, 0.0, 0.0));
+        assert_eq!(p * &full_quarter, point(1.0, 0.0, 0.0));
     }
 
     #[test]
@@ -501,10 +501,10 @@ mod translation {
         let full_quarter = Matrix::identity().rotate_z(PI / 2.0);
 
         assert_eq!(
-            p * half_quarter,
+            p * &half_quarter,
             point(-f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0)
         );
-        assert_eq!(p * full_quarter, point(-1.0, 0.0, 0.0));
+        assert_eq!(p * &full_quarter, point(-1.0, 0.0, 0.0));
     }
 
     #[test]
@@ -512,7 +512,7 @@ mod translation {
         let transform = Matrix::identity().shear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(5.0, 3.0, 4.0));
+        assert_eq!(p * &transform, point(5.0, 3.0, 4.0));
     }
 
     #[test]
@@ -520,7 +520,7 @@ mod translation {
         let transform = Matrix::identity().shear(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(6.0, 3.0, 4.0));
+        assert_eq!(p * &transform, point(6.0, 3.0, 4.0));
     }
 
     #[test]
@@ -528,7 +528,7 @@ mod translation {
         let transform = Matrix::identity().shear(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(2.0, 5.0, 4.0));
+        assert_eq!(p * &transform, point(2.0, 5.0, 4.0));
     }
 
     #[test]
@@ -536,7 +536,7 @@ mod translation {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(2.0, 7.0, 4.0));
+        assert_eq!(p * &transform, point(2.0, 7.0, 4.0));
     }
 
     #[test]
@@ -544,7 +544,7 @@ mod translation {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(2.0, 3.0, 6.0));
+        assert_eq!(p * &transform, point(2.0, 3.0, 6.0));
     }
 
     #[test]
@@ -552,7 +552,7 @@ mod translation {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
         let p = point(2.0, 3.0, 4.0);
 
-        assert_eq!(p * transform, point(2.0, 3.0, 7.0));
+        assert_eq!(p * &transform, point(2.0, 3.0, 7.0));
     }
 
     #[test]
@@ -564,7 +564,7 @@ mod translation {
             .scale(5.0, 5.0, 5.0)
             .translate(10.0, 5.0, 7.0);
 
-        assert_eq!(p * transform, point(15.0, 0.0, 7.0));
+        assert_eq!(p * &transform, point(15.0, 0.0, 7.0));
     }
 
     #[test]
@@ -579,7 +579,7 @@ mod translation {
                 .scale(75.0, 75.0, 75.0)
                 .translate(100.0, 100.0, 0.0);
 
-            let time = p * t;
+            let time = p * &t;
 
             canvas = canvas.write_pixel(
                 time.x.round() as i32,

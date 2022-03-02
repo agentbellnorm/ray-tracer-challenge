@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod template_test {
-    use crate::rays::{Ray, Sphere};
+    use crate::matrix::Matrix;
+    use crate::rays::Ray;
+    use crate::sphere::Sphere;
     use crate::tuple::{point, vector};
 
     #[test]
@@ -92,5 +94,25 @@ mod template_test {
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).object, &sphere);
         assert_eq!(xs.get(1).object, &sphere);
+    }
+
+    #[test]
+    fn translate_a_ray() {
+        let r = Ray::with(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+        let m = Matrix::identity().translate(3.0, 4.0, 5.0);
+        let r2 = r.transform(&m);
+
+        assert_eq!(r2.origin, point(4.0, 6.0, 8.0));
+        assert_eq!(r2.direction, vector(0.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn scaling_a_ray() {
+        let r = Ray::with(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+        let m = Matrix::identity().scale(2.0, 3.0, 4.0);
+        let r2 = r.transform(&m);
+
+        assert_eq!(r2.origin, point(2.0, 6.0, 12.0));
+        assert_eq!(r2.direction, vector(0.0, 3.0, 0.0));
     }
 }

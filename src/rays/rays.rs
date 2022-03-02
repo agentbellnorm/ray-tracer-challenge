@@ -1,5 +1,5 @@
-use crate::intersection::{Intersection, Intersections};
-use crate::tuple::{point, Tuple};
+use crate::matrix::Matrix;
+use crate::tuple::Tuple;
 
 pub struct Ray {
     pub origin: Tuple,
@@ -17,40 +17,11 @@ impl Ray {
     pub fn position(&self, t: f32) -> Tuple {
         self.origin + self.direction * t
     }
-}
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Sphere {
-    location: Tuple,
-    r: f32,
-}
-
-impl Sphere {
-    pub fn unit() -> Sphere {
-        Sphere {
-            location: point(0.0, 0.0, 0.0),
-            r: 1.0,
-        }
-    }
-
-    pub fn intersects(&self, ray: Ray) -> Intersections {
-        let sphere_to_ray = ray.origin - point(0.0, 0.0, 0.0);
-
-        let a = ray.direction.dot(&ray.direction);
-        let b = ray.direction.dot(&sphere_to_ray) * 2.0;
-        let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
-
-        let discriminant = b.powi(2) - 4.0 * a * c;
-
-        if discriminant < 0.0 {
-            return Intersections { xs: Vec::new() };
-        }
-
-        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-
-        Intersections {
-            xs: vec![Intersection::new(t1, self), Intersection::new(t2, self)],
+    pub fn transform(&self, transformation: &Matrix) -> Ray {
+        Ray {
+            origin: self.origin * transformation,
+            direction: self.direction * transformation,
         }
     }
 }

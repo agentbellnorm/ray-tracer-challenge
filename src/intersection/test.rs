@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod intersection_test {
     use crate::intersection::{Intersection, Intersections};
-    use crate::rays::Sphere;
+    use crate::sphere::Sphere;
 
     #[test]
     fn intersection_encapsulates_t_and_object() {

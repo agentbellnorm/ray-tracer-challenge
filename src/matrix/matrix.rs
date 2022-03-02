@@ -229,10 +229,10 @@ impl<'a> Mul for &'a Matrix {
     }
 }
 
-impl Mul<Matrix> for Tuple {
+impl Mul<&Matrix> for Tuple {
     type Output = Tuple;
 
-    fn mul(self, matrix: Matrix) -> Tuple {
+    fn mul(self, matrix: &Matrix) -> Tuple {
         let mut result_vals = Vec::with_capacity(4);
 
         for row in 0..matrix.size {
