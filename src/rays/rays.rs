@@ -1,4 +1,4 @@
-use crate::intersection::Intersection;
+use crate::intersection::{Intersection, Intersections};
 use crate::tuple::{point, Tuple};
 
 pub struct Ray {
@@ -26,14 +26,14 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new() -> Sphere {
+    pub fn unit() -> Sphere {
         Sphere {
             location: point(0.0, 0.0, 0.0),
             r: 1.0,
         }
     }
 
-    pub fn intersects(&self, ray: Ray) -> Vec<Intersection> {
+    pub fn intersects(&self, ray: Ray) -> Intersections {
         let sphere_to_ray = ray.origin - point(0.0, 0.0, 0.0);
 
         let a = ray.direction.dot(&ray.direction);
@@ -43,12 +43,14 @@ impl Sphere {
         let discriminant = b.powi(2) - 4.0 * a * c;
 
         if discriminant < 0.0 {
-            return Vec::new();
+            return Intersections { xs: Vec::new() };
         }
 
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
 
-        vec![Intersection::new(t1, self), Intersection::new(t2, self)]
+        Intersections {
+            xs: vec![Intersection::new(t1, self), Intersection::new(t2, self)],
+        }
     }
 }
