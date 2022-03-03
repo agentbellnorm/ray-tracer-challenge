@@ -1,8 +1,7 @@
 /target
 .idea
 
-src/tuple/kanon.ppm
-src/matrix/klocka.ppm
+*.ppm
 src/template_module
 
 *DS_Store
