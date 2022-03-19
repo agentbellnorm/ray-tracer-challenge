@@ -47,6 +47,10 @@ impl Tuple {
     pub fn is_point(&self) -> bool {
         self.w == 1.0
     }
+
+    pub fn reflect(&self, n: Tuple) -> Tuple {
+        self - &(n * self.dot(&n) * 2.0)
+    }
 }
 
 impl PartialEq for Tuple {
@@ -71,6 +75,18 @@ impl Sub for Tuple {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
         Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+            w: self.w - other.w,
+        }
+    }
+}
+
+impl<'a> Sub for &'a Tuple {
+    type Output = Tuple;
+    fn sub(self, other: Self) -> Self::Output {
+        Tuple {
             x: self.x - other.x,
             y: self.y - other.y,
             z: self.z - other.z,

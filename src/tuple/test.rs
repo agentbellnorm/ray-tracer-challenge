@@ -234,4 +234,20 @@ mod tuple_test {
 
         assert!(res.is_ok());
     }
+
+    #[test]
+    fn reflecting_vector_approaching_at_45_deg() {
+        let v = vector(1.0, -1.0, 0.0);
+        let n = vector(0.0, 1.0, 0.0);
+
+        assert_eq!(v.reflect(n), vector(1.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn reflecting_off_slanted_surface() {
+        let v = vector(0.0, -1.0, 0.0);
+        let n = vector(f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0);
+
+        assert_eq!(v.reflect(n), vector(1.0, 0.0, 0.0));
+    }
 }
