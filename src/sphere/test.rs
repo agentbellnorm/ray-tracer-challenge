@@ -79,4 +79,77 @@ mod sphere_test {
 
         assert!(res.is_ok());
     }
+
+    #[test]
+    fn normal_on_sphere_point_on_x() {
+        let s = Sphere::unit();
+
+        assert_eq!(s.normal_at(point(1.0, 0.0, 0.0)), vector(1.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn normal_on_sphere_point_on_y() {
+        let s = Sphere::unit();
+
+        assert_eq!(s.normal_at(point(0.0, 1.0, 0.0)), vector(0.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn normal_on_sphere_point_on_z() {
+        let s = Sphere::unit();
+
+        assert_eq!(s.normal_at(point(0.0, 0.0, 1.0)), vector(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn normal_on_sphere_nonaxial_point() {
+        let s = Sphere::unit();
+
+        assert_eq!(
+            s.normal_at(point(
+                f32::sqrt(3.0) / 3.0,
+                f32::sqrt(3.0) / 3.0,
+                f32::sqrt(3.0) / 3.0
+            )),
+            vector(
+                f32::sqrt(3.0) / 3.0,
+                f32::sqrt(3.0) / 3.0,
+                f32::sqrt(3.0) / 3.0
+            )
+        );
+    }
+
+    #[test]
+    fn normal_is_normalized_vector() {
+        let s = Sphere::unit();
+
+        let n = s.normal_at(point(
+            f32::sqrt(3.0) / 3.0,
+            f32::sqrt(3.0) / 3.0,
+            f32::sqrt(3.0) / 3.0,
+        ));
+
+        assert_eq!(n.normalize(), n);
+    }
+
+    #[test]
+    fn normal_on_translated_sphere() {
+        let s = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
+
+        assert_eq!(
+            s.normal_at(point(0.0, 1.70711, -0.70711)),
+            vector(0.0, 0.70711, -0.70711)
+        );
+    }
+
+    #[test]
+    fn normal_on_transformed_sphere() {
+        let transform = Matrix::identity().rotate_z(PI / 5.0).scale(1.0, 0.5, 1.0);
+        let s = Sphere::unit().set_transform(transform);
+
+        assert_eq!(
+            s.normal_at(point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)),
+            vector(0.0, 0.97014, -0.24254)
+        );
+    }
 }

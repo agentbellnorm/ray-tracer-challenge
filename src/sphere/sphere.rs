@@ -46,4 +46,16 @@ impl Sphere {
         self.transformation = transform;
         self
     }
+
+    pub fn normal_at(&self, world_point: Tuple) -> Tuple {
+        assert!(world_point.is_point());
+
+        let object_point = world_point * &self.transformation.inverse();
+        let object_normal = object_point - point(0.0, 0.0, 0.0);
+
+        let mut world_normal = object_normal * &self.transformation.inverse().transpose();
+        world_normal.w = 0.0;
+
+        world_normal.normalize()
+    }
 }
