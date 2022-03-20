@@ -7,16 +7,27 @@ pub struct Color {
     pub b: f32,
 }
 
-fn clamp(n: u8) -> u8 {
+#[test]
+fn clamp_test() {
+    assert_eq!(clamp(-1), 0);
+    assert_eq!(clamp(0), 0);
+    assert_eq!(clamp(1), 1);
+    assert_eq!(clamp(254), 254);
+    assert_eq!(clamp(255), 255);
+    assert_eq!(clamp(256), 255);
+    assert_eq!(clamp(1000), 255);
+}
+
+fn clamp(n: i32) -> i32 {
     n.max(0).min(255)
 }
 
-fn to_255(f: f32) -> u8 {
-    clamp((f * 255.0).round() as u8)
+fn to_255(f: f32) -> i32 {
+    clamp((f * 255.0).round() as i32)
 }
 
 impl Color {
-    pub fn de_normalized(self) -> Vec<u8> {
+    pub fn de_normalized(self) -> Vec<i32> {
         vec![to_255(self.r), to_255(self.g), to_255(self.b)]
     }
 }

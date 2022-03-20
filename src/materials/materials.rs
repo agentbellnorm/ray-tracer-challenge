@@ -22,16 +22,22 @@ impl Material {
         }
     }
 
+    pub fn with_color(color: Color) -> Material {
+        let mut m = Material::new();
+        m.color = color;
+        m
+    }
+
     pub fn lighting(
         &self,
-        light: PointLight,
+        light: &PointLight,
         point: Tuple,
         eye_vector: Tuple,
         normal_vector: Tuple,
     ) -> Color {
-        let mut ambient: Color;
-        let mut diffuse: Color;
-        let mut specular: Color;
+        let ambient: Color;
+        let diffuse: Color;
+        let specular: Color;
 
         let black = color(0.0, 0.0, 0.0);
 
@@ -42,7 +48,7 @@ impl Material {
         let light_vector = (light.position - point).normalize();
 
         // ambient contribution
-        let ambient = effective_color * self.ambient;
+        ambient = effective_color * self.ambient;
 
         // light_dot_normal is cosine of angle between light vector and normal vector.
         let light_dot_normal = light_vector.dot(&normal_vector);

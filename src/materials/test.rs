@@ -27,7 +27,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v);
 
         assert_eq!(result, color(1.9, 1.9, 1.9));
     }
@@ -39,7 +39,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v);
 
         assert_eq!(result, color(1.0, 1.0, 1.0));
     }
@@ -51,7 +51,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v);
 
         assert_eq!(result, color(0.7364, 0.7364, 0.7364));
     }
@@ -63,7 +63,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v);
 
         assert_eq!(result, color(1.6363853, 1.6363853, 1.6363853));
     }
@@ -75,7 +75,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v);
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
     }

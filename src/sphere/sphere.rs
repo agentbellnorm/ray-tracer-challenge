@@ -22,7 +22,13 @@ impl Sphere {
         }
     }
 
-    pub fn intersects(&self, ray: Ray) -> Intersections {
+    pub fn with_material(m: Material) -> Sphere {
+        let mut s = Self::unit();
+        s.material = m;
+        s
+    }
+
+    pub fn intersects(&self, ray: &Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.transformation.inverse());
 
         let sphere_to_ray = transformed_ray.origin - point(0.0, 0.0, 0.0);

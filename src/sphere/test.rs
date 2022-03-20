@@ -3,6 +3,7 @@ mod sphere_test {
     use crate::canvas::Canvas;
     use crate::color::color;
     use crate::io::save_to_file;
+    use crate::lights::PointLight;
     use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
@@ -31,7 +32,7 @@ mod sphere_test {
         let mut s = Sphere::unit();
 
         s = s.set_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let xs = s.intersects(r);
+        let xs = s.intersects(&r);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 3.0);
@@ -44,7 +45,7 @@ mod sphere_test {
         let mut s = Sphere::unit();
 
         s = s.set_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        let xs = s.intersects(r);
+        let xs = s.intersects(&r);
 
         assert_eq!(xs.len(), 0);
     }
@@ -70,8 +71,8 @@ mod sphere_test {
                 let position = point(world_x, world_y, wall_z);
                 let ray = Ray::with(ray_origin, (position - ray_origin).normalize());
 
-                if sphere.intersects(ray).hit().is_some() {
-                    canvas = canvas.write_pixel(x, y, color(255.0, 0.0, 0.0));
+                if sphere.intersects(&ray).hit().is_some() {
+                    canvas = canvas.write_pixel(x, y, color(1.0, 0.0, 0.0));
                 }
             }
         }
@@ -170,5 +171,54 @@ mod sphere_test {
         s.material = m.clone();
 
         assert_eq!(s.material, m);
+    }
+
+    #[test]
+    fn draw_3d_sphere() {
+        let size = 100;
+        let mut canvas = Canvas::new(size, size, color(0.0, 0.0, 0.0));
+
+        let ray_origin = point(0.0, 0.0, -5.0);
+        let wall_z = 10.0;
+        let wall_size = 7.0;
+        let pixel_size = wall_size / (size as f32);
+        let half = wall_size / 2.0;
+
+        let mut material = Material::with_color(color(1.0, 0.2, 1.0));
+        let mut sphere = Sphere::with_material(material);
+        sphere = sphere.set_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
+
+        let light_position = point(-10.0, 0.0, -10.0);
+        let light_color = color(1.0, 1.0, 1.0);
+        let light = PointLight::with(light_position, light_color);
+
+        for y in 0..size {
+            let world_y = half - pixel_size * (y as f32);
+            for x in 0..size {
+                let world_x = -half + pixel_size * (x as f32);
+                let position = point(world_x, world_y, wall_z);
+                let ray = Ray::with(ray_origin, (position - ray_origin).normalize());
+
+                canvas = match sphere.intersects(&ray).hit() {
+                    Some(hit) => {
+                        let point_on_sphere = ray.position(hit.t);
+                        let normal_on_sphere = hit.object.normal_at(point_on_sphere);
+                        let eye = -ray.direction;
+                        let color = hit.object.material.lighting(
+                            &light,
+                            point_on_sphere,
+                            eye,
+                            normal_on_sphere,
+                        );
+                        canvas.write_pixel(x, y, color)
+                    }
+                    None => canvas,
+                }
+            }
+        }
+
+        let res = save_to_file("src/sphere/sphere.ppm", canvas.to_ppm());
+
+        assert!(res.is_ok());
     }
 }
