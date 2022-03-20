@@ -48,8 +48,8 @@ impl Tuple {
         self.w == 1.0
     }
 
-    pub fn reflect(&self, n: Tuple) -> Tuple {
-        self - &(n * self.dot(&n) * 2.0)
+    pub fn reflect(&self, n: &Tuple) -> Tuple {
+        self - &(n * self.dot(n) * 2.0)
     }
 }
 
@@ -115,6 +115,18 @@ impl Mul<f32> for Tuple {
             y: self.y * scalar,
             z: self.z * scalar,
             w: self.w * scalar,
+        }
+    }
+}
+
+impl Mul<f32> for &Tuple {
+    type Output = Tuple;
+    fn mul(self, n: f32) -> Self::Output {
+        Tuple {
+            x: self.x * n,
+            y: self.y * n,
+            z: self.z * n,
+            w: self.w * n,
         }
     }
 }

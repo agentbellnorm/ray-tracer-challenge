@@ -1,4 +1,5 @@
 use crate::intersection::{Intersection, Intersections};
+use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::tuple::{point, Tuple};
@@ -8,6 +9,7 @@ pub struct Sphere {
     location: Tuple,
     r: f32,
     pub transformation: Matrix,
+    pub material: Material,
 }
 
 impl Sphere {
@@ -16,6 +18,7 @@ impl Sphere {
             location: point(0.0, 0.0, 0.0),
             r: 1.0,
             transformation: Matrix::identity(),
+            material: Material::new(),
         }
     }
 

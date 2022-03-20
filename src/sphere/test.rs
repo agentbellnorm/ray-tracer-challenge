@@ -3,6 +3,7 @@ mod sphere_test {
     use crate::canvas::Canvas;
     use crate::color::color;
     use crate::io::save_to_file;
+    use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::sphere::Sphere;
@@ -151,5 +152,23 @@ mod sphere_test {
             s.normal_at(point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)),
             vector(0.0, 0.97014, -0.24254)
         );
+    }
+
+    #[test]
+    fn sphere_has_default_material() {
+        let s = Sphere::unit();
+
+        assert_eq!(s.material, Material::new());
+    }
+
+    #[test]
+    fn sphere_can_have_material_assigned() {
+        let mut s = Sphere::unit();
+        let mut m = Material::new();
+
+        m.ambient = 1.0;
+        s.material = m.clone();
+
+        assert_eq!(s.material, m);
     }
 }

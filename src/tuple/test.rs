@@ -240,7 +240,7 @@ mod tuple_test {
         let v = vector(1.0, -1.0, 0.0);
         let n = vector(0.0, 1.0, 0.0);
 
-        assert_eq!(v.reflect(n), vector(1.0, 1.0, 0.0));
+        assert_eq!(v.reflect(&n), vector(1.0, 1.0, 0.0));
     }
 
     #[test]
@@ -248,6 +248,6 @@ mod tuple_test {
         let v = vector(0.0, -1.0, 0.0);
         let n = vector(f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0);
 
-        assert_eq!(v.reflect(n), vector(1.0, 0.0, 0.0));
+        assert_eq!(v.reflect(&n), vector(1.0, 0.0, 0.0));
     }
 }
