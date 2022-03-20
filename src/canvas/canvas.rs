@@ -37,7 +37,7 @@ impl Canvas {
                 for channel in color.de_normalized() {
                     let as_str = format!("{}", channel);
 
-                    if current_line_length + as_str.len() > 70 {
+                    if current_line_length + as_str.len() >= 70 {
                         body.remove(body.len() - 1);
                         body.push_str("\n");
                         body.push_str(&as_str);
@@ -45,7 +45,6 @@ impl Canvas {
 
                         current_line_length = as_str.len() + 1;
                     } else if current_line_length + as_str.len() == 70 {
-                        body.remove(body.len() - 1);
                         body.push_str(&as_str);
                         current_line_length = 70
                     } else {
