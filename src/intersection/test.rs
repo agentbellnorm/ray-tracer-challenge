@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod intersection_test {
     use crate::intersection::{Intersection, Intersections};
+    use crate::rays::Ray;
     use crate::sphere::Sphere;
+    use crate::tuple::{point, vector};
 
     #[test]
     fn intersection_encapsulates_t_and_object() {
@@ -71,5 +73,46 @@ mod intersection_test {
         };
 
         assert_eq!(xs.hit().unwrap(), i4);
+    }
+
+    #[test]
+    fn precomputing_state_of_intersection() {
+        let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+        let shape = Sphere::unit();
+        let i = Intersection::new(4.0, &shape);
+
+        let comps = i.prepare_computations(&r);
+
+        assert_eq!(comps.t, i.t);
+        assert_eq!(comps.object, i.object);
+        assert_eq!(comps.point, point(0.0, 0.0, -1.0));
+        assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
+        assert_eq!(comps.normal_vector, vector(0.0, 0.0, -1.0));
+    }
+
+    #[test]
+    fn hit_when_intersection_occurs_on_the_outside() {
+        let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+        let shape = Sphere::unit();
+        let i = Intersection::new(4.0, &shape);
+
+        let comps = i.prepare_computations(&r);
+
+        assert_eq!(comps.inside, false);
+    }
+
+    #[test]
+    fn hit_when_intersection_occurs_on_the_inside() {
+        let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+        let shape = Sphere::unit();
+        let i = Intersection::new(1.0, &shape);
+
+        let comps = i.prepare_computations(&r);
+
+        assert_eq!(comps.point, point(0.0, 0.0, 1.0));
+        assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
+        assert_eq!(comps.inside, true);
+        // inverted!
+        assert_eq!(comps.normal_vector, vector(0.0, 0.0, -1.0));
     }
 }

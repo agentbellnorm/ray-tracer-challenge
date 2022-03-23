@@ -1,3 +1,5 @@
+extern crate core;
+
 mod canvas;
 mod color;
 mod intersection;

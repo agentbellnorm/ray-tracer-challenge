@@ -1,5 +1,5 @@
-use crate::color::color;
-use crate::intersection::{Intersection, Intersections};
+use crate::color::{color, Color};
+use crate::intersection::{Intersection, Intersections, PreparedComputation};
 use crate::lights::PointLight;
 use crate::materials::Material;
 use crate::matrix::Matrix;
@@ -43,5 +43,23 @@ impl World {
         xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
 
         Intersections { xs }
+    }
+
+    pub fn shade_hit(&self, computations: PreparedComputation) -> Color {
+        computations.object.material.lighting(
+            &self.light_source,
+            computations.point,
+            computations.eye_vector,
+            computations.normal_vector,
+        )
+    }
+
+    pub fn color_at(&self, ray: &Ray) -> Color {
+        let intersection = self.intersect_world(ray).xs.into_iter().find(|i| i.t > 0.0);
+
+        match intersection {
+            Some(i) => self.shade_hit(i.prepare_computations(ray)),
+            None => color(0.0, 0.0, 0.0),
+        }
     }
 }

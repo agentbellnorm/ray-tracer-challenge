@@ -1,4 +1,6 @@
+use crate::rays::Ray;
 use crate::sphere::Sphere;
+use crate::tuple::Tuple;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {
@@ -6,9 +8,37 @@ pub struct Intersection<'a> {
     pub object: &'a Sphere,
 }
 
+pub struct PreparedComputation<'a> {
+    pub object: &'a Sphere,
+    pub t: f32,
+    pub point: Tuple,
+    pub eye_vector: Tuple,
+    pub normal_vector: Tuple,
+    pub inside: bool,
+}
+
 impl<'a> Intersection<'a> {
     pub fn new(t: f32, object: &Sphere) -> Intersection {
         Intersection { t, object }
+    }
+
+    pub fn prepare_computations(&self, ray: &Ray) -> PreparedComputation {
+        let point = ray.position(self.t);
+        let normal_vector = self.object.normal_at(point);
+        let eye_vector = -ray.direction;
+        let inside = normal_vector.dot(&eye_vector) < 0.0;
+
+        PreparedComputation {
+            point,
+            eye_vector,
+            inside,
+            t: self.t,
+            object: self.object,
+            normal_vector: match inside {
+                true => -normal_vector,
+                false => normal_vector,
+            },
+        }
     }
 }
 
