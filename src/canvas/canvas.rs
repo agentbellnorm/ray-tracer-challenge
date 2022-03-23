@@ -22,11 +22,11 @@ impl Canvas {
         self
     }
 
-    pub fn pixel_at(self, x: i32, y: i32) -> Color {
+    pub fn pixel_at(&self, x: i32, y: i32) -> Color {
         self.pixels[self.i(x, y)]
     }
 
-    pub fn to_ppm(self) -> String {
+    pub fn to_ppm(&self) -> String {
         let header = format!("P3\n{} {}\n255", self.width, self.height);
 
         let mut body: String = String::new();
@@ -39,9 +39,9 @@ impl Canvas {
 
                     if current_line_length + as_str.len() >= 70 {
                         body.remove(body.len() - 1);
-                        body.push_str("\n");
+                        body.push('\n');
                         body.push_str(&as_str);
-                        body.push_str(" ");
+                        body.push(' ');
 
                         current_line_length = as_str.len() + 1;
                     } else if current_line_length + as_str.len() == 70 {
@@ -49,14 +49,14 @@ impl Canvas {
                         current_line_length = 70
                     } else {
                         body.push_str(&as_str);
-                        body.push_str(" ");
+                        body.push(' ');
                         current_line_length += as_str.len() + 1;
                     }
                 }
             }
 
             body.remove(body.len() - 1);
-            body.push_str("\n");
+            body.push('\n');
             current_line_length = 0;
         }
 
@@ -64,7 +64,7 @@ impl Canvas {
     }
 
     pub fn length(&self) -> usize {
-        return self.pixels.len();
+        self.pixels.len()
     }
 
     fn i(&self, x: i32, y: i32) -> usize {

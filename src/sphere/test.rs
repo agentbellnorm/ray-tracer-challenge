@@ -139,8 +139,12 @@ mod sphere_test {
         let s = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
 
         assert_eq!(
-            s.normal_at(point(0.0, 1.70711, -0.70711)),
-            vector(0.0, 0.70711, -0.70711)
+            s.normal_at(point(0.0, 1.70711, -std::f32::consts::FRAC_1_SQRT_2)),
+            vector(
+                0.0,
+                std::f32::consts::FRAC_1_SQRT_2,
+                -std::f32::consts::FRAC_1_SQRT_2
+            )
         );
     }
 
@@ -184,7 +188,7 @@ mod sphere_test {
         let pixel_size = wall_size / (size as f32);
         let half = wall_size / 2.0;
 
-        let mut material = Material::with_color(color(1.0, 0.2, 1.0));
+        let material = Material::with_color(color(1.0, 0.2, 1.0));
         let mut sphere = Sphere::with_material(material);
         sphere = sphere.set_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
 

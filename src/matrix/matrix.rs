@@ -194,11 +194,7 @@ impl PartialEq for Matrix {
             }
         }
 
-        return true;
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
+        true
     }
 }
 

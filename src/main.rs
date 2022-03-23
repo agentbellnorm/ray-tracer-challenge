@@ -8,6 +8,7 @@ mod matrix;
 mod rays;
 mod sphere;
 mod tuple;
+mod world;
 
 fn main() {
     println!("{:?}", tuple::point(1.0, 2.0, 3.4));

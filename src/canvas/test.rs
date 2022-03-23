@@ -58,7 +58,6 @@ mod canvas_test {
         canvas = canvas.write_pixel(2, 1, c2);
         canvas = canvas.write_pixel(4, 2, c3);
 
-        println!("canvas is {:?}", &canvas);
         assert_eq!(
             get_ppm_body(&canvas.to_ppm()),
             "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -71,7 +70,6 @@ mod canvas_test {
     fn splitting_long_lines() {
         let canvas = Canvas::new(10, 2, color(1.0, 0.8, 0.6));
 
-        println!("canvas is {:?}", &canvas);
         assert_eq!(
             get_ppm_body(&canvas.to_ppm()),
             "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
