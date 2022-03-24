@@ -9,6 +9,7 @@ mod materials;
 mod matrix;
 mod rays;
 mod sphere;
+mod transformation;
 mod tuple;
 mod world;
 

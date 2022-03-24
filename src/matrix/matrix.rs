@@ -12,6 +12,7 @@ impl Matrix {
         Matrix { storage: v, size }
     }
 
+    // for tests
     pub fn from_values(from: Vec<Vec<f32>>) -> Matrix {
         let size = from.len();
         let n_cols = from.first().unwrap().len();
