@@ -5,5 +5,9 @@ My objectives with this project is to
 * Learn about 3D graphics
 * Learn Rust
 
-## Current capabilities
+## Examples
+### As of chapter 7
+![sphere](./doc/first_scene.png)
+
+### As of chapter 6
 ![sphere](./doc/sphere.png)
