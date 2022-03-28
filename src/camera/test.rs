@@ -5,12 +5,12 @@ mod camera_test {
     use crate::io::save_to_file;
     use crate::lights::PointLight;
     use crate::materials::Material;
-    use crate::matrix::Matrix;
+    use crate::matrix::{is_equal_float, Matrix};
     use crate::sphere::Sphere;
     use crate::transformation::view_transformation;
     use crate::tuple::{point, vector};
     use crate::world::World;
-    use std::f32::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, PI};
+    use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, PI};
 
     #[test]
     fn constructing_a_camera() {
@@ -24,13 +24,13 @@ mod camera_test {
     #[test]
     fn pixel_size_for_horizontal_canvas() {
         let camera = Camera::new(200, 125, PI / 2.0);
-        assert_eq!(camera.pixel_size, 0.01);
+        assert!(is_equal_float(camera.pixel_size, 0.01));
     }
 
     #[test]
     fn pixel_size_for_vertical_canvas() {
         let camera = Camera::new(125, 200, PI / 2.0);
-        assert_eq!(camera.pixel_size, 0.01);
+        assert!(is_equal_float(camera.pixel_size, 0.01));
     }
 
     #[test]
@@ -67,7 +67,7 @@ mod camera_test {
         assert_eq!(ray.origin, point(0.0, 2.0, -5.0));
         assert_eq!(
             ray.direction,
-            vector(f32::sqrt(2.0) / 2.0, 0.0, -f32::sqrt(2.0) / 2.0)
+            vector(f64::sqrt(2.0) / 2.0, 0.0, -f64::sqrt(2.0) / 2.0)
         );
     }
 
@@ -146,7 +146,7 @@ mod camera_test {
             PointLight::with(point(-10.0, 10.0, -10.0), color(1.0, 1.0, 1.0)),
         );
 
-        let mut camera = Camera::new(300, 150, FRAC_PI_3);
+        let mut camera = Camera::new(100, 50, FRAC_PI_3);
         camera = camera.set_transform(view_transformation(
             point(0.0, 1.5, -5.0),
             point(0.0, 1.0, 0.0),

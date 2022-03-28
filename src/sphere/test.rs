@@ -9,7 +9,7 @@ mod sphere_test {
     use crate::rays::Ray;
     use crate::sphere::Sphere;
     use crate::tuple::{point, vector};
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     #[test]
     fn default_transformation() {
@@ -58,16 +58,16 @@ mod sphere_test {
         let ray_origin = point(0.0, 0.0, -5.0);
         let wall_z = 10.0;
         let wall_size = 7.0;
-        let pixel_size = wall_size / (size as f32);
+        let pixel_size = wall_size / (size as f64);
         let half = wall_size / 2.0;
 
         let mut sphere = Sphere::unit();
         sphere = sphere.set_transform(Matrix::identity().scale(0.5, 1.0, 1.0).rotate_z(PI / 4.0));
 
         for y in 0..size {
-            let world_y = half - pixel_size * (y as f32);
+            let world_y = half - pixel_size * (y as f64);
             for x in 0..size {
-                let world_x = -half + pixel_size * (x as f32);
+                let world_x = -half + pixel_size * (x as f64);
                 let position = point(world_x, world_y, wall_z);
                 let ray = Ray::with(ray_origin, (position - ray_origin).normalize());
 
@@ -109,14 +109,14 @@ mod sphere_test {
 
         assert_eq!(
             s.normal_at(point(
-                f32::sqrt(3.0) / 3.0,
-                f32::sqrt(3.0) / 3.0,
-                f32::sqrt(3.0) / 3.0
+                f64::sqrt(3.0) / 3.0,
+                f64::sqrt(3.0) / 3.0,
+                f64::sqrt(3.0) / 3.0
             )),
             vector(
-                f32::sqrt(3.0) / 3.0,
-                f32::sqrt(3.0) / 3.0,
-                f32::sqrt(3.0) / 3.0
+                f64::sqrt(3.0) / 3.0,
+                f64::sqrt(3.0) / 3.0,
+                f64::sqrt(3.0) / 3.0
             )
         );
     }
@@ -126,9 +126,9 @@ mod sphere_test {
         let s = Sphere::unit();
 
         let n = s.normal_at(point(
-            f32::sqrt(3.0) / 3.0,
-            f32::sqrt(3.0) / 3.0,
-            f32::sqrt(3.0) / 3.0,
+            f64::sqrt(3.0) / 3.0,
+            f64::sqrt(3.0) / 3.0,
+            f64::sqrt(3.0) / 3.0,
         ));
 
         assert_eq!(n.normalize(), n);
@@ -139,11 +139,11 @@ mod sphere_test {
         let s = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
 
         assert_eq!(
-            s.normal_at(point(0.0, 1.70711, -std::f32::consts::FRAC_1_SQRT_2)),
+            s.normal_at(point(0.0, 1.70711, -std::f64::consts::FRAC_1_SQRT_2)),
             vector(
                 0.0,
-                std::f32::consts::FRAC_1_SQRT_2,
-                -std::f32::consts::FRAC_1_SQRT_2
+                std::f64::consts::FRAC_1_SQRT_2,
+                -std::f64::consts::FRAC_1_SQRT_2
             )
         );
     }
@@ -154,7 +154,7 @@ mod sphere_test {
         let s = Sphere::unit().set_transform(transform);
 
         assert_eq!(
-            s.normal_at(point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)),
+            s.normal_at(point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0)),
             vector(0.0, 0.97014, -0.24254)
         );
     }
@@ -185,7 +185,7 @@ mod sphere_test {
         let ray_origin = point(0.0, 0.0, -5.0);
         let wall_z = 10.0;
         let wall_size = 7.0;
-        let pixel_size = wall_size / (size as f32);
+        let pixel_size = wall_size / (size as f64);
         let half = wall_size / 2.0;
 
         let material = Material::with_color(color(1.0, 0.2, 1.0));
@@ -197,9 +197,9 @@ mod sphere_test {
         let light = PointLight::with(light_position, light_color);
 
         for y in 0..size {
-            let world_y = half - pixel_size * (y as f32);
+            let world_y = half - pixel_size * (y as f64);
             for x in 0..size {
-                let world_x = -half + pixel_size * (x as f32);
+                let world_x = -half + pixel_size * (x as f64);
                 let position = point(world_x, world_y, wall_z);
                 let ray = Ray::with(ray_origin, (position - ray_origin).normalize());
 

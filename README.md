@@ -6,6 +6,9 @@ My objectives with this project is to
 * Learn Rust
 
 ## Examples
+### As of chapter 8
+![sphere](./doc/first_scene_shadows.png)
+
 ### As of chapter 7
 ![sphere](./doc/first_scene.png)
 

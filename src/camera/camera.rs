@@ -9,20 +9,20 @@ use std::time::Instant;
 pub struct Camera {
     pub hsize: i32,
     pub vsize: i32,
-    pub field_of_view: f32,
+    pub field_of_view: f64,
     pub transform: Matrix,
-    pub pixel_size: f32,
-    pub half_width: f32,
-    pub half_height: f32,
+    pub pixel_size: f64,
+    pub half_width: f64,
+    pub half_height: f64,
 }
 
 impl Camera {
-    pub fn new(hsize: i32, vsize: i32, field_of_view: f32) -> Camera {
-        let half_view = f32::tan(field_of_view / 2.0);
-        let aspect = (hsize as f32) / (vsize as f32);
+    pub fn new(hsize: i32, vsize: i32, field_of_view: f64) -> Camera {
+        let half_view = f64::tan(field_of_view / 2.0);
+        let aspect = (hsize as f64) / (vsize as f64);
 
-        let half_width: f32;
-        let half_height: f32;
+        let half_width: f64;
+        let half_height: f64;
 
         if aspect >= 1.0 {
             half_width = half_view;
@@ -37,15 +37,15 @@ impl Camera {
             vsize,
             field_of_view,
             transform: Matrix::identity(),
-            pixel_size: (half_width * 2.0) / (hsize as f32),
+            pixel_size: (half_width * 2.0) / (hsize as f64),
             half_width,
             half_height,
         }
     }
 
     pub fn ray_for_pixel(&self, px: i32, py: i32) -> Ray {
-        let x_offset = ((px as f32) + 0.5) * self.pixel_size;
-        let y_offset = ((py as f32) + 0.5) * self.pixel_size;
+        let x_offset = ((px as f64) + 0.5) * self.pixel_size;
+        let y_offset = ((py as f64) + 0.5) * self.pixel_size;
 
         let world_x = self.half_width - x_offset;
         let world_y = self.half_height - y_offset;
@@ -83,7 +83,7 @@ impl Camera {
         println!("Total duration: {} ms", duration);
         println!(
             "ms per pixel: {}",
-            duration as f32 / (self.hsize * self.vsize) as f32
+            duration as f64 / (self.hsize * self.vsize) as f64
         );
 
         image

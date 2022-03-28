@@ -35,7 +35,7 @@ mod material_test {
     #[test]
     fn lighting_with_eye_between_light_and_surface_eye_offset_45_deg() {
         let (m, position) = setup();
-        let eye_v = vector(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0);
+        let eye_v = vector(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
 
@@ -59,13 +59,13 @@ mod material_test {
     #[test]
     fn lighting_with_eye_in_path_of_reflection_vector() {
         let (m, position) = setup();
-        let eye_v = vector(0.0, -f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0);
+        let eye_v = vector(0.0, -f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
 
         let result = m.lighting(&light, position, eye_v, normal_v, false);
 
-        assert_eq!(result, color(1.6363853, 1.6363853, 1.6363853));
+        assert_eq!(result, color(1.63639, 1.63639, 1.63639));
     }
 
     #[test]

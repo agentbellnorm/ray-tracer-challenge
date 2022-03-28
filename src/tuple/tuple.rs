@@ -1,17 +1,17 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-pub const EPSILON: f32 = 0.00001;
+pub const EPSILON: f64 = 0.00001;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
 }
 
 impl Tuple {
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
 
@@ -24,7 +24,7 @@ impl Tuple {
         }
     }
 
-    pub fn dot(&self, other: &Self) -> f32 {
+    pub fn dot(&self, other: &Self) -> f64 {
         assert!(is_vector(self) && is_vector(other));
 
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
@@ -107,9 +107,9 @@ impl Neg for Tuple {
     }
 }
 
-impl Mul<f32> for Tuple {
+impl Mul<f64> for Tuple {
     type Output = Self;
-    fn mul(self, scalar: f32) -> Self {
+    fn mul(self, scalar: f64) -> Self {
         Self {
             x: self.x * scalar,
             y: self.y * scalar,
@@ -119,9 +119,9 @@ impl Mul<f32> for Tuple {
     }
 }
 
-impl Mul<f32> for &Tuple {
+impl Mul<f64> for &Tuple {
     type Output = Tuple;
-    fn mul(self, n: f32) -> Self::Output {
+    fn mul(self, n: f64) -> Self::Output {
         Tuple {
             x: self.x * n,
             y: self.y * n,
@@ -131,9 +131,9 @@ impl Mul<f32> for &Tuple {
     }
 }
 
-impl Div<f32> for Tuple {
+impl Div<f64> for Tuple {
     type Output = Self;
-    fn div(self, scalar: f32) -> Self {
+    fn div(self, scalar: f64) -> Self {
         Self {
             x: self.x / scalar,
             y: self.y / scalar,
@@ -143,15 +143,15 @@ impl Div<f32> for Tuple {
     }
 }
 
-fn is_equal_float(a: f32, b: f32) -> bool {
+fn is_equal_float(a: f64, b: f64) -> bool {
     (a - b).abs() < EPSILON
 }
 
-pub fn vector(x: f32, y: f32, z: f32) -> Tuple {
+pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
     Tuple { x, y, z, w: 0.0 }
 }
 
-pub fn point(x: f32, y: f32, z: f32) -> Tuple {
+pub fn point(x: f64, y: f64, z: f64) -> Tuple {
     Tuple { x, y, z, w: 1.0 }
 }
 

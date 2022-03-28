@@ -396,7 +396,7 @@ mod translation {
     use crate::io::save_to_file;
     use crate::matrix::Matrix;
     use crate::tuple::{point, vector};
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     #[test]
     fn multiplying_by_translation_matrix() {
@@ -464,7 +464,7 @@ mod translation {
 
         assert_eq!(
             p * &half_quarter,
-            point(0.0, f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0)
+            point(0.0, f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0)
         );
         assert_eq!(p * &full_quarter, point(0.0, 0.0, 1.0));
     }
@@ -477,7 +477,7 @@ mod translation {
 
         assert_eq!(
             p * &inv,
-            point(0.0, f32::sqrt(2.0) / 2.0, -f32::sqrt(2.0) / 2.0)
+            point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0)
         )
     }
 
@@ -489,7 +489,7 @@ mod translation {
 
         assert_eq!(
             p * &half_quarter,
-            point(f32::sqrt(2.0) / 2.0, 0.0, f32::sqrt(2.0) / 2.0)
+            point(f64::sqrt(2.0) / 2.0, 0.0, f64::sqrt(2.0) / 2.0)
         );
         assert_eq!(p * &full_quarter, point(1.0, 0.0, 0.0));
     }
@@ -502,7 +502,7 @@ mod translation {
 
         assert_eq!(
             p * &half_quarter,
-            point(-f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0)
+            point(-f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0, 0.0)
         );
         assert_eq!(p * &full_quarter, point(-1.0, 0.0, 0.0));
     }
@@ -575,7 +575,7 @@ mod translation {
             let p = point(0.0, 0.0, 0.0);
             let t = Matrix::identity()
                 .translate(0.0, 1.0, 0.0)
-                .rotate_z(i as f32 * ((2.0 * PI) / 12.0))
+                .rotate_z(i as f64 * ((2.0 * PI) / 12.0))
                 .scale(75.0, 75.0, 75.0)
                 .translate(100.0, 100.0, 0.0);
 

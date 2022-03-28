@@ -3,17 +3,17 @@ use std::ops::Mul;
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
-    storage: Vec<f32>,
+    storage: Vec<f64>,
     size: usize,
 }
 
 impl Matrix {
-    pub fn from_vec(v: Vec<f32>, size: usize) -> Matrix {
+    pub fn from_vec(v: Vec<f64>, size: usize) -> Matrix {
         Matrix { storage: v, size }
     }
 
     // for tests
-    pub fn from_values(from: Vec<Vec<f32>>) -> Matrix {
+    pub fn from_values(from: Vec<Vec<f64>>) -> Matrix {
         let size = from.len();
         let n_cols = from.first().unwrap().len();
 
@@ -27,7 +27,7 @@ impl Matrix {
         }
     }
 
-    pub fn get(&self, row: usize, col: usize) -> f32 {
+    pub fn get(&self, row: usize, col: usize) -> f64 {
         self.storage[self.i(row, col)]
     }
 
@@ -59,7 +59,7 @@ impl Matrix {
         }
     }
 
-    pub fn determinant(&self) -> f32 {
+    pub fn determinant(&self) -> f64 {
         if self.size == 2 {
             return self.get(0, 0) * self.get(1, 1) - self.get(1, 0) * self.get(0, 1);
         }
@@ -92,11 +92,11 @@ impl Matrix {
         }
     }
 
-    pub fn minor(&self, row: usize, col: usize) -> f32 {
+    pub fn minor(&self, row: usize, col: usize) -> f64 {
         self.submatrix(row, col).determinant()
     }
 
-    pub fn cofactor(&self, row: usize, col: usize) -> f32 {
+    pub fn cofactor(&self, row: usize, col: usize) -> f64 {
         if (row + col) % 2 == 0 {
             return self.minor(row, col);
         }
@@ -126,48 +126,48 @@ impl Matrix {
         }
     }
 
-    fn set(mut self, row: usize, col: usize, v: f32) -> Matrix {
+    fn set(mut self, row: usize, col: usize, v: f64) -> Matrix {
         let i = self.i(row, col);
         self.storage[i] = v;
         self
     }
 
-    pub fn translate(&self, x: f32, y: f32, z: f32) -> Matrix {
+    pub fn translate(&self, x: f64, y: f64, z: f64) -> Matrix {
         &Matrix::identity().set(0, 3, x).set(1, 3, y).set(2, 3, z) * self
     }
 
-    pub fn scale(&self, x: f32, y: f32, z: f32) -> Matrix {
+    pub fn scale(&self, x: f64, y: f64, z: f64) -> Matrix {
         &Matrix::identity().set(0, 0, x).set(1, 1, y).set(2, 2, z) * self
     }
 
-    pub fn rotate_x(&self, rad: f32) -> Matrix {
+    pub fn rotate_x(&self, rad: f64) -> Matrix {
         &Matrix::identity()
-            .set(1, 1, f32::cos(rad))
-            .set(1, 2, -f32::sin(rad))
-            .set(2, 1, f32::sin(rad))
-            .set(2, 2, f32::cos(rad))
+            .set(1, 1, f64::cos(rad))
+            .set(1, 2, -f64::sin(rad))
+            .set(2, 1, f64::sin(rad))
+            .set(2, 2, f64::cos(rad))
             * self
     }
 
-    pub fn rotate_y(&self, rad: f32) -> Matrix {
+    pub fn rotate_y(&self, rad: f64) -> Matrix {
         &Matrix::identity()
-            .set(0, 0, f32::cos(rad))
-            .set(0, 2, f32::sin(rad))
-            .set(2, 0, -f32::sin(rad))
-            .set(2, 2, f32::cos(rad))
+            .set(0, 0, f64::cos(rad))
+            .set(0, 2, f64::sin(rad))
+            .set(2, 0, -f64::sin(rad))
+            .set(2, 2, f64::cos(rad))
             * self
     }
 
-    pub fn rotate_z(&self, rad: f32) -> Matrix {
+    pub fn rotate_z(&self, rad: f64) -> Matrix {
         &Matrix::identity()
-            .set(0, 0, f32::cos(rad))
-            .set(0, 1, -f32::sin(rad))
-            .set(1, 0, f32::sin(rad))
-            .set(1, 1, f32::cos(rad))
+            .set(0, 0, f64::cos(rad))
+            .set(0, 1, -f64::sin(rad))
+            .set(1, 0, f64::sin(rad))
+            .set(1, 1, f64::cos(rad))
             * self
     }
 
-    pub fn shear(&self, xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix {
+    pub fn shear(&self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
         &Matrix::identity()
             .set(0, 1, xy)
             .set(0, 2, xz)
@@ -179,7 +179,7 @@ impl Matrix {
     }
 }
 
-pub fn is_equal_float(a: f32, b: f32) -> bool {
+pub fn is_equal_float(a: f64, b: f64) -> bool {
     (a - b).abs() < EPSILON
 }
 

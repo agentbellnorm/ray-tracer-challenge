@@ -3,6 +3,7 @@ mod tuple_test {
     use crate::canvas::Canvas;
     use crate::color::{color, Color};
     use crate::io::save_to_file;
+    use crate::matrix::is_equal_float;
     use crate::tuple::{is_point, is_vector, point, vector, Tuple};
 
     #[test]
@@ -137,7 +138,7 @@ mod tuple_test {
         assert_eq!(vector(1.0, 0.0, 0.0).magnitude(), 1.0);
         assert_eq!(vector(0.0, 1.0, 0.0).magnitude(), 1.0);
         assert_eq!(vector(0.0, 0.0, 1.0).magnitude(), 1.0);
-        assert_eq!(vector(-1.0, -2.0, -3.0).magnitude(), 14.0_f32.sqrt());
+        assert_eq!(vector(-1.0, -2.0, -3.0).magnitude(), 14.0_f64.sqrt());
     }
 
     #[test]
@@ -146,9 +147,9 @@ mod tuple_test {
         assert_eq!(
             vector(1.0, 2.0, 3.0).normalize(),
             vector(
-                1.0 / 14.0_f32.sqrt(),
-                2.0 / 14.0_f32.sqrt(),
-                3.0 / 14.0_f32.sqrt()
+                1.0 / 14.0_f64.sqrt(),
+                2.0 / 14.0_f64.sqrt(),
+                3.0 / 14.0_f64.sqrt()
             )
         )
     }
@@ -201,7 +202,7 @@ mod tuple_test {
 
         let expected_distance = 83.878105;
 
-        assert_eq!(projectile.position.x, expected_distance)
+        assert!(is_equal_float(projectile.position.x, expected_distance))
     }
 
     #[test]
@@ -246,7 +247,7 @@ mod tuple_test {
     #[test]
     fn reflecting_off_slanted_surface() {
         let v = vector(0.0, -1.0, 0.0);
-        let n = vector(f32::sqrt(2.0) / 2.0, f32::sqrt(2.0) / 2.0, 0.0);
+        let n = vector(f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0, 0.0);
 
         assert_eq!(v.reflect(&n), vector(1.0, 0.0, 0.0));
     }

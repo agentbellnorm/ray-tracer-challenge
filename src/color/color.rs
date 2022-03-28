@@ -2,9 +2,9 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
+    pub r: f64,
+    pub g: f64,
+    pub b: f64,
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn clamp(n: i32) -> i32 {
     n.max(0).min(255)
 }
 
-fn to_255(f: f32) -> i32 {
+fn to_255(f: f64) -> i32 {
     clamp((f * 255.0).round() as i32)
 }
 
@@ -92,9 +92,9 @@ impl Mul for Color {
     }
 }
 
-impl Mul<f32> for Color {
+impl Mul<f64> for Color {
     type Output = Self;
-    fn mul(self, scalar: f32) -> Self {
+    fn mul(self, scalar: f64) -> Self {
         Self {
             r: self.r * scalar,
             g: self.g * scalar,
@@ -103,10 +103,10 @@ impl Mul<f32> for Color {
     }
 }
 
-fn is_equal_float(a: f32, b: f32) -> bool {
+fn is_equal_float(a: f64, b: f64) -> bool {
     (a - b).abs() < crate::tuple::EPSILON
 }
 
-pub fn color(r: f32, g: f32, b: f32) -> Color {
+pub fn color(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
 }
