@@ -51,6 +51,7 @@ impl World {
             computations.point,
             computations.eye_vector,
             computations.normal_vector,
+            false,
         )
     }
 
@@ -59,7 +60,7 @@ impl World {
 
         match intersection {
             Some(i) => self.shade_hit(i.prepare_computations(ray)),
-            None => color(0.0, 0.0, 0.0),
+            None => Color::black(),
         }
     }
 }

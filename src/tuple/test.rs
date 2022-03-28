@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tuple_test {
     use crate::canvas::Canvas;
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::io::save_to_file;
     use crate::tuple::{is_point, is_vector, point, vector, Tuple};
 
@@ -216,7 +216,7 @@ mod tuple_test {
             wind: vector(-0.01, 0.0, 0.0),
         };
 
-        let mut canvas = Canvas::new(900, 550, color(0.0, 0.0, 0.0));
+        let mut canvas = Canvas::new(900, 550, Color::black());
 
         let red = color(1.0, 0.0, 0.0);
 

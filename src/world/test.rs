@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod world_test {
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::intersection::Intersection;
     use crate::lights::PointLight;
     use crate::materials::Material;
@@ -85,7 +85,7 @@ mod world_test {
 
         let c = w.color_at(&r);
 
-        assert_eq!(c, color(0.0, 0.0, 0.0));
+        assert_eq!(c, Color::black());
     }
 
     #[test]

@@ -34,12 +34,13 @@ impl Material {
         point: Tuple,
         eye_vector: Tuple,
         normal_vector: Tuple,
+        in_shadow: bool,
     ) -> Color {
         let ambient: Color;
         let diffuse: Color;
         let specular: Color;
 
-        let black = color(0.0, 0.0, 0.0);
+        let black = Color::black();
 
         // combine surface color with lights color/intensity
         let effective_color = self.color * light.intensity;
@@ -53,8 +54,8 @@ impl Material {
         // light_dot_normal is cosine of angle between light vector and normal vector.
         let light_dot_normal = light_vector.dot(&normal_vector);
 
-        if light_dot_normal < 0.0 {
-            // light on other side of surface
+        if light_dot_normal < 0.0 || in_shadow {
+            // light on other side of surface, or in shadow of other object.
             diffuse = black;
             specular = black;
         } else {

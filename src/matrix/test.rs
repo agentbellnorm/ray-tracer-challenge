@@ -392,7 +392,7 @@ mod matrix_test {
 #[cfg(test)]
 mod translation {
     use crate::canvas::Canvas;
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::io::save_to_file;
     use crate::matrix::Matrix;
     use crate::tuple::{point, vector};
@@ -569,7 +569,7 @@ mod translation {
 
     #[test]
     fn draw_clock() {
-        let mut canvas = Canvas::new(200, 200, color(0.0, 0.0, 0.0));
+        let mut canvas = Canvas::new(200, 200, Color::black());
 
         for i in 0..12 {
             let p = point(0.0, 0.0, 0.0);

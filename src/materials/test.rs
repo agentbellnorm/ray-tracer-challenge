@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod material_test {
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::lights::PointLight;
     use crate::materials::Material;
     use crate::tuple::{point, vector, Tuple};
@@ -27,7 +27,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(&light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(1.9, 1.9, 1.9));
     }
@@ -39,7 +39,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(&light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(1.0, 1.0, 1.0));
     }
@@ -51,7 +51,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(&light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(0.7364, 0.7364, 0.7364));
     }
@@ -63,7 +63,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
 
-        let result = m.lighting(&light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(1.6363853, 1.6363853, 1.6363853));
     }
@@ -73,9 +73,22 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(0.0, 0.0, 10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v);
+        let result = m.lighting(&light, position, eye_v, normal_v, false);
+
+        assert_eq!(result, color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn lighing_with_surface_in_shadows() {
+        let (m, position) = setup();
+        let eyev = vector(0.0, 0.0, -1.0);
+        let normalv = vector(0.0, 0.0, -1.0);
+        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+        let in_shadow = true;
+
+        let result = m.lighting(&light, position, eyev, normalv, in_shadow);
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
     }

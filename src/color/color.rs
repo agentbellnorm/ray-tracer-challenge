@@ -30,6 +30,14 @@ impl Color {
     pub fn de_normalized(self) -> Vec<i32> {
         vec![to_255(self.r), to_255(self.g), to_255(self.b)]
     }
+
+    pub fn white() -> Color {
+        color(1.0, 1.0, 1.0)
+    }
+
+    pub fn black() -> Color {
+        color(0.0, 0.0, 0.0)
+    }
 }
 
 impl PartialEq for Color {

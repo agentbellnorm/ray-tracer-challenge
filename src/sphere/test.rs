@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod sphere_test {
     use crate::canvas::Canvas;
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::io::save_to_file;
     use crate::lights::PointLight;
     use crate::materials::Material;
@@ -53,7 +53,7 @@ mod sphere_test {
     #[test]
     fn draw_circle() {
         let size = 100;
-        let mut canvas = Canvas::new(size, size, color(0.0, 0.0, 0.0));
+        let mut canvas = Canvas::new(size, size, Color::black());
 
         let ray_origin = point(0.0, 0.0, -5.0);
         let wall_z = 10.0;
@@ -180,7 +180,7 @@ mod sphere_test {
     #[test]
     fn draw_3d_sphere() {
         let size = 100;
-        let mut canvas = Canvas::new(size, size, color(0.0, 0.0, 0.0));
+        let mut canvas = Canvas::new(size, size, Color::black());
 
         let ray_origin = point(0.0, 0.0, -5.0);
         let wall_z = 10.0;
@@ -213,6 +213,7 @@ mod sphere_test {
                             point_on_sphere,
                             eye,
                             normal_on_sphere,
+                            false,
                         );
                         canvas.write_pixel(x, y, color)
                     }

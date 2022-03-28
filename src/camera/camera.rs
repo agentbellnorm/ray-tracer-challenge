@@ -1,5 +1,5 @@
 use crate::canvas::Canvas;
-use crate::color::color;
+use crate::color::Color;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::tuple::point;
@@ -65,7 +65,7 @@ impl Camera {
     }
 
     pub fn render(&self, world: World) -> Canvas {
-        let mut image = Canvas::new(self.hsize, self.vsize, color(0.0, 0.0, 0.0));
+        let mut image = Canvas::new(self.hsize, self.vsize, Color::black());
 
         let start_time = Instant::now();
 
