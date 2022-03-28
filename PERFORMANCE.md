@@ -1,4 +1,4 @@
-### Chapter 7
+# Performance
 | chapter | pixels | total ms | ms/px       | comment            |
 |---------|--------|----------|-------------|--------------------|
 | 7       | 5000   | 4441     | 0.8862      |                    |
