@@ -4,6 +4,7 @@ use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::tuple::point;
 use crate::world::World;
+use std::time::Instant;
 
 pub struct Camera {
     pub hsize: i32,
@@ -66,6 +67,8 @@ impl Camera {
     pub fn render(&self, world: World) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize, color(0.0, 0.0, 0.0));
 
+        let start_time = Instant::now();
+
         for y in 0..self.vsize {
             for x in 0..self.hsize {
                 let ray = self.ray_for_pixel(x, y);
@@ -73,6 +76,15 @@ impl Camera {
                 image = image.write_pixel(x, y, color);
             }
         }
+
+        let duration = start_time.elapsed().as_millis();
+
+        println!("Rendered {} pixels", self.hsize * self.vsize);
+        println!("Total duration: {} ms", duration);
+        println!(
+            "ms per pixel: {}",
+            duration as f32 / (self.hsize * self.vsize) as f32
+        );
 
         image
     }
