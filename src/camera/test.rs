@@ -146,7 +146,7 @@ mod camera_test {
             PointLight::with(point(-10.0, 10.0, -10.0), color(1.0, 1.0, 1.0)),
         );
 
-        let mut camera = Camera::new(100, 50, FRAC_PI_3);
+        let mut camera = Camera::new(300, 150, FRAC_PI_3);
         camera = camera.set_transform(view_transformation(
             point(0.0, 1.5, -5.0),
             point(0.0, 1.0, 0.0),

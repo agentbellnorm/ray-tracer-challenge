@@ -79,6 +79,23 @@ mod world_test {
     }
 
     #[test]
+    fn shade_hit_given_intersection_in_shadow() {
+        let s1 = Sphere::unit();
+        let s2 = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
+        let w = World::with(
+            vec![s1, s2.clone()],
+            PointLight::with(point(0.0, 0.0, -10.0), Color::white()),
+        );
+        let i = Intersection::new(4.0, &s2);
+        let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
+
+        let comps = i.prepare_computations(&r);
+        let c = w.shade_hit(comps);
+
+        assert_eq!(c, color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
     fn color_when_a_ray_misses() {
         let w = World::default_world();
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
@@ -113,5 +130,37 @@ mod world_test {
         let c = w.color_at(&r);
 
         assert_eq!(c, inner_color);
+    }
+
+    #[test]
+    fn no_shadow_when_nothing_is_collinear_with_position_and_light() {
+        let world = World::default_world();
+        let p = point(0.0, 10.0, 0.0);
+
+        assert_eq!(world.is_shadowed(p), false);
+    }
+
+    #[test]
+    fn shadow_when_object_is_between_point_and_light() {
+        let world = World::default_world();
+        let p = point(10.0, -10.0, 10.0);
+
+        assert_eq!(world.is_shadowed(p), true);
+    }
+
+    #[test]
+    fn no_shadow_when_object_is_behind_light() {
+        let world = World::default_world();
+        let p = point(-20.0, 20.0, -20.0);
+
+        assert_eq!(world.is_shadowed(p), false);
+    }
+
+    #[test]
+    fn no_shadow_when_object_is_behind_point() {
+        let world = World::default_world();
+        let p = point(-2.0, 2.0, -2.0);
+
+        assert_eq!(world.is_shadowed(p), false);
     }
 }

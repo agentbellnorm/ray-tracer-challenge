@@ -5,7 +5,7 @@ use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::sphere::Sphere;
-use crate::tuple::point;
+use crate::tuple::{point, Tuple};
 
 pub struct World {
     pub objects: Vec<Sphere>,
@@ -48,10 +48,10 @@ impl World {
     pub fn shade_hit(&self, computations: PreparedComputation) -> Color {
         computations.object.material.lighting(
             &self.light_source,
-            computations.point,
+            computations.over_point,
             computations.eye_vector,
             computations.normal_vector,
-            false,
+            self.is_shadowed(computations.over_point),
         )
     }
 
@@ -61,6 +61,24 @@ impl World {
         match intersection {
             Some(i) => self.shade_hit(i.prepare_computations(ray)),
             None => Color::black(),
+        }
+    }
+
+    pub fn is_shadowed(&self, point: Tuple) -> bool {
+        let v = self.light_source.position - point;
+        let direction = v.normalize();
+        let distance = v.magnitude();
+
+        let shadow_ray = Ray::with(point, direction);
+
+        match self
+            .intersect_world(&shadow_ray)
+            .xs
+            .into_iter()
+            .find(|i| i.t > 0.0)
+        {
+            Some(hit) => hit.t < distance,
+            None => false,
         }
     }
 }

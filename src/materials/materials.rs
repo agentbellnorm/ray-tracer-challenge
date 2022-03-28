@@ -51,10 +51,14 @@ impl Material {
         // ambient contribution
         ambient = effective_color * self.ambient;
 
+        if in_shadow {
+            return ambient;
+        }
+
         // light_dot_normal is cosine of angle between light vector and normal vector.
         let light_dot_normal = light_vector.dot(&normal_vector);
 
-        if light_dot_normal < 0.0 || in_shadow {
+        if light_dot_normal < 0.0 {
             // light on other side of surface, or in shadow of other object.
             diffuse = black;
             specular = black;

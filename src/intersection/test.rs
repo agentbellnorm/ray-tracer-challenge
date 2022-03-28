@@ -1,9 +1,10 @@
 #[cfg(test)]
 mod intersection_test {
     use crate::intersection::{Intersection, Intersections};
+    use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::sphere::Sphere;
-    use crate::tuple::{point, vector};
+    use crate::tuple::{point, vector, EPSILON};
 
     #[test]
     fn intersection_encapsulates_t_and_object() {
@@ -114,5 +115,17 @@ mod intersection_test {
         assert_eq!(comps.inside, true);
         // inverted!
         assert_eq!(comps.normal_vector, vector(0.0, 0.0, -1.0));
+    }
+
+    #[test]
+    fn hit_should_offset_the_point() {
+        let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+        let shape = Sphere::with_transform(Matrix::identity().translate(0.0, 0.0, 1.0));
+        let intersection = Intersection::new(5.0, &shape);
+
+        let comps = intersection.prepare_computations(&r);
+
+        assert!(comps.over_point.z < -EPSILON / 2.0);
+        assert!(comps.point.z > comps.over_point.z);
     }
 }

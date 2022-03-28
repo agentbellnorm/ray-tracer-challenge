@@ -6,8 +6,6 @@ use crate::tuple::{point, Tuple};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Sphere {
-    location: Tuple,
-    r: f32,
     pub transformation: Matrix,
     pub material: Material,
 }
@@ -15,9 +13,14 @@ pub struct Sphere {
 impl Sphere {
     pub fn unit() -> Sphere {
         Sphere {
-            location: point(0.0, 0.0, 0.0),
-            r: 1.0,
             transformation: Matrix::identity(),
+            material: Material::new(),
+        }
+    }
+
+    pub fn with_transform(transformation: Matrix) -> Sphere {
+        Sphere {
+            transformation,
             material: Material::new(),
         }
     }
