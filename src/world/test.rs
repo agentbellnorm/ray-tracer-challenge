@@ -12,7 +12,7 @@ mod world_test {
 
     #[test]
     fn default_world() {
-        let light = PointLight::with(point(-10.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(-10.0, 10.0, -10.0), Color::white());
 
         let mut material = Material::with_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;
@@ -67,7 +67,7 @@ mod world_test {
     #[test]
     fn shading_an_intersection_from_the_inside() {
         let mut w = World::default_world();
-        w.light_source = PointLight::with(point(0.0, 0.25, 0.0), color(1.0, 1.0, 1.0));
+        w.light_source = PointLight::with(point(0.0, 0.25, 0.0), Color::white());
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shape = w.objects.get(1).unwrap();
         let i = Intersection::new(0.5, shape);

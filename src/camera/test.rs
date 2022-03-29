@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod camera_test {
     use crate::camera::Camera;
-    use crate::color::color;
+    use crate::color::{color, Color};
     use crate::io::save_to_file;
     use crate::lights::PointLight;
     use crate::materials::Material;
@@ -143,7 +143,7 @@ mod camera_test {
 
         let world = World::with(
             vec![floor, left_wall, right_wall, middle, right, left],
-            PointLight::with(point(-10.0, 10.0, -10.0), color(1.0, 1.0, 1.0)),
+            PointLight::with(point(-10.0, 10.0, -10.0), Color::white()),
         );
 
         let mut camera = Camera::new(100, 50, FRAC_PI_3);

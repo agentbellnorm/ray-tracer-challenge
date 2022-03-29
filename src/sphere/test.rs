@@ -193,7 +193,7 @@ mod sphere_test {
         sphere = sphere.set_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
 
         let light_position = point(-10.0, 0.0, -10.0);
-        let light_color = color(1.0, 1.0, 1.0);
+        let light_color = Color::white();
         let light = PointLight::with(light_position, light_color);
 
         for y in 0..size {

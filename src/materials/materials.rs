@@ -1,4 +1,4 @@
-use crate::color::{color, Color};
+use crate::color::Color;
 use crate::lights::PointLight;
 use crate::tuple::Tuple;
 
@@ -14,7 +14,7 @@ pub struct Material {
 impl Material {
     pub fn new() -> Material {
         Material {
-            color: color(1.0, 1.0, 1.0),
+            color: Color::white(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,

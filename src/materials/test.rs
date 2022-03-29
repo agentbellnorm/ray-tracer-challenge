@@ -9,7 +9,7 @@ mod material_test {
     fn default_material() {
         let m = Material::new();
 
-        assert_eq!(m.color, color(1.0, 1.0, 1.0));
+        assert_eq!(m.color, Color::white());
         assert_eq!(m.ambient, 0.1);
         assert_eq!(m.diffuse, 0.9);
         assert_eq!(m.specular, 0.9);
@@ -25,7 +25,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
 
         let result = m.lighting(&light, position, eye_v, normal_v, false);
 
@@ -37,11 +37,11 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
 
         let result = m.lighting(&light, position, eye_v, normal_v, false);
 
-        assert_eq!(result, color(1.0, 1.0, 1.0));
+        assert_eq!(result, Color::white());
     }
 
     #[test]
@@ -49,7 +49,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
 
         let result = m.lighting(&light, position, eye_v, normal_v, false);
 
@@ -61,7 +61,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, -f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0));
+        let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
 
         let result = m.lighting(&light, position, eye_v, normal_v, false);
 
