@@ -6,7 +6,7 @@ mod world_test {
     use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::Sphere;
+    use crate::sphere::{ShapeInit, Sphere};
     use crate::tuple::{point, vector};
     use crate::world::World;
 
@@ -18,15 +18,14 @@ mod world_test {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = Sphere::with_material(material);
-        let s2 = Sphere::unit().set_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let s1 = Sphere::from_material(material);
+        let s2 = Sphere::from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
         let default_world = World::default_world();
 
         assert_eq!(default_world.light_source, light);
         assert!(default_world
             .objects
-            .clone()
             .into_iter()
             .find(|s| s.eq(&s1))
             .is_some());
@@ -80,10 +79,10 @@ mod world_test {
 
     #[test]
     fn shade_hit_given_intersection_in_shadow() {
-        let s1 = Sphere::unit();
-        let s2 = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
+        let s1 = Sphere::new();
+        let s2 = Sphere::from_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
         let w = World::with(
-            vec![s1, s2.clone()],
+            vec![Box::new(s1), Box::new(s2.clone())],
             PointLight::with(point(0.0, 0.0, -10.0), Color::white()),
         );
         let i = Intersection::new(4.0, &s2);
@@ -121,11 +120,11 @@ mod world_test {
         let r = Ray::with(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
 
         let outer = w.objects.get_mut(0).unwrap();
-        outer.material.ambient = 1.0;
+        outer.get_material().ambient = 1.0;
 
         let inner = w.objects.get_mut(1).unwrap();
-        inner.material.ambient = 1.0;
-        let inner_color = inner.material.color;
+        inner.get_material().ambient = 1.0;
+        let inner_color = inner.get_material().color;
 
         let c = w.color_at(&r);
 

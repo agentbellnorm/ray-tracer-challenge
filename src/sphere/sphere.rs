@@ -2,6 +2,8 @@ use crate::intersection::{Intersection, Intersections};
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
+use crate::sphere::shape::Shape;
+use crate::sphere::ShapeInit;
 use crate::tuple::{point, Tuple};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -10,28 +12,53 @@ pub struct Sphere {
     pub material: Material,
 }
 
-impl Sphere {
-    pub fn unit() -> Sphere {
+impl ShapeInit for Sphere {
+    fn new() -> Self {
         Sphere {
-            transformation: Matrix::identity(),
             material: Material::new(),
+            transformation: Matrix::identity(),
         }
     }
 
-    pub fn with_transform(transformation: Matrix) -> Sphere {
+    fn with_material(mut self, material: Material) -> Self {
+        self.material = material;
+        self
+    }
+
+    fn from_material(material: Material) -> Self {
+        Sphere {
+            transformation: Matrix::identity(),
+            material,
+        }
+    }
+
+    fn with_transform(mut self, transform: Matrix) -> Self {
+        self.transformation = transform;
+        self
+    }
+
+    fn from_transform(transformation: Matrix) -> Self {
         Sphere {
             transformation,
             material: Material::new(),
         }
     }
+}
 
-    pub fn with_material(m: Material) -> Sphere {
-        let mut s = Self::unit();
-        s.material = m;
-        s
+impl Shape for Sphere {
+    fn normal_at(&self, world_point: Tuple) -> Tuple {
+        assert!(world_point.is_point());
+
+        let object_point = world_point * &self.transformation.inverse();
+        let object_normal = object_point - point(0.0, 0.0, 0.0);
+
+        let mut world_normal = object_normal * &self.transformation.inverse().transpose();
+        world_normal.w = 0.0;
+
+        world_normal.normalize()
     }
 
-    pub fn intersects(&self, ray: &Ray) -> Intersections {
+    fn intersects(&self, ray: &Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.transformation.inverse());
 
         let sphere_to_ray = transformed_ray.origin - point(0.0, 0.0, 0.0);
@@ -54,20 +81,11 @@ impl Sphere {
         }
     }
 
-    pub fn set_transform(mut self, transform: Matrix) -> Sphere {
-        self.transformation = transform;
-        self
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation
     }
 
-    pub fn normal_at(&self, world_point: Tuple) -> Tuple {
-        assert!(world_point.is_point());
-
-        let object_point = world_point * &self.transformation.inverse();
-        let object_normal = object_point - point(0.0, 0.0, 0.0);
-
-        let mut world_normal = object_normal * &self.transformation.inverse().transpose();
-        world_normal.w = 0.0;
-
-        world_normal.normalize()
+    fn get_material(&self) -> &Material {
+        &self.material
     }
 }

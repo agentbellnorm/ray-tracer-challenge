@@ -7,31 +7,28 @@ mod sphere_test {
     use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::Sphere;
+    use crate::sphere::{Shape, ShapeInit, Sphere};
     use crate::tuple::{point, vector};
     use std::f64::consts::PI;
 
     #[test]
     fn default_transformation() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
         assert_eq!(s.transformation, Matrix::identity());
     }
 
     #[test]
     fn change_transformation() {
-        let mut s = Sphere::unit();
         let t = Matrix::identity().translate(2.0, 3.0, 4.0);
+        let s = Sphere::from_transform(t);
 
-        s = s.set_transform(t.clone());
         assert_eq!(s.transformation, t);
     }
 
     #[test]
     fn intersecting_scaled_sphere_with_ray() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let mut s = Sphere::unit();
-
-        s = s.set_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let s = Sphere::from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
         let xs = s.intersects(&r);
 
         assert_eq!(xs.len(), 2);
@@ -42,9 +39,7 @@ mod sphere_test {
     #[test]
     fn intersecting_translated_sphere_with_ray() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let mut s = Sphere::unit();
-
-        s = s.set_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
+        let s = Sphere::from_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
         let xs = s.intersects(&r);
 
         assert_eq!(xs.len(), 0);
@@ -61,8 +56,8 @@ mod sphere_test {
         let pixel_size = wall_size / (size as f64);
         let half = wall_size / 2.0;
 
-        let mut sphere = Sphere::unit();
-        sphere = sphere.set_transform(Matrix::identity().scale(0.5, 1.0, 1.0).rotate_z(PI / 4.0));
+        let sphere =
+            Sphere::from_transform(Matrix::identity().scale(0.5, 1.0, 1.0).rotate_z(PI / 4.0));
 
         for y in 0..size {
             let world_y = half - pixel_size * (y as f64);
@@ -84,28 +79,28 @@ mod sphere_test {
 
     #[test]
     fn normal_on_sphere_point_on_x() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         assert_eq!(s.normal_at(point(1.0, 0.0, 0.0)), vector(1.0, 0.0, 0.0));
     }
 
     #[test]
     fn normal_on_sphere_point_on_y() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         assert_eq!(s.normal_at(point(0.0, 1.0, 0.0)), vector(0.0, 1.0, 0.0));
     }
 
     #[test]
     fn normal_on_sphere_point_on_z() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         assert_eq!(s.normal_at(point(0.0, 0.0, 1.0)), vector(0.0, 0.0, 1.0));
     }
 
     #[test]
     fn normal_on_sphere_nonaxial_point() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         assert_eq!(
             s.normal_at(point(
@@ -123,7 +118,7 @@ mod sphere_test {
 
     #[test]
     fn normal_is_normalized_vector() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         let n = s.normal_at(point(
             f64::sqrt(3.0) / 3.0,
@@ -136,7 +131,7 @@ mod sphere_test {
 
     #[test]
     fn normal_on_translated_sphere() {
-        let s = Sphere::unit().set_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
+        let s = Sphere::from_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
 
         assert_eq!(
             s.normal_at(point(0.0, 1.70711, -std::f64::consts::FRAC_1_SQRT_2)),
@@ -151,7 +146,7 @@ mod sphere_test {
     #[test]
     fn normal_on_transformed_sphere() {
         let transform = Matrix::identity().rotate_z(PI / 5.0).scale(1.0, 0.5, 1.0);
-        let s = Sphere::unit().set_transform(transform);
+        let s = Sphere::from_transform(transform);
 
         assert_eq!(
             s.normal_at(point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0)),
@@ -161,14 +156,14 @@ mod sphere_test {
 
     #[test]
     fn sphere_has_default_material() {
-        let s = Sphere::unit();
+        let s = Sphere::new();
 
         assert_eq!(s.material, Material::new());
     }
 
     #[test]
     fn sphere_can_have_material_assigned() {
-        let mut s = Sphere::unit();
+        let mut s = Sphere::new();
         let mut m = Material::new();
 
         m.ambient = 1.0;
@@ -189,8 +184,8 @@ mod sphere_test {
         let half = wall_size / 2.0;
 
         let material = Material::with_color(color(1.0, 0.2, 1.0));
-        let mut sphere = Sphere::with_material(material);
-        sphere = sphere.set_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
+        let mut sphere = Sphere::from_material(material)
+            .with_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
 
         let light_position = point(-10.0, 0.0, -10.0);
         let light_color = Color::white();
@@ -208,7 +203,7 @@ mod sphere_test {
                         let point_on_sphere = ray.position(hit.t);
                         let normal_on_sphere = hit.object.normal_at(point_on_sphere);
                         let eye = -ray.direction;
-                        let color = hit.object.material.lighting(
+                        let color = hit.object.get_material().lighting(
                             &light,
                             point_on_sphere,
                             eye,

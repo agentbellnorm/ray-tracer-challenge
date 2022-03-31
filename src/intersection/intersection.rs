@@ -1,15 +1,15 @@
 use crate::rays::Ray;
-use crate::sphere::Sphere;
+use crate::sphere::Shape;
 use crate::tuple::{Tuple, EPSILON};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub struct Intersection<'a> {
     pub t: f64,
-    pub object: &'a Sphere,
+    pub object: &'a dyn Shape,
 }
 
 pub struct PreparedComputation<'a> {
-    pub object: &'a Sphere,
+    pub object: &'a dyn Shape,
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
@@ -19,7 +19,7 @@ pub struct PreparedComputation<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &Sphere) -> Intersection {
+    pub fn new(t: f64, object: &'a dyn Shape) -> Intersection {
         Intersection { t, object }
     }
 
@@ -45,6 +45,12 @@ impl<'a> Intersection<'a> {
             object: self.object,
             normal_vector,
         }
+    }
+}
+
+impl<'a> PartialEq for Intersection<'a> {
+    fn eq(&self, _other: &Intersection) -> bool {
+        false
     }
 }
 

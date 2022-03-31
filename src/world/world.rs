@@ -4,16 +4,16 @@ use crate::lights::PointLight;
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::sphere::Sphere;
+use crate::sphere::{Shape, ShapeInit, Sphere};
 use crate::tuple::{point, Tuple};
 
 pub struct World {
-    pub objects: Vec<Sphere>,
+    pub objects: Vec<Box<dyn Shape>>,
     pub light_source: PointLight,
 }
 
 impl World {
-    pub fn with(objects: Vec<Sphere>, light_source: PointLight) -> World {
+    pub fn with(objects: Vec<Box<dyn Shape>>, light_source: PointLight) -> World {
         World {
             objects,
             light_source,
@@ -27,10 +27,10 @@ impl World {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = Sphere::with_material(material);
-        let s2 = Sphere::unit().set_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let s1 = Sphere::from_material(material);
+        let s2 = Sphere::from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
-        Self::with(vec![s1, s2], light)
+        Self::with(vec![Box::new(s1), Box::new(s2)], light)
     }
 
     pub fn intersect_world(&self, ray: &Ray) -> Intersections {
@@ -46,7 +46,7 @@ impl World {
     }
 
     pub fn shade_hit(&self, computations: PreparedComputation) -> Color {
-        computations.object.material.lighting(
+        computations.object.get_material().lighting(
             &self.light_source,
             computations.over_point,
             computations.eye_vector,
