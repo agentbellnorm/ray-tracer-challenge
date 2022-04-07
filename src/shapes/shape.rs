@@ -4,7 +4,7 @@ use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::shapes;
 use crate::shapes::sphere_normal_at;
-use crate::tuple::{point, Tuple};
+use crate::tuple::Tuple;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Shape {

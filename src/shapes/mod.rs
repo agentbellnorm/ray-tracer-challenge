@@ -1,5 +1,4 @@
 mod shape;
-mod shape_test;
 mod sphere;
 mod sphere_test;
 
