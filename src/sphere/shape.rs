@@ -21,13 +21,14 @@ impl Shape {
     }
 
     pub fn intersects(&self, ray: &Ray) -> Intersections {
-        match self {
-            Shape::Sphere { transformation, .. } => {
-                let v = sphere::intersects(transformation, ray);
-                Intersections {
-                    xs: v.into_iter().map(|t| Intersection::new(t, self)).collect(),
-                }
-            }
+        let transformed_ray = ray.transform(&self.get_transformation().inverse());
+
+        let v = match self {
+            Shape::Sphere { .. } => sphere::intersects(&transformed_ray),
+        };
+
+        Intersections {
+            xs: v.into_iter().map(|t| Intersection::new(t, self)).collect(),
         }
     }
 

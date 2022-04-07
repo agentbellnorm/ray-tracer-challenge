@@ -16,9 +16,7 @@ pub fn normal_at(transformation: &Matrix, world_point: Tuple) -> Tuple {
     world_normal.normalize()
 }
 
-pub fn intersects(transformation: &Matrix, ray: &Ray) -> Vec<f64> {
-    let transformed_ray = ray.transform(&transformation.inverse());
-
+pub fn intersects(transformed_ray: &Ray) -> Vec<f64> {
     let sphere_to_ray = transformed_ray.origin - point(0.0, 0.0, 0.0);
 
     let a = transformed_ray.direction.dot(&transformed_ray.direction);
