@@ -2,14 +2,14 @@ use crate::rays::Ray;
 use crate::sphere::Shape;
 use crate::tuple::{Tuple, EPSILON};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Intersection<'a> {
     pub t: f64,
-    pub object: &'a dyn Shape,
+    pub object: &'a Shape,
 }
 
 pub struct PreparedComputation<'a> {
-    pub object: &'a dyn Shape,
+    pub object: &'a Shape,
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
@@ -19,7 +19,7 @@ pub struct PreparedComputation<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &'a dyn Shape) -> Intersection {
+    pub fn new(t: f64, object: &'a Shape) -> Intersection {
         Intersection { t, object }
     }
 
@@ -48,19 +48,13 @@ impl<'a> Intersection<'a> {
     }
 }
 
-impl<'a> PartialEq for Intersection<'a> {
-    fn eq(&self, _other: &Intersection) -> bool {
-        false
-    }
-}
-
 pub struct Intersections<'a> {
     pub xs: Vec<Intersection<'a>>,
 }
 
 impl<'a> Intersections<'a> {
     // Sounds like doing sorting here can become a problem in the future, see p. 66
-    pub fn hit(&self) -> Option<Intersection<'a>> {
+    pub fn hit(&self) -> Option<Intersection> {
         let mut sorted = self.xs.clone();
         sorted.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
 
@@ -71,7 +65,7 @@ impl<'a> Intersections<'a> {
         self.xs.len()
     }
 
-    pub fn get(&self, index: usize) -> &Intersection<'a> {
+    pub fn get(&self, index: usize) -> &Intersection {
         &self.xs[index]
     }
 }

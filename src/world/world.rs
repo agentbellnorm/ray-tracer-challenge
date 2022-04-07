@@ -4,16 +4,16 @@ use crate::lights::PointLight;
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::sphere::{Shape, ShapeInit, Sphere};
+use crate::sphere::{sphere_from_material, sphere_from_transform, Shape};
 use crate::tuple::{point, Tuple};
 
 pub struct World {
-    pub objects: Vec<Box<dyn Shape>>,
+    pub objects: Vec<Shape>,
     pub light_source: PointLight,
 }
 
 impl World {
-    pub fn with(objects: Vec<Box<dyn Shape>>, light_source: PointLight) -> World {
+    pub fn with(objects: Vec<Shape>, light_source: PointLight) -> World {
         World {
             objects,
             light_source,
@@ -27,10 +27,10 @@ impl World {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = Sphere::from_material(material);
-        let s2 = Sphere::from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let s1 = sphere_from_material(material);
+        let s2 = sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
-        Self::with(vec![Box::new(s1), Box::new(s2)], light)
+        Self::with(vec![s1, s2], light)
     }
 
     pub fn intersect_world(&self, ray: &Ray) -> Intersections {
@@ -80,5 +80,9 @@ impl World {
             Some(hit) => hit.t < distance,
             None => false,
         }
+    }
+
+    pub fn has_object(&self, o: &Shape) -> bool {
+        self.objects.contains(o)
     }
 }
