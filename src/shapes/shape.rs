@@ -2,8 +2,9 @@ use crate::intersection::{Intersection, Intersections};
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::sphere;
-use crate::tuple::Tuple;
+use crate::shapes;
+use crate::shapes::sphere_normal_at;
+use crate::tuple::{point, Tuple};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Shape {
@@ -15,16 +16,26 @@ pub enum Shape {
 
 impl Shape {
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
-        match self {
-            Shape::Sphere { transformation, .. } => sphere::normal_at(transformation, world_point),
-        }
+        assert!(world_point.is_point());
+
+        let transformation = self.get_transformation();
+        let object_point = world_point * &transformation.inverse();
+
+        let object_normal = match self {
+            Shape::Sphere { .. } => sphere_normal_at(object_point),
+        };
+
+        let mut world_normal = object_normal * &transformation.inverse().transpose();
+        world_normal.w = 0.0;
+
+        world_normal.normalize()
     }
 
     pub fn intersects(&self, ray: &Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.get_transformation().inverse());
 
         let v = match self {
-            Shape::Sphere { .. } => sphere::intersects(&transformed_ray),
+            Shape::Sphere { .. } => shapes::intersects(&transformed_ray),
         };
 
         Intersections {

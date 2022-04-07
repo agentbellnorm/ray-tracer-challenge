@@ -1,5 +1,5 @@
 use crate::rays::Ray;
-use crate::sphere::Shape;
+use crate::shapes::Shape;
 use crate::tuple::{Tuple, EPSILON};
 
 #[derive(Debug, Clone, PartialEq)]

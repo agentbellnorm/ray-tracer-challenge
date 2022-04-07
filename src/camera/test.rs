@@ -6,7 +6,7 @@ mod camera_test {
     use crate::lights::PointLight;
     use crate::materials::Material;
     use crate::matrix::{is_equal_float, Matrix};
-    use crate::sphere::sphere_from_material;
+    use crate::shapes::sphere_from_material;
     use crate::transformation::view_transformation;
     use crate::tuple::{point, vector};
     use crate::world::World;
@@ -110,14 +110,14 @@ mod camera_test {
                 .translate(0.0, 0.0, 5.0),
         );
 
-        // large middle sphere
+        // large middle shapes
         let mut middle_material = Material::with_color(color(0.1, 1.0, 0.5));
         middle_material.diffuse = 0.7;
         middle_material.specular = 0.3;
         let middle = sphere_from_material(middle_material)
             .with_transform(Matrix::identity().translate(-0.5, 1.0, 0.5));
 
-        //smaller right sphere
+        //smaller right shapes
         let mut right_material = Material::with_color(color(0.5, 1.0, 0.1));
         right_material.diffuse = 0.7;
         right_material.specular = 0.3;
@@ -127,7 +127,7 @@ mod camera_test {
                 .translate(1.5, 0.5, -0.5),
         );
 
-        // small left sphere
+        // small left shapes
         let mut left_material = Material::with_color(color(1.0, 0.8, 0.1));
         left_material.diffuse = 0.7;
         left_material.specular = 0.3;

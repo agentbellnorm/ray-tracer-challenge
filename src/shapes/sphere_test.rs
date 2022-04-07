@@ -7,7 +7,7 @@ mod sphere_test {
     use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::{sphere_default, sphere_from_material, sphere_from_transform};
+    use crate::shapes::{sphere_default, sphere_from_material, sphere_from_transform};
     use crate::tuple::{point, vector};
     use std::f64::consts::PI;
 
@@ -72,7 +72,7 @@ mod sphere_test {
             }
         }
 
-        let res = save_to_file("src/sphere/cirkel.ppm", canvas.to_ppm());
+        let res = save_to_file("src/shapes/cirkel.ppm", canvas.to_ppm());
 
         assert!(res.is_ok());
     }
@@ -217,7 +217,7 @@ mod sphere_test {
             }
         }
 
-        let res = save_to_file("src/sphere/sphere.ppm", canvas.to_ppm());
+        let res = save_to_file("src/shapes/shapes.ppm", canvas.to_ppm());
 
         assert!(res.is_ok());
     }

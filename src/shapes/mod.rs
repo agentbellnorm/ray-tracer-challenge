@@ -1,6 +1,7 @@
 mod shape;
+mod shape_test;
 mod sphere;
-mod test;
+mod sphere_test;
 
 pub use shape::*;
 pub use sphere::*;

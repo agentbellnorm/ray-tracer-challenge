@@ -6,7 +6,7 @@ mod world_test {
     use crate::materials::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::{sphere_default, sphere_from_material, sphere_from_transform};
+    use crate::shapes::{sphere_default, sphere_from_material, sphere_from_transform};
     use crate::tuple::{point, vector};
     use crate::world::World;
 
@@ -46,8 +46,8 @@ mod world_test {
     // fn shading_an_intersection() {
     //     let w = World::default_world();
     //     let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-    //     let shape = w.objects.get(0).unwrap();
-    //     let i = Intersection::new(4.0, shape);
+    //     let shapes = w.objects.get(0).unwrap();
+    //     let i = Intersection::new(4.0, shapes);
     //
     //     let comps = i.prepare_computations(&r);
     //     let c = w.shade_hit(comps);
@@ -60,8 +60,8 @@ mod world_test {
     //     let mut w = World::default_world();
     //     w.light_source = PointLight::with(point(0.0, 0.25, 0.0), Color::white());
     //     let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-    //     let shape = w.objects.get(1).unwrap();
-    //     let i = Intersection::new(0.5, shape);
+    //     let shapes = w.objects.get(1).unwrap();
+    //     let i = Intersection::new(0.5, shapes);
     //
     //     let comps = i.prepare_computations(&r);
     //     let c = w.shade_hit(comps);

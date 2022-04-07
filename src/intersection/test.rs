@@ -3,7 +3,7 @@ mod intersection_test {
     use crate::intersection::{Intersection, Intersections};
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::{sphere_default, sphere_from_transform};
+    use crate::shapes::{sphere_default, sphere_from_transform};
     use crate::tuple::{point, vector, EPSILON};
 
     #[test]

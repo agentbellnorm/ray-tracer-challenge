@@ -1,19 +1,11 @@
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::sphere::shape::Shape;
+use crate::shapes::shape::Shape;
 use crate::tuple::{point, Tuple};
 
-pub fn normal_at(transformation: &Matrix, world_point: Tuple) -> Tuple {
-    assert!(world_point.is_point());
-
-    let object_point = world_point * &transformation.inverse();
-    let object_normal = object_point - point(0.0, 0.0, 0.0);
-
-    let mut world_normal = object_normal * &transformation.inverse().transpose();
-    world_normal.w = 0.0;
-
-    world_normal.normalize()
+pub fn sphere_normal_at(object_point: Tuple) -> Tuple {
+    object_point - point(0.0, 0.0, 0.0)
 }
 
 pub fn intersects(transformed_ray: &Ray) -> Vec<f64> {

@@ -2,7 +2,7 @@
 mod template_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::sphere::sphere_default;
+    use crate::shapes::sphere_default;
     use crate::tuple::{point, vector};
 
     #[test]

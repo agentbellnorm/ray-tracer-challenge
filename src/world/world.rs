@@ -4,7 +4,7 @@ use crate::lights::PointLight;
 use crate::materials::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::sphere::{sphere_from_material, sphere_from_transform, Shape};
+use crate::shapes::{sphere_from_material, sphere_from_transform, Shape};
 use crate::tuple::{point, Tuple};
 
 pub struct World {
