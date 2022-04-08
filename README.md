@@ -7,6 +7,9 @@ My objectives with this project is to
 
 ## Examples
 ### As of chapter 8
+![sphere](./doc/scene_with_floor.png)
+
+### As of chapter 8
 ![sphere](./doc/first_scene_shadows.png)
 
 ### As of chapter 7

@@ -8,7 +8,7 @@ pub fn sphere_normal_at(object_point: Tuple) -> Tuple {
     object_point - point(0.0, 0.0, 0.0)
 }
 
-pub fn intersects(transformed_ray: &Ray) -> Vec<f64> {
+pub fn sphere_intersects(transformed_ray: &Ray) -> Vec<f64> {
     let sphere_to_ray = transformed_ray.origin - point(0.0, 0.0, 0.0);
 
     let a = transformed_ray.direction.dot(&transformed_ray.direction);

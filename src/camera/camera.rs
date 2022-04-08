@@ -67,6 +67,9 @@ impl Camera {
     pub fn render(&self, world: World) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize, Color::black());
 
+        let n_pixels = self.vsize * self.hsize;
+        let mut progress = 0;
+
         let start_time = Instant::now();
 
         for y in 0..self.vsize {
@@ -75,16 +78,19 @@ impl Camera {
                 let color = world.color_at(&ray);
                 image = image.write_pixel(x, y, color);
             }
+
+            let curr_progress = y / self.vsize;
+            if curr_progress > progress {
+                progress += 1;
+                println!("{}%", progress);
+            }
         }
 
         let duration = start_time.elapsed().as_millis();
 
-        println!("Rendered {} pixels", self.hsize * self.vsize);
+        println!("Rendered {} pixels", n_pixels);
         println!("Total duration: {} ms", duration);
-        println!(
-            "ms per pixel: {}",
-            duration as f64 / (self.hsize * self.vsize) as f64
-        );
+        println!("ms per pixel: {}", duration as f64 / n_pixels as f64);
 
         image
     }

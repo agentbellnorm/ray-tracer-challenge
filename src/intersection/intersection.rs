@@ -65,6 +65,10 @@ impl<'a> Intersections<'a> {
         self.xs.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.xs.is_empty()
+    }
+
     pub fn get(&self, index: usize) -> &Intersection {
         &self.xs[index]
     }

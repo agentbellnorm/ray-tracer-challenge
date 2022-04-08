@@ -41,33 +41,33 @@ mod world_test {
         assert_eq!(5.5, xs.get(2).t);
         assert_eq!(6.0, xs.get(3).t);
     }
-    //
-    // #[test]
-    // fn shading_an_intersection() {
-    //     let w = World::default_world();
-    //     let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-    //     let shapes = w.objects.get(0).unwrap();
-    //     let i = Intersection::new(4.0, shapes);
-    //
-    //     let comps = i.prepare_computations(&r);
-    //     let c = w.shade_hit(comps);
-    //
-    //     assert_eq!(c, color(0.38066, 0.47583, 0.2855));
-    // }
 
-    // #[test]
-    // fn shading_an_intersection_from_the_inside() {
-    //     let mut w = World::default_world();
-    //     w.light_source = PointLight::with(point(0.0, 0.25, 0.0), Color::white());
-    //     let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-    //     let shapes = w.objects.get(1).unwrap();
-    //     let i = Intersection::new(0.5, shapes);
-    //
-    //     let comps = i.prepare_computations(&r);
-    //     let c = w.shade_hit(comps);
-    //
-    //     assert_eq!(c, color(0.90498, 0.90498, 0.90498));
-    // }
+    #[test]
+    fn shading_an_intersection() {
+        let w = World::default_world();
+        let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+        let shapes = w.objects.get(0).unwrap();
+        let i = Intersection::new(4.0, shapes);
+
+        let comps = i.prepare_computations(&r);
+        let c = w.shade_hit(comps);
+
+        assert_eq!(c, color(0.38066, 0.47583, 0.2855));
+    }
+
+    #[test]
+    fn shading_an_intersection_from_the_inside() {
+        let mut w = World::default_world();
+        w.light_source = PointLight::with(point(0.0, 0.25, 0.0), Color::white());
+        let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+        let shapes = w.objects.get(1).unwrap();
+        let i = Intersection::new(0.5, shapes);
+
+        let comps = i.prepare_computations(&r);
+        let c = w.shade_hit(comps);
+
+        assert_eq!(c, color(0.90498, 0.90498, 0.90498));
+    }
 
     #[test]
     fn shade_hit_given_intersection_in_shadow() {
