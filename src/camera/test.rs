@@ -11,7 +11,7 @@ mod camera_test {
     use crate::transformation::view_transformation;
     use crate::tuple::{point, vector};
     use crate::world::World;
-    use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, PI};
+    use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_8, PI};
 
     #[test]
     fn constructing_a_camera() {
@@ -159,11 +159,21 @@ mod camera_test {
     #[test]
     fn scene_with_floor() {
         // floor
-        let mut wall_material = Material::with_color(color(1.0, 0.9, 0.9));
+        let mut wall_material = Material::with_color(color(1.0, 0.41, 0.7));
         wall_material.diffuse = 0.7;
         wall_material.specular = 0.1;
-        let floor = plane_from_material(wall_material)
-            .with_transform(Matrix::identity().scale(10.0, 0.01, 10.0));
+        let floor = plane_from_material(wall_material);
+
+        // wall
+        let mut wall_material = Material::with_color(color(1.0, 0.2, 0.2));
+        wall_material.diffuse = 0.5;
+        wall_material.specular = 0.1;
+        let wall = plane_from_material(wall_material).with_transform(
+            Matrix::identity()
+                .rotate_z(FRAC_PI_2)
+                .rotate_y(-FRAC_PI_8)
+                .translate(2.5, 0.0, 0.0),
+        );
 
         // large middle shapes
         let mut middle_material = Material::with_color(color(0.1, 1.0, 0.5));
@@ -193,7 +203,7 @@ mod camera_test {
         );
 
         let world = World::with(
-            vec![floor, middle, right, left],
+            vec![floor, wall, middle, right, left],
             PointLight::with(point(-10.0, 10.0, -10.0), Color::white()),
         );
 

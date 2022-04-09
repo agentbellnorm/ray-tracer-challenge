@@ -70,7 +70,7 @@ impl Shape {
                 transformation,
                 material,
             },
-            Shape::Plane { material, .. } => Shape::Sphere {
+            Shape::Plane { material, .. } => Shape::Plane {
                 transformation,
                 material,
             },
@@ -83,7 +83,7 @@ impl Shape {
                 transformation,
                 material,
             },
-            Shape::Plane { transformation, .. } => Shape::Sphere {
+            Shape::Plane { transformation, .. } => Shape::Plane {
                 transformation,
                 material,
             },
