@@ -1,5 +1,6 @@
 use crate::color::Color;
 use crate::lights::PointLight;
+use crate::pattern::Pattern;
 use crate::tuple::Tuple;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -9,6 +10,7 @@ pub struct Material {
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub pattern: Option<Pattern>,
 }
 
 impl Material {
@@ -19,6 +21,7 @@ impl Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            pattern: None,
         }
     }
 
@@ -26,6 +29,17 @@ impl Material {
         let mut m = Material::new();
         m.color = color;
         m
+    }
+
+    pub fn from_pattern(pattern: Pattern) -> Material {
+        let mut m = Material::new();
+        m.pattern = Some(pattern);
+        m
+    }
+
+    pub fn with_pattern(mut self, pattern: Pattern) -> Material {
+        self.pattern = Some(pattern);
+        self
     }
 
     pub fn lighting(
@@ -41,9 +55,13 @@ impl Material {
         let specular: Color;
 
         let black = Color::black();
+        let color = match self.pattern {
+            Some(pattern) => pattern.color_at(point),
+            None => self.color,
+        };
 
         // combine surface color with lights color/intensity
-        let effective_color = self.color * light.intensity;
+        let effective_color = color * light.intensity;
 
         // direction of light source
         let light_vector = (light.position - point).normalize();

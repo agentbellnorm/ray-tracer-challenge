@@ -30,9 +30,9 @@ pub fn plane_from_material(material: Material) -> Shape {
     }
 }
 
-pub fn plane_from_transform(transformation: Matrix) -> Shape {
-    Shape::Plane {
-        transformation,
-        material: Material::new(),
-    }
-}
+// pub fn plane_from_transform(transformation: Matrix) -> Shape {
+//     Shape::Plane {
+//         transformation,
+//         material: Material::new(),
+//     }
+// }

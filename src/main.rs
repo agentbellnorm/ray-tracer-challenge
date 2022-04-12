@@ -8,6 +8,7 @@ mod io;
 mod lights;
 mod materials;
 mod matrix;
+mod pattern;
 mod rays;
 mod shapes;
 mod transformation;

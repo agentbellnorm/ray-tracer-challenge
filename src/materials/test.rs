@@ -3,6 +3,7 @@ mod material_test {
     use crate::color::{color, Color};
     use crate::lights::PointLight;
     use crate::materials::Material;
+    use crate::pattern::stripe_pattern;
     use crate::tuple::{point, vector, Tuple};
 
     #[test]
@@ -91,5 +92,23 @@ mod material_test {
         let result = m.lighting(&light, position, eyev, normalv, in_shadow);
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn lighting_with_pattern_applied() {
+        let pattern = stripe_pattern(Color::white(), Color::black());
+        let mut material = Material::from_pattern(pattern);
+        material.ambient = 1.0;
+        material.specular = 0.0;
+        material.diffuse = 0.0;
+        let eyev = vector(0.0, 0.0, -1.0);
+        let normalv = vector(0.0, 0.0, -1.0);
+        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+
+        let c1 = material.lighting(&light, point(0.9, 0.0, 0.0), eyev, normalv, false);
+        let c2 = material.lighting(&light, point(1.1, 0.0, 0.0), eyev, normalv, false);
+
+        assert_eq!(c1, Color::white());
+        assert_eq!(c2, Color::black());
     }
 }
