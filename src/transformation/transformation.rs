@@ -12,7 +12,7 @@ pub fn view_transformation(from: Tuple, to: Tuple, up: Tuple) -> Matrix {
     let true_up = left.cross(&forward);
 
     let orientation = Matrix::from_vec(
-        vec![
+        [
             left.x, left.y, left.z, 0.0, true_up.x, true_up.y, true_up.z, 0.0, -forward.x,
             -forward.y, -forward.z, 0.0, 0.0, 0.0, 0.0, 1.0,
         ],

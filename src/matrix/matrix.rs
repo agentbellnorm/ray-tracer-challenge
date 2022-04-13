@@ -1,28 +1,41 @@
 use crate::tuple::{Tuple, EPSILON};
 use std::ops::Mul;
 
-#[derive(Debug, Clone)]
+type Storage = [f64; 16];
+
+#[derive(Debug, Clone, Copy)]
 pub struct Matrix {
-    storage: Vec<f64>,
+    storage: Storage,
     size: usize,
 }
 
+fn vec_to_arr4(v: Vec<f64>) -> [f64; 4] {
+    let mut a = [0.0; 4];
+    for i in 0..4 {
+        a[i] = *v.get(i).unwrap();
+    }
+    a
+}
+
 impl Matrix {
-    pub fn from_vec(v: Vec<f64>, size: usize) -> Matrix {
+    pub fn from_vec(v: Storage, size: usize) -> Matrix {
         Matrix { storage: v, size }
     }
 
     // for tests
     pub fn from_values(from: Vec<Vec<f64>>) -> Matrix {
-        let size = from.len();
         let n_cols = from.first().unwrap().len();
 
+        let mut storage = [0.0; 16];
+
+        let flat = from.into_iter().flatten().collect::<Vec<f64>>();
+
+        for i in 0..flat.len() {
+            storage[i] = flat[i];
+        }
+
         Matrix {
-            storage: from
-                .into_iter()
-                .fold(Vec::with_capacity(size * n_cols), |acc, v| {
-                    [acc, v].concat()
-                }),
+            storage,
             size: n_cols,
         }
     }
@@ -38,18 +51,18 @@ impl Matrix {
     pub fn identity() -> Matrix {
         Matrix {
             size: 4,
-            storage: vec![
+            storage: [
                 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
             ],
         }
     }
 
     pub fn transpose(&self) -> Matrix {
-        let mut transposed = Vec::with_capacity(self.size * self.size);
+        let mut transposed = [0.0; 16];
 
         for i in 0..self.size {
             for j in 0..self.size {
-                transposed.push(self.storage[i + j * self.size]);
+                transposed[self.i(i, j)] = self.storage[i + j * self.size];
             }
         }
 
@@ -74,7 +87,9 @@ impl Matrix {
     }
 
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
-        let mut submatrix = Vec::with_capacity((self.size - 1) * (self.size - 1));
+        let mut submatrix = [0.0; 16];
+
+        let mut new_index = 0;
 
         for r in 0..self.size {
             for c in 0..self.size {
@@ -82,7 +97,8 @@ impl Matrix {
                     continue;
                 }
 
-                submatrix.push(self.get(r, c));
+                submatrix[new_index] = self.get(r, c);
+                new_index += 1;
             }
         }
 
@@ -109,7 +125,7 @@ impl Matrix {
     }
 
     pub fn inverse(&self) -> Matrix {
-        let mut inverse = vec![0.0; self.size * self.size];
+        let mut inverse = [0.0; 16];
 
         let determinant = self.determinant();
 
@@ -206,16 +222,14 @@ impl<'a> Mul for &'a Matrix {
         assert_eq!(self.size, 4);
         assert_eq!(rhs.size, 4);
 
-        let mut result_vals = Vec::with_capacity(self.size * self.size);
+        let mut result_vals = [0.0; 16];
 
         for row in 0..self.size {
             for col in 0..self.size {
-                result_vals.push(
-                    self.get(row, 0) * rhs.get(0, col)
-                        + self.get(row, 1) * rhs.get(1, col)
-                        + self.get(row, 2) * rhs.get(2, col)
-                        + self.get(row, 3) * rhs.get(3, col),
-                )
+                result_vals[self.i(row, col)] = self.get(row, 0) * rhs.get(0, col)
+                    + self.get(row, 1) * rhs.get(1, col)
+                    + self.get(row, 2) * rhs.get(2, col)
+                    + self.get(row, 3) * rhs.get(3, col)
             }
         }
 

@@ -22,6 +22,18 @@ mod matrix_test {
     }
 
     #[test]
+    fn cloneable() {
+        let a = Matrix::from_values(vec![
+            vec![-3.0, 5.0, 0.0],
+            vec![1.0, -2.0, -7.0],
+            vec![0.0, 1.0, 1.0],
+        ]);
+
+        let b = a.clone();
+        assert_eq!(a, b);
+    }
+
+    #[test]
     fn create_2x2() {
         let matrix = Matrix::from_values(vec![vec![-3.0, 5.0], vec![1.0, -2.0]]);
 
