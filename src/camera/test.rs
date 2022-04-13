@@ -6,6 +6,7 @@ mod camera_test {
     use crate::lights::PointLight;
     use crate::materials::Material;
     use crate::matrix::{is_equal_float, Matrix};
+    use crate::pattern::{stripe_pattern, Pattern};
     use crate::shapes::plane_from_material;
     use crate::shapes::sphere_from_material;
     use crate::transformation::view_transformation;
@@ -159,7 +160,8 @@ mod camera_test {
     #[test]
     fn scene_with_floor() {
         // floor
-        let mut wall_material = Material::with_color(color(1.0, 0.41, 0.7));
+        let mut wall_material =
+            Material::from_pattern(stripe_pattern(color(1.0, 0.41, 0.7), Color::white()));
         wall_material.diffuse = 0.7;
         wall_material.specular = 0.1;
         let floor = plane_from_material(wall_material);
@@ -176,7 +178,10 @@ mod camera_test {
         );
 
         // large middle shapes
-        let mut middle_material = Material::with_color(color(0.1, 1.0, 0.5));
+        let mut middle_material = Material::from_pattern(
+            stripe_pattern(color(0.1, 1.0, 0.5), Color::white())
+                .with_transformation(Matrix::identity().scale(0.1, 0.1, 0.1).rotate_z(FRAC_PI_4)),
+        );
         middle_material.diffuse = 0.7;
         middle_material.specular = 0.3;
         let middle = sphere_from_material(middle_material)

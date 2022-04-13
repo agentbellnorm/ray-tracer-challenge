@@ -1,9 +1,10 @@
 use crate::color::Color;
 use crate::lights::PointLight;
 use crate::pattern::Pattern;
+use crate::shapes::Shape;
 use crate::tuple::Tuple;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Material {
     pub color: Color,
     pub ambient: f64,
@@ -44,6 +45,7 @@ impl Material {
 
     pub fn lighting(
         &self,
+        object: &Shape,
         light: &PointLight,
         point: Tuple,
         eye_vector: Tuple,
@@ -56,7 +58,7 @@ impl Material {
 
         let black = Color::black();
         let color = match self.pattern {
-            Some(pattern) => pattern.color_at(point),
+            Some(pattern) => pattern.color_at_object(object, point),
             None => self.color,
         };
 

@@ -4,6 +4,7 @@ mod material_test {
     use crate::lights::PointLight;
     use crate::materials::Material;
     use crate::pattern::stripe_pattern;
+    use crate::shapes::sphere_default;
     use crate::tuple::{point, vector, Tuple};
 
     #[test]
@@ -28,7 +29,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v, false);
+        let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(1.9, 1.9, 1.9));
     }
@@ -40,7 +41,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v, false);
+        let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
         assert_eq!(result, Color::white());
     }
@@ -52,7 +53,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v, false);
+        let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(0.7364, 0.7364, 0.7364));
     }
@@ -64,7 +65,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v, false);
+        let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(1.63639, 1.63639, 1.63639));
     }
@@ -76,7 +77,7 @@ mod material_test {
         let normal_v = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, 10.0), Color::white());
 
-        let result = m.lighting(&light, position, eye_v, normal_v, false);
+        let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
     }
@@ -89,7 +90,14 @@ mod material_test {
         let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
         let in_shadow = true;
 
-        let result = m.lighting(&light, position, eyev, normalv, in_shadow);
+        let result = m.lighting(
+            &sphere_default(),
+            &light,
+            position,
+            eyev,
+            normalv,
+            in_shadow,
+        );
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
     }
@@ -105,8 +113,22 @@ mod material_test {
         let normalv = vector(0.0, 0.0, -1.0);
         let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
 
-        let c1 = material.lighting(&light, point(0.9, 0.0, 0.0), eyev, normalv, false);
-        let c2 = material.lighting(&light, point(1.1, 0.0, 0.0), eyev, normalv, false);
+        let c1 = material.lighting(
+            &sphere_default(),
+            &light,
+            point(0.9, 0.0, 0.0),
+            eyev,
+            normalv,
+            false,
+        );
+        let c2 = material.lighting(
+            &sphere_default(),
+            &light,
+            point(1.1, 0.0, 0.0),
+            eyev,
+            normalv,
+            false,
+        );
 
         assert_eq!(c1, Color::white());
         assert_eq!(c2, Color::black());

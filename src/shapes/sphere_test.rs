@@ -204,6 +204,7 @@ mod sphere_test {
                         let normal_on_sphere = hit.object.normal_at(point_on_sphere);
                         let eye = -ray.direction;
                         let color = hit.object.get_material().lighting(
+                            &sphere_default(),
                             &light,
                             point_on_sphere,
                             eye,

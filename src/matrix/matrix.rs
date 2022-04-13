@@ -9,14 +9,6 @@ pub struct Matrix {
     size: usize,
 }
 
-fn vec_to_arr4(v: Vec<f64>) -> [f64; 4] {
-    let mut a = [0.0; 4];
-    for i in 0..4 {
-        a[i] = *v.get(i).unwrap();
-    }
-    a
-}
-
 impl Matrix {
     pub fn from_vec(v: Storage, size: usize) -> Matrix {
         Matrix { storage: v, size }
