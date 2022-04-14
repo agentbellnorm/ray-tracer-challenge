@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::save_to_file;
 
 #[derive(Debug)]
 pub struct Canvas {
@@ -61,6 +62,10 @@ impl Canvas {
         }
 
         format!("{}\n{}", header, body)
+    }
+
+    pub fn save_to_file(&self, path: &str) -> std::io::Result<()> {
+        save_to_file(path, self.to_ppm())
     }
 
     pub fn length(&self) -> usize {
