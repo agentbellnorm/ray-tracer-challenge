@@ -103,6 +103,10 @@ pub fn color(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
 }
 
+pub fn rgb(r: i32, g: i32, b: i32) -> Color {
+    color(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0)
+}
+
 pub fn white() -> Color {
     color(1.0, 1.0, 1.0)
 }
