@@ -6,14 +6,20 @@ My objectives with this project is to
 * Learn Rust
 
 ## Examples
-### As of chapter 8
+### Chapter 10, Patterns
+![sphere](./doc/patterns.png)
+### Chapter 9, Planes
+
 ![sphere](./doc/scene_with_floor.png)
 
-### As of chapter 8
+### Chapter 8, Shadows
+
 ![sphere](./doc/first_scene_shadows.png)
 
-### As of chapter 7
+### Chapter 7, Scene made from multiple spheres 
+
 ![sphere](./doc/first_scene.png)
 
-### As of chapter 6
+### Chapter 6, First 3D sphere
+
 ![sphere](./doc/sphere.png)
