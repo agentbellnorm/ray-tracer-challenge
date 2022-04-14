@@ -1,5 +1,7 @@
 use crate::color::{white, Color};
-use crate::matrix::Matrix;
+use crate::matrix::{is_equal_float, Matrix};
+use crate::pattern::{noise2, noise3};
+use crate::point;
 use crate::shapes::Shape;
 use crate::tuple::Tuple;
 
@@ -9,6 +11,7 @@ pub struct Pattern {
     b: Color,
     transformation: Matrix,
     pattern_type: PatternType,
+    noise: f64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -26,7 +29,11 @@ impl Pattern {
                 0 => self.a,
                 _ => self.b,
             },
-            PatternType::Gradient => self.a + (self.b - self.a) * (point.x - point.x.floor()),
+            PatternType::Gradient => {
+                let distance = self.b - self.a;
+                let fraction = point.x - point.x.floor();
+                self.a + distance * fraction
+            }
             PatternType::Ring => {
                 match (point.x.powi(2) + point.z.powi(2)).sqrt().floor() as i64 % 2 {
                     0 => self.a,
@@ -34,7 +41,7 @@ impl Pattern {
                 }
             }
             PatternType::Checkers => {
-                match (point.x.abs() + point.y.abs() + point.z.abs()) as i64 % 2 {
+                match (point.x.floor() + point.y.floor() + point.z.floor()) as i64 % 2 {
                     0 => self.a,
                     _ => self.b,
                 }
@@ -47,9 +54,28 @@ impl Pattern {
         self
     }
 
-    pub fn color_at_object(self, object: &Shape, point: Tuple) -> Color {
-        let object_space = point * &object.get_transformation().inverse();
-        let pattern_space = object_space * &self.transformation.inverse();
+    pub fn with_noise(mut self, noise: f64) -> Self {
+        self.noise = noise;
+        self
+    }
+
+    pub fn has_noise(&self) -> bool {
+        !is_equal_float(self.noise, 0.0)
+    }
+
+    pub fn color_at_object(self, object: &Shape, p: Tuple) -> Color {
+        let object_space = p * &object.get_transformation().inverse();
+        let mut pattern_space = object_space * &self.transformation.inverse();
+
+        if self.has_noise() {
+            let factor = self.noise * noise3(pattern_space.x, pattern_space.y, pattern_space.z);
+            pattern_space = point(
+                pattern_space.x + factor,
+                pattern_space.y + factor,
+                pattern_space.z + factor,
+            );
+        }
+
         self.color_at(pattern_space)
     }
 
@@ -59,6 +85,7 @@ impl Pattern {
             b,
             transformation: Matrix::identity(),
             pattern_type: PatternType::Striped,
+            noise: 0.0,
         }
     }
 
@@ -68,6 +95,7 @@ impl Pattern {
             b,
             transformation: Matrix::identity(),
             pattern_type: PatternType::Gradient,
+            noise: 0.0,
         }
     }
 
@@ -77,6 +105,7 @@ impl Pattern {
             b,
             transformation: Matrix::identity(),
             pattern_type: PatternType::Ring,
+            noise: 0.0,
         }
     }
 
@@ -86,6 +115,7 @@ impl Pattern {
             b,
             transformation: Matrix::identity(),
             pattern_type: PatternType::Checkers,
+            noise: 0.0,
         }
     }
 }
