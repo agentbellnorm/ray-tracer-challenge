@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod world_test {
-    use crate::color::{color, Color};
+    use crate::color::{black, color, white};
     use crate::intersection::Intersection;
     use crate::lights::PointLight;
     use crate::materials::Material;
@@ -12,7 +12,7 @@ mod world_test {
 
     #[test]
     fn default_world() {
-        let light = PointLight::with(point(-10.0, 10.0, -10.0), Color::white());
+        let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
         let mut material = Material::with_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;
@@ -58,7 +58,7 @@ mod world_test {
     #[test]
     fn shading_an_intersection_from_the_inside() {
         let mut w = World::default_world();
-        w.light_source = PointLight::with(point(0.0, 0.25, 0.0), Color::white());
+        w.light_source = PointLight::with(point(0.0, 0.25, 0.0), white());
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shapes = w.objects.get(1).unwrap();
         let i = Intersection::new(0.5, shapes);
@@ -75,7 +75,7 @@ mod world_test {
         let s2 = sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
         let w = World::with(
             vec![s1, s2.clone()],
-            PointLight::with(point(0.0, 0.0, -10.0), Color::white()),
+            PointLight::with(point(0.0, 0.0, -10.0), white()),
         );
         let i = Intersection::new(4.0, &s2);
         let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
@@ -93,7 +93,7 @@ mod world_test {
 
         let c = w.color_at(&r);
 
-        assert_eq!(c, Color::black());
+        assert_eq!(c, black());
     }
 
     #[test]
@@ -108,7 +108,7 @@ mod world_test {
 
     #[test]
     fn color_with_intersection_behind_ray() {
-        let light = PointLight::with(point(-10.0, 10.0, -10.0), Color::white());
+        let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
         let mut material = Material::with_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;

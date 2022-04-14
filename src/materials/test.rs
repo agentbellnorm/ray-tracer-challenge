@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod material_test {
-    use crate::color::{color, Color};
+    use crate::color::{black, color, white};
     use crate::lights::PointLight;
     use crate::materials::Material;
-    use crate::pattern::stripe_pattern;
+    use crate::pattern::Pattern;
     use crate::shapes::sphere_default;
     use crate::tuple::{point, vector, Tuple};
 
@@ -11,7 +11,7 @@ mod material_test {
     fn default_material() {
         let m = Material::new();
 
-        assert_eq!(m.color, Color::white());
+        assert_eq!(m.color, white());
         assert_eq!(m.ambient, 0.1);
         assert_eq!(m.diffuse, 0.9);
         assert_eq!(m.specular, 0.9);
@@ -27,7 +27,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 0.0, -10.0), white());
 
         let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
@@ -39,11 +39,11 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 0.0, -10.0), white());
 
         let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
-        assert_eq!(result, Color::white());
+        assert_eq!(result, white());
     }
 
     #[test]
@@ -51,7 +51,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 10.0, -10.0), white());
 
         let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
@@ -63,7 +63,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, -f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 10.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 10.0, -10.0), white());
 
         let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
@@ -75,7 +75,7 @@ mod material_test {
         let (m, position) = setup();
         let eye_v = vector(0.0, 0.0, -1.0);
         let normal_v = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, 10.0), Color::white());
+        let light = PointLight::with(point(0.0, 0.0, 10.0), white());
 
         let result = m.lighting(&sphere_default(), &light, position, eye_v, normal_v, false);
 
@@ -87,7 +87,7 @@ mod material_test {
         let (m, position) = setup();
         let eyev = vector(0.0, 0.0, -1.0);
         let normalv = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 0.0, -10.0), white());
         let in_shadow = true;
 
         let result = m.lighting(
@@ -104,14 +104,14 @@ mod material_test {
 
     #[test]
     fn lighting_with_pattern_applied() {
-        let pattern = stripe_pattern(Color::white(), Color::black());
+        let pattern = Pattern::striped(white(), black());
         let mut material = Material::from_pattern(pattern);
         material.ambient = 1.0;
         material.specular = 0.0;
         material.diffuse = 0.0;
         let eyev = vector(0.0, 0.0, -1.0);
         let normalv = vector(0.0, 0.0, -1.0);
-        let light = PointLight::with(point(0.0, 0.0, -10.0), Color::white());
+        let light = PointLight::with(point(0.0, 0.0, -10.0), white());
 
         let c1 = material.lighting(
             &sphere_default(),
@@ -130,7 +130,7 @@ mod material_test {
             false,
         );
 
-        assert_eq!(c1, Color::white());
-        assert_eq!(c2, Color::black());
+        assert_eq!(c1, white());
+        assert_eq!(c2, black());
     }
 }

@@ -1,24 +1,21 @@
 #[cfg(test)]
 mod canvas_test {
     use crate::canvas::Canvas;
-    use crate::color::{color, Color};
+    use crate::color::{black, color};
 
     #[test]
     fn create() {
-        let canvas = Canvas::new(10, 20, Color::black());
+        let canvas = Canvas::new(10, 20, black());
 
         assert_eq!(canvas.width, 10);
         assert_eq!(canvas.height, 20);
         assert_eq!(canvas.pixels.len(), 200);
-        assert!(canvas
-            .pixels
-            .into_iter()
-            .all(|pixel| pixel == Color::black()));
+        assert!(canvas.pixels.into_iter().all(|pixel| pixel == black()));
     }
 
     #[test]
     fn write_pixel() {
-        let mut canvas = Canvas::new(10, 20, Color::black());
+        let mut canvas = Canvas::new(10, 20, black());
         let red = color(1.0, 0.0, 0.0);
 
         canvas = canvas.write_pixel(2, 3, red);
@@ -28,7 +25,7 @@ mod canvas_test {
 
     #[test]
     fn ppm_header() {
-        let canvas = Canvas::new(5, 3, Color::black());
+        let canvas = Canvas::new(5, 3, black());
 
         assert_eq!(
             canvas
@@ -47,7 +44,7 @@ mod canvas_test {
 
     #[test]
     fn ppm_body() {
-        let mut canvas = Canvas::new(5, 3, Color::black());
+        let mut canvas = Canvas::new(5, 3, black());
         println!("{}", canvas.length());
 
         let c1 = color(1.5, 0.0, 0.0);
@@ -82,11 +79,7 @@ mod canvas_test {
     #[test]
     fn ends_with_newline() {
         assert_eq!(
-            Canvas::new(5, 3, Color::black())
-                .to_ppm()
-                .chars()
-                .last()
-                .unwrap(),
+            Canvas::new(5, 3, black()).to_ppm().chars().last().unwrap(),
             '\n'
         );
     }

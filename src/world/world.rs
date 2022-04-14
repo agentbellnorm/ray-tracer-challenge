@@ -1,4 +1,4 @@
-use crate::color::{color, Color};
+use crate::color::{black, color, white, Color};
 use crate::intersection::{Intersection, Intersections, PreparedComputation};
 use crate::lights::PointLight;
 use crate::materials::Material;
@@ -21,7 +21,7 @@ impl World {
     }
 
     pub fn default_world() -> World {
-        let light = PointLight::with(point(-10.0, 10.0, -10.0), Color::white());
+        let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
         let mut material = Material::with_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;
@@ -61,7 +61,7 @@ impl World {
 
         match intersection {
             Some(i) => self.shade_hit(i.prepare_computations(ray)),
-            None => Color::black(),
+            None => black(),
         }
     }
 

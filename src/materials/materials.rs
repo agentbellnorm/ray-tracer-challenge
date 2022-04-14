@@ -1,4 +1,4 @@
-use crate::color::Color;
+use crate::color::{black, white, Color};
 use crate::lights::PointLight;
 use crate::pattern::Pattern;
 use crate::shapes::Shape;
@@ -17,7 +17,7 @@ pub struct Material {
 impl Material {
     pub fn new() -> Material {
         Material {
-            color: Color::white(),
+            color: white(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -56,7 +56,7 @@ impl Material {
         let diffuse: Color;
         let specular: Color;
 
-        let black = Color::black();
+        let black = black();
         let color = match self.pattern {
             Some(pattern) => pattern.color_at_object(object, point),
             None => self.color,

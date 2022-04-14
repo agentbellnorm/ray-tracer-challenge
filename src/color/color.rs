@@ -30,14 +30,6 @@ impl Color {
     pub fn de_normalized(self) -> Vec<i32> {
         vec![to_255(self.r), to_255(self.g), to_255(self.b)]
     }
-
-    pub fn white() -> Color {
-        color(1.0, 1.0, 1.0)
-    }
-
-    pub fn black() -> Color {
-        color(0.0, 0.0, 0.0)
-    }
 }
 
 impl PartialEq for Color {
@@ -109,4 +101,12 @@ fn is_equal_float(a: f64, b: f64) -> bool {
 
 pub fn color(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
+}
+
+pub fn white() -> Color {
+    color(1.0, 1.0, 1.0)
+}
+
+pub fn black() -> Color {
+    color(0.0, 0.0, 0.0)
 }
