@@ -4,7 +4,7 @@ mod camera_test {
     use crate::color::{color, white};
     use crate::io::save_to_file;
     use crate::lights::PointLight;
-    use crate::materials::Material;
+    use crate::material::Material;
     use crate::matrix::{is_equal_float, Matrix};
     use crate::pattern::Pattern;
     use crate::shapes::plane_from_material;

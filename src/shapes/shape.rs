@@ -1,5 +1,5 @@
 use crate::intersection::{Intersection, Intersections};
-use crate::materials::Material;
+use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::shapes;

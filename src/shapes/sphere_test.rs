@@ -4,7 +4,7 @@ mod sphere_test {
     use crate::color::{black, color, white};
     use crate::io::save_to_file;
     use crate::lights::PointLight;
-    use crate::materials::Material;
+    use crate::material::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::shapes::{sphere_default, sphere_from_material, sphere_from_transform};

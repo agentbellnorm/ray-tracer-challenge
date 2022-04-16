@@ -2,7 +2,7 @@
 mod material_test {
     use crate::color::{black, color, white};
     use crate::lights::PointLight;
-    use crate::materials::Material;
+    use crate::material::Material;
     use crate::pattern::Pattern;
     use crate::shapes::sphere_default;
     use crate::tuple::{point, vector, Tuple};

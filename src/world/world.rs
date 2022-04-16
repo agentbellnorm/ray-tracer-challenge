@@ -1,7 +1,7 @@
 use crate::color::{black, color, white, Color};
 use crate::intersection::{Intersection, Intersections, PreparedComputation};
 use crate::lights::PointLight;
-use crate::materials::Material;
+use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::shapes::{sphere_from_material, sphere_from_transform, Shape};
