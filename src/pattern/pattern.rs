@@ -1,6 +1,6 @@
-use crate::color::{white, Color};
+use crate::color::Color;
 use crate::matrix::{is_equal_float, Matrix};
-use crate::pattern::{noise2, noise3};
+use crate::pattern::noise3;
 use crate::point;
 use crate::shapes::Shape;
 use crate::tuple::Tuple;

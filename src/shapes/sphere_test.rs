@@ -183,7 +183,7 @@ mod sphere_test {
         let pixel_size = wall_size / (size as f64);
         let half = wall_size / 2.0;
 
-        let material = Material::with_color(color(1.0, 0.2, 1.0));
+        let material = Material::from_color(color(1.0, 0.2, 1.0));
         let sphere = sphere_from_material(material)
             .with_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4));
 

@@ -6,9 +6,10 @@ I looked a lot at this one as well:
     https://github.com/keijiro/PerlinNoise/blob/master/Assets/Perlin.cs
 */
 
+#[allow(dead_code)]
 pub fn noise2(mut x: f64, mut y: f64) -> f64 {
-    let X = x.floor() as i64 & 0xff;
-    let Y = y.floor() as i64 & 0xff;
+    let x_ = x.floor() as i64 & 0xff;
+    let y_ = y.floor() as i64 & 0xff;
 
     x -= x.floor();
     y -= y.floor();
@@ -16,24 +17,24 @@ pub fn noise2(mut x: f64, mut y: f64) -> f64 {
     let u = fade(x);
     let v = fade(y);
 
-    let a = (get_perm(X) + Y) & 0xff;
-    let b = (get_perm((X + 1)) + Y) & 0xff;
+    let a = (get_perm(x_) + y_) & 0xff;
+    let b = (get_perm(x_ + 1) + y_) & 0xff;
 
     lerp(
         v,
         lerp(u, grad2(get_perm(a), x, y), grad2(get_perm(b), x - 1.0, y)),
         lerp(
             u,
-            grad2(get_perm((a + 1)), x, y - 1.0),
-            grad2(get_perm((b + 1)), x - 1.0, y - 1.0),
+            grad2(get_perm(a + 1), x, y - 1.0),
+            grad2(get_perm(b + 1), x - 1.0, y - 1.0),
         ),
     )
 }
 
 pub fn noise3(mut x: f64, mut y: f64, mut z: f64) -> f64 {
-    let X = x.floor() as i64 & 0xff;
-    let Y = y.floor() as i64 & 0xff;
-    let Z = z.floor() as i64 & 0xff;
+    let x_ = x.floor() as i64 & 0xff;
+    let y_ = y.floor() as i64 & 0xff;
+    let z_ = z.floor() as i64 & 0xff;
     x -= x.floor();
     y -= y.floor();
     z -= z.floor();
@@ -42,12 +43,12 @@ pub fn noise3(mut x: f64, mut y: f64, mut z: f64) -> f64 {
     let v = fade(y);
     let w = fade(z);
 
-    let a = (get_perm(X) + Y) & 0xff;
-    let b = (get_perm(X + 1) + Y) & 0xff;
-    let aa = (get_perm(a) + Z) & 0xff;
-    let ba = (get_perm(b) + Z) & 0xff;
-    let ab = (get_perm(a + 1) + Z) & 0xff;
-    let bb = (get_perm(b + 1) + Z) & 0xff;
+    let a = (get_perm(x_) + y_) & 0xff;
+    let b = (get_perm(x_ + 1) + y_) & 0xff;
+    let aa = (get_perm(a) + z_) & 0xff;
+    let ba = (get_perm(b) + z_) & 0xff;
+    let ab = (get_perm(a + 1) + z_) & 0xff;
+    let bb = (get_perm(b + 1) + z_) & 0xff;
 
     lerp(
         w,

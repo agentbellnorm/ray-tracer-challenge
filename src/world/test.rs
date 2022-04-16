@@ -14,7 +14,7 @@ mod world_test {
     fn default_world() {
         let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
-        let mut material = Material::with_color(color(0.8, 1.0, 0.6));
+        let mut material = Material::from_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;
         material.specular = 0.2;
 
@@ -110,7 +110,7 @@ mod world_test {
     fn color_with_intersection_behind_ray() {
         let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
-        let mut material = Material::with_color(color(0.8, 1.0, 0.6));
+        let mut material = Material::from_color(color(0.8, 1.0, 0.6));
         material.diffuse = 0.7;
         material.specular = 0.2;
         material.ambient = 1.0;
