@@ -6,9 +6,9 @@ mod world_test {
     use crate::material::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::shapes::{sphere_default, sphere_from_material, sphere_from_transform};
     use crate::tuple::{point, vector};
     use crate::world::World;
+    use crate::Shape;
 
     #[test]
     fn default_world() {
@@ -18,8 +18,8 @@ mod world_test {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = sphere_from_material(material);
-        let s2 = sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let s1 = Shape::sphere_from_material(material);
+        let s2 = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
         let default_world = World::default_world();
 
@@ -71,8 +71,8 @@ mod world_test {
 
     #[test]
     fn shade_hit_given_intersection_in_shadow() {
-        let s1 = sphere_default();
-        let s2 = sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
+        let s1 = Shape::sphere_default();
+        let s2 = Shape::sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
         let w = World::with(
             vec![s1, s2.clone()],
             PointLight::with(point(0.0, 0.0, -10.0), white()),
@@ -115,10 +115,10 @@ mod world_test {
         material.specular = 0.2;
         material.ambient = 1.0;
 
-        let outer = sphere_from_material(material.clone());
-        let inner =
-            sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5)).with_material(material);
-        let inner_color = inner.get_material().color;
+        let outer = Shape::sphere_from_material(material.clone());
+        let inner = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5))
+            .with_material(material);
+        let inner_color = inner.material.color;
 
         let w = World::with(vec![outer, inner], light);
         // above is default world with some tweaks

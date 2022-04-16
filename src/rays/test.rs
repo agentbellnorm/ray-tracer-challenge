@@ -2,8 +2,8 @@
 mod template_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::shapes::sphere_default;
     use crate::tuple::{point, vector};
+    use crate::Shape;
 
     #[test]
     fn create_ray() {
@@ -29,7 +29,7 @@ mod template_test {
     #[test]
     fn ray_intersects_sphere_at_two_points() {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 
@@ -41,7 +41,7 @@ mod template_test {
     #[test]
     fn ray_intersects_sphere_at_tangent() {
         let ray = Ray::with(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 
@@ -53,7 +53,7 @@ mod template_test {
     #[test]
     fn ray_misses_square() {
         let ray = Ray::with(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 
@@ -63,7 +63,7 @@ mod template_test {
     #[test]
     fn ray_originates_inside_sphere() {
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 
@@ -75,7 +75,7 @@ mod template_test {
     #[test]
     fn sphere_behind_ray() {
         let ray = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 
@@ -87,7 +87,7 @@ mod template_test {
     #[test]
     fn intersect_sets_the_object_on_intersection() {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let sphere = sphere_default();
+        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&ray);
 

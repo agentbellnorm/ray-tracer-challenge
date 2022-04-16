@@ -15,6 +15,7 @@ pub struct PreparedComputation<'a> {
     pub over_point: Tuple,
     pub eye_vector: Tuple,
     pub normal_vector: Tuple,
+    pub reflection_vector: Tuple,
     pub inside: bool,
 }
 
@@ -34,6 +35,8 @@ impl<'a> Intersection<'a> {
             false => normal_vector,
         };
 
+        let reflection_vector = ray.direction.reflect(&normal_vector);
+
         let over_point = point + (normal_vector * EPSILON);
 
         PreparedComputation {
@@ -44,6 +47,7 @@ impl<'a> Intersection<'a> {
             t: self.t,
             object: self.object,
             normal_vector,
+            reflection_vector,
         }
     }
 }

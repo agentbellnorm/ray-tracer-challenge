@@ -3,8 +3,8 @@ mod pattern_test {
     use crate::color::{black, color, white};
     use crate::matrix::Matrix;
     use crate::pattern::Pattern;
-    use crate::shapes::{sphere_default, sphere_from_transform};
     use crate::tuple::point;
+    use crate::Shape;
 
     #[test]
     fn creating_stripe_pattern() {
@@ -40,7 +40,7 @@ mod pattern_test {
 
     #[test]
     fn stripes_with_object_transformation() {
-        let o = sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let o = Shape::sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
         let p = Pattern::striped(white(), black());
 
         let c = p.color_at_object(&o, point(1.5, 0.0, 0.0));
@@ -50,7 +50,7 @@ mod pattern_test {
 
     #[test]
     fn stripes_with_pattern_transformation() {
-        let o = sphere_default();
+        let o = Shape::sphere_default();
         let p = Pattern::striped(white(), black())
             .with_transformation(Matrix::identity().scale(2.0, 2.0, 2.0));
 
@@ -61,7 +61,7 @@ mod pattern_test {
 
     #[test]
     fn stripes_with_both_object_and_pattern_transformation() {
-        let o = sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let o = Shape::sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
         let p = Pattern::striped(white(), black())
             .with_transformation(Matrix::identity().translate(0.5, 0.0, 0.0));
 

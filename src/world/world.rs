@@ -4,7 +4,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::shapes::{sphere_from_material, sphere_from_transform, Shape};
+use crate::shapes::Shape;
 use crate::tuple::{point, Tuple};
 
 pub struct World {
@@ -27,8 +27,8 @@ impl World {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = sphere_from_material(material);
-        let s2 = sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let s1 = Shape::sphere_from_material(material);
+        let s2 = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
         Self::with(vec![s1, s2], light)
     }
@@ -46,7 +46,7 @@ impl World {
     }
 
     pub fn shade_hit(&self, computations: PreparedComputation) -> Color {
-        computations.object.get_material().lighting(
+        computations.object.material.lighting(
             computations.object,
             &self.light_source,
             computations.over_point,

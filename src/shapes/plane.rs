@@ -16,20 +16,6 @@ pub fn plane_normal_at(_object_point: Tuple) -> Tuple {
     vector(0.0, 1.0, 0.0)
 }
 
-pub fn plane_default() -> Shape {
-    Shape::Plane {
-        transformation: Matrix::identity(),
-        material: Material::new(),
-    }
-}
-
-pub fn plane_from_material(material: Material) -> Shape {
-    Shape::Plane {
-        material,
-        transformation: Matrix::identity(),
-    }
-}
-
 // pub fn plane_from_transform(transformation: Matrix) -> Shape {
 //     Shape::Plane {
 //         transformation,

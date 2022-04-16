@@ -11,6 +11,7 @@ pub struct Material {
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub reflective: f64,
     pub pattern: Option<Pattern>,
 }
 
@@ -21,12 +22,13 @@ impl Material {
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
+            reflective: 0.0,
             shininess: 200.0,
             pattern: None,
         }
     }
 
-    pub fn with_color(color: Color) -> Material {
+    pub fn from_color(color: Color) -> Material {
         let mut m = Material::new();
         m.color = color;
         m
@@ -36,11 +38,6 @@ impl Material {
         let mut m = Material::new();
         m.pattern = Some(pattern);
         m
-    }
-
-    pub fn with_pattern(mut self, pattern: Pattern) -> Material {
-        self.pattern = Some(pattern);
-        self
     }
 
     pub fn lighting(

@@ -26,24 +26,3 @@ pub fn sphere_intersects(transformed_ray: &Ray) -> Vec<f64> {
 
     vec![t1, t2]
 }
-
-pub fn sphere_default() -> Shape {
-    Shape::Sphere {
-        material: Material::new(),
-        transformation: Matrix::identity(),
-    }
-}
-
-pub fn sphere_from_material(material: Material) -> Shape {
-    Shape::Sphere {
-        material,
-        transformation: Matrix::identity(),
-    }
-}
-
-pub fn sphere_from_transform(transformation: Matrix) -> Shape {
-    Shape::Sphere {
-        transformation,
-        material: Material::new(),
-    }
-}

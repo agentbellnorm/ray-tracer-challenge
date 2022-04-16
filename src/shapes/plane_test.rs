@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod plane_test {
     use crate::rays::Ray;
-    use crate::shapes::plane::{plane_default, plane_normal_at};
+    use crate::shapes::plane::plane_normal_at;
     use crate::tuple::{point, vector};
+    use crate::Shape;
 
     #[test]
     fn normal_of_plane_is_constant_everywhere() {
@@ -17,7 +18,7 @@ mod plane_test {
 
     #[test]
     fn intersect_with_ray_parallel_to_plane() {
-        let p = plane_default();
+        let p = Shape::plane_default();
         let r = Ray::with(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
         let xs = p.intersects(&r);
 
@@ -26,7 +27,7 @@ mod plane_test {
 
     #[test]
     fn intersect_with_coplanar_ray() {
-        let p = plane_default();
+        let p = Shape::plane_default();
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let xs = p.intersects(&r);
 
@@ -35,7 +36,7 @@ mod plane_test {
 
     #[test]
     fn ray_intersecting_plane_from_above() {
-        let p = plane_default();
+        let p = Shape::plane_default();
         let r = Ray::with(point(0.0, 1.0, 0.0), vector(0.0, -1.0, 0.0));
         let xs = p.intersects(&r);
 
@@ -44,7 +45,7 @@ mod plane_test {
 
     #[test]
     fn ray_intersecting_plane_from_below() {
-        let p = plane_default();
+        let p = Shape::plane_default();
         let r = Ray::with(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
         let xs = p.intersects(&r);
 

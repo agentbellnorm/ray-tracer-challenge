@@ -7,7 +7,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::shapes::{plane_from_material, sphere_from_material};
+use crate::shapes::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
 use crate::world::World;
@@ -35,7 +35,7 @@ fn main() {
     );
     floor_material.diffuse = 0.9;
     floor_material.specular = 0.1;
-    let floor = plane_from_material(floor_material);
+    let floor = Shape::plane_from_material(floor_material);
 
     // wall
     let mut wall_material = Material::from_pattern(
@@ -49,7 +49,7 @@ fn main() {
     );
     wall_material.diffuse = 0.9;
     wall_material.specular = 0.1;
-    let wall = plane_from_material(wall_material).with_transform(
+    let wall = Shape::plane_from_material(wall_material).with_transform(
         Matrix::identity()
             .rotate_z(FRAC_PI_2)
             .rotate_y(-FRAC_PI_8)
@@ -70,7 +70,7 @@ fn main() {
     );
     middle_material.diffuse = 1.0;
     middle_material.specular = 0.5;
-    let middle = sphere_from_material(middle_material)
+    let middle = Shape::sphere_from_material(middle_material)
         .with_transform(Matrix::identity().translate(-0.5, 1.0, 0.5));
 
     //smaller right shapes
@@ -85,7 +85,7 @@ fn main() {
     right_material.diffuse = 0.8;
     right_material.specular = 0.3;
     right_material.shininess = 300.0;
-    let right = sphere_from_material(right_material).with_transform(
+    let right = Shape::sphere_from_material(right_material).with_transform(
         Matrix::identity()
             .scale(0.5, 0.5, 0.5)
             .translate(1.5, 0.5, -0.5),
@@ -102,7 +102,7 @@ fn main() {
     );
     left_material.diffuse = 0.8;
     left_material.specular = 0.3;
-    let left = sphere_from_material(left_material).with_transform(
+    let left = Shape::sphere_from_material(left_material).with_transform(
         Matrix::identity()
             .scale(0.33, 0.33, 0.33)
             .translate(-1.5, 0.33, -0.75),

@@ -7,11 +7,10 @@ mod camera_test {
     use crate::material::Material;
     use crate::matrix::{is_equal_float, Matrix};
     use crate::pattern::Pattern;
-    use crate::shapes::plane_from_material;
-    use crate::shapes::sphere_from_material;
     use crate::transformation::view_transformation;
     use crate::tuple::{point, vector};
     use crate::world::World;
+    use crate::Shape;
     use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_8, PI};
 
     #[test]
@@ -91,11 +90,11 @@ mod camera_test {
         // floor
         let mut wall_material = Material::from_color(color(1.0, 0.9, 0.9));
         wall_material.specular = 0.0;
-        let floor = sphere_from_material(wall_material.clone())
+        let floor = Shape::sphere_from_material(wall_material.clone())
             .with_transform(Matrix::identity().scale(10.0, 0.01, 10.0));
 
         // left wall
-        let left_wall = sphere_from_material(wall_material.clone()).with_transform(
+        let left_wall = Shape::sphere_from_material(wall_material.clone()).with_transform(
             Matrix::identity()
                 .scale(10.0, 0.01, 10.0)
                 .rotate_x(FRAC_PI_2)
@@ -104,7 +103,7 @@ mod camera_test {
         );
 
         // right wall
-        let right_wall = sphere_from_material(wall_material.clone()).with_transform(
+        let right_wall = Shape::sphere_from_material(wall_material.clone()).with_transform(
             Matrix::identity()
                 .scale(10.0, 0.01, 10.0)
                 .rotate_x(FRAC_PI_2)
@@ -116,14 +115,14 @@ mod camera_test {
         let mut middle_material = Material::from_color(color(0.1, 1.0, 0.5));
         middle_material.diffuse = 0.7;
         middle_material.specular = 0.3;
-        let middle = sphere_from_material(middle_material)
+        let middle = Shape::sphere_from_material(middle_material)
             .with_transform(Matrix::identity().translate(-0.5, 1.0, 0.5));
 
         //smaller right shapes
         let mut right_material = Material::from_color(color(0.5, 1.0, 0.1));
         right_material.diffuse = 0.7;
         right_material.specular = 0.3;
-        let right = sphere_from_material(right_material).with_transform(
+        let right = Shape::sphere_from_material(right_material).with_transform(
             Matrix::identity()
                 .scale(0.5, 0.5, 0.5)
                 .translate(1.5, 0.5, -0.5),
@@ -133,7 +132,7 @@ mod camera_test {
         let mut left_material = Material::from_color(color(1.0, 0.8, 0.1));
         left_material.diffuse = 0.7;
         left_material.specular = 0.3;
-        let left = sphere_from_material(left_material).with_transform(
+        let left = Shape::sphere_from_material(left_material).with_transform(
             Matrix::identity()
                 .scale(0.33, 0.33, 0.33)
                 .translate(-1.5, 0.33, -0.75),
@@ -164,13 +163,13 @@ mod camera_test {
             Material::from_pattern(Pattern::checkers(color(1.0, 0.41, 0.7), white()));
         wall_material.diffuse = 0.7;
         wall_material.specular = 0.1;
-        let floor = plane_from_material(wall_material);
+        let floor = Shape::plane_from_material(wall_material);
 
         // wall
         let mut wall_material = Material::from_color(color(1.0, 0.2, 0.2));
         wall_material.diffuse = 0.5;
         wall_material.specular = 0.1;
-        let wall = plane_from_material(wall_material).with_transform(
+        let wall = Shape::plane_from_material(wall_material).with_transform(
             Matrix::identity()
                 .rotate_z(FRAC_PI_2)
                 .rotate_y(-FRAC_PI_8)
@@ -184,14 +183,14 @@ mod camera_test {
         );
         middle_material.diffuse = 0.7;
         middle_material.specular = 0.3;
-        let middle = sphere_from_material(middle_material)
+        let middle = Shape::sphere_from_material(middle_material)
             .with_transform(Matrix::identity().translate(-0.5, 1.0, 0.5));
 
         //smaller right shapes
         let mut right_material = Material::from_color(color(0.5, 1.0, 0.1));
         right_material.diffuse = 0.7;
         right_material.specular = 0.3;
-        let right = sphere_from_material(right_material).with_transform(
+        let right = Shape::sphere_from_material(right_material).with_transform(
             Matrix::identity()
                 .scale(0.5, 0.5, 0.5)
                 .translate(1.5, 0.5, -0.5),
@@ -201,7 +200,7 @@ mod camera_test {
         let mut left_material = Material::from_color(color(1.0, 0.8, 0.1));
         left_material.diffuse = 0.7;
         left_material.specular = 0.3;
-        let left = sphere_from_material(left_material).with_transform(
+        let left = Shape::sphere_from_material(left_material).with_transform(
             Matrix::identity()
                 .scale(0.33, 0.33, 0.33)
                 .translate(-1.5, 0.33, -0.75),
