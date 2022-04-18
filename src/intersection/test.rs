@@ -4,8 +4,7 @@ mod intersection_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::tuple::{point, vector, EPSILON};
-    use crate::{color, white, Material, PointLight, Shape, World};
-    use std::detect::__is_feature_detected::sha;
+    use crate::Shape;
     use std::f64::consts::SQRT_2;
 
     #[test]
@@ -146,13 +145,5 @@ mod intersection_test {
             comps.reflection_vector,
             vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0)
         )
-    }
-
-    #[test]
-    fn the_reflected_color_for_a_nonreflective_material() {
-        let mut world = World::default_world();
-        let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        let shape = world.objects.get_mut(1).unwrap();
-        shape.material.ambient = 1.0;
     }
 }

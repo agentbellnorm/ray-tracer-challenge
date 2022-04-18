@@ -1,7 +1,4 @@
-use crate::material::Material;
-use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::shapes::Shape;
 use crate::tuple::{vector, Tuple, EPSILON};
 
 pub fn plane_intersects(ray: &Ray) -> Vec<f64> {

@@ -2,11 +2,12 @@ use crate::color::{black, color, white, Color};
 use crate::intersection::{Intersection, Intersections, PreparedComputation};
 use crate::lights::PointLight;
 use crate::material::Material;
-use crate::matrix::Matrix;
+use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shapes::Shape;
 use crate::tuple::{point, Tuple};
 
+#[derive(Debug)]
 pub struct World {
     pub objects: Vec<Shape>,
     pub light_source: PointLight,
@@ -45,22 +46,26 @@ impl World {
         Intersections { xs }
     }
 
-    pub fn shade_hit(&self, computations: PreparedComputation) -> Color {
-        computations.object.material.lighting(
+    pub fn shade_hit(&self, computations: &PreparedComputation, remaining: i32) -> Color {
+        let is_in_shadow = self.is_shadowed(computations.over_point);
+        let surface_color = computations.object.material.lighting(
             computations.object,
             &self.light_source,
             computations.over_point,
             computations.eye_vector,
             computations.normal_vector,
-            self.is_shadowed(computations.over_point),
-        )
+            is_in_shadow,
+        );
+        let reflected_color = self.reflected_color(computations, remaining);
+
+        surface_color + reflected_color
     }
 
-    pub fn color_at(&self, ray: &Ray) -> Color {
+    pub fn color_at(&self, ray: &Ray, remaining: i32) -> Color {
         let intersection = self.intersect_world(ray).xs.into_iter().find(|i| i.t > 0.0);
 
         match intersection {
-            Some(i) => self.shade_hit(i.prepare_computations(ray)),
+            Some(i) => self.shade_hit(&i.prepare_computations(ray), remaining),
             None => black(),
         }
     }
@@ -83,7 +88,22 @@ impl World {
         }
     }
 
+    pub fn reflected_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
+        if is_equal_float(comps.object.material.reflective, 0.0) || remaining <= 0 {
+            return black();
+        }
+
+        let reflect_ray = Ray::with(comps.over_point, comps.reflection_vector);
+
+        self.color_at(&reflect_ray, remaining - 1) * comps.object.material.reflective
+    }
+
     pub fn has_object(&self, o: &Shape) -> bool {
         self.objects.contains(o)
+    }
+
+    pub fn add_object(mut self, o: Shape) -> Self {
+        self.objects.push(o);
+        self
     }
 }

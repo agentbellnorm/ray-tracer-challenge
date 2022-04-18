@@ -35,6 +35,7 @@ fn main() {
     );
     floor_material.diffuse = 0.9;
     floor_material.specular = 0.1;
+    floor_material.reflective = 0.3;
     let floor = Shape::plane_from_material(floor_material);
 
     // wall
@@ -108,12 +109,23 @@ fn main() {
             .translate(-1.5, 0.33, -0.75),
     );
 
+    let mut metal_material = Material::from_color(black());
+    metal_material.reflective = 1.0;
+    metal_material.specular = 0.3;
+    metal_material.shininess = 300.0;
+
+    let dank = Shape::sphere_from_material(metal_material).with_transform(
+        Matrix::identity()
+            .scale(0.45, 0.45, 0.45)
+            .translate(-2.0, 0.45, 0.75),
+    );
+
     let world = World::with(
-        vec![floor, wall, middle, right, left],
+        vec![floor, wall, middle, dank, right, left],
         PointLight::with(point(-10.0, 10.0, -10.0), white()),
     );
 
-    let mut camera = Camera::new(1200, 600, FRAC_PI_3);
+    let mut camera = Camera::new(200, 100, FRAC_PI_3);
     camera = camera.set_transform(view_transformation(
         point(0.0, 1.5, -5.0),
         point(0.0, 1.0, 0.0),
@@ -121,5 +133,5 @@ fn main() {
     ));
 
     let canvas = camera.render(world);
-    let _ = canvas.save_to_file("src/camera/scene_with_floor.ppm");
+    let _ = canvas.save_to_file("src/main.ppm");
 }

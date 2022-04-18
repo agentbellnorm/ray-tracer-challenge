@@ -1,7 +1,4 @@
-use crate::material::Material;
-use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::shapes::shape::Shape;
 use crate::tuple::{point, Tuple};
 
 pub fn sphere_normal_at(object_point: Tuple) -> Tuple {
