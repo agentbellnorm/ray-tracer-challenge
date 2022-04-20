@@ -6,6 +6,7 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shapes::Shape;
 use crate::tuple::{point, Tuple};
+use std::vec;
 
 #[derive(Debug)]
 pub struct World {
@@ -65,7 +66,10 @@ impl World {
         let intersection = self.intersect_world(ray).xs.into_iter().find(|i| i.t > 0.0);
 
         match intersection {
-            Some(i) => self.shade_hit(&i.prepare_computations(ray), remaining),
+            Some(i) => self.shade_hit(
+                &i.prepare_computations(ray, &Intersections::from(vec![i.clone()])),
+                remaining,
+            ),
             None => black(),
         }
     }

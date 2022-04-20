@@ -17,6 +17,8 @@ pub struct PreparedComputation<'a> {
     pub normal_vector: Tuple,
     pub reflection_vector: Tuple,
     pub inside: bool,
+    pub n1: f64,
+    pub n2: f64,
 }
 
 impl<'a> Intersection<'a> {
@@ -24,7 +26,11 @@ impl<'a> Intersection<'a> {
         Intersection { t, object }
     }
 
-    pub fn prepare_computations(&self, ray: &Ray) -> PreparedComputation {
+    pub fn prepare_computations(
+        &self,
+        ray: &Ray,
+        intersections: &Intersections,
+    ) -> PreparedComputation {
         let point = ray.position(self.t);
         let mut normal_vector = self.object.normal_at(point);
         let eye_vector = -ray.direction;
@@ -39,6 +45,8 @@ impl<'a> Intersection<'a> {
 
         let over_point = point + (normal_vector * EPSILON);
 
+        let (n1, n2) = get_refractive_indices(self, intersections);
+
         PreparedComputation {
             point,
             over_point,
@@ -48,6 +56,8 @@ impl<'a> Intersection<'a> {
             object: self.object,
             normal_vector,
             reflection_vector,
+            n1,
+            n2,
         }
     }
 }
@@ -76,4 +86,48 @@ impl<'a> Intersections<'a> {
     pub fn get(&self, index: usize) -> &Intersection {
         &self.xs[index]
     }
+
+    pub fn from(xs: Vec<Intersection<'a>>) -> Self {
+        Intersections { xs }
+    }
+}
+
+fn get_refractive_indices(intersection: &Intersection, xs: &Intersections) -> (f64, f64) {
+    let mut n1: Option<f64> = None;
+    let mut n2: Option<f64> = None;
+
+    let mut containers: Vec<&Shape> = Vec::new();
+
+    for i in 0..xs.len() {
+        let current_intersection = xs.get(i);
+        let hit_is_current_intersection = intersection == current_intersection;
+
+        if hit_is_current_intersection {
+            if containers.is_empty() {
+                n1 = Some(1.0);
+            } else {
+                n1 = Some(containers.last().unwrap().material.refractive_index);
+            }
+        }
+
+        if containers
+            .iter()
+            .find(|intersection_obj| **intersection_obj == current_intersection.object)
+            .is_some()
+        {
+            containers.retain(|intersection_obj| *intersection_obj != current_intersection.object)
+        } else {
+            containers.push(current_intersection.object)
+        }
+
+        if hit_is_current_intersection {
+            if containers.is_empty() {
+                n2 = Some(1.0);
+            } else {
+                n2 = Some(containers.last().unwrap().material.refractive_index);
+            }
+        }
+    }
+
+    (n1.unwrap(), n2.unwrap())
 }

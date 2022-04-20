@@ -173,4 +173,12 @@ mod material_test {
     fn reflectivity_for_default_material() {
         assert_eq!(Material::new().reflective, 0.0)
     }
+
+    #[test]
+    fn transparency_and_refractive_index_for_default_material() {
+        let m = Material::new();
+
+        assert_eq!(m.transparency, 0.0);
+        assert_eq!(m.refractive_index, 1.0);
+    }
 }

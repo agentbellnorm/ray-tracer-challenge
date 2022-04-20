@@ -49,6 +49,10 @@ impl Shape {
         Shape::plane_default().with_material(material)
     }
 
+    pub fn sphere_glass() -> Self {
+        Shape::sphere_from_material(Material::glass())
+    }
+
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
         assert!(world_point.is_point());
 

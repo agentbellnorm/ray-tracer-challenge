@@ -5,7 +5,9 @@ mod intersection_test {
     use crate::rays::Ray;
     use crate::tuple::{point, vector, EPSILON};
     use crate::Shape;
+    use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
+    use std::vec;
 
     #[test]
     fn intersection_encapsulates_t_and_object() {
@@ -83,7 +85,7 @@ mod intersection_test {
         let shape = Shape::sphere_default();
         let i = Intersection::new(4.0, &shape);
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(comps.t, i.t);
         assert_eq!(comps.object, i.object);
@@ -98,7 +100,7 @@ mod intersection_test {
         let shape = Shape::sphere_default();
         let i = Intersection::new(4.0, &shape);
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(comps.inside, false);
     }
@@ -109,7 +111,7 @@ mod intersection_test {
         let shape = Shape::sphere_default();
         let i = Intersection::new(1.0, &shape);
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(comps.point, point(0.0, 0.0, 1.0));
         assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
@@ -124,7 +126,8 @@ mod intersection_test {
         let shape = Shape::sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 1.0));
         let intersection = Intersection::new(5.0, &shape);
 
-        let comps = intersection.prepare_computations(&r);
+        let comps =
+            intersection.prepare_computations(&r, &Intersections::from(vec![intersection.clone()]));
 
         assert!(comps.over_point.z < -EPSILON / 2.0);
         assert!(comps.point.z > comps.over_point.z);
@@ -139,11 +142,47 @@ mod intersection_test {
         );
         let intersection = Intersection::new(SQRT_2, &shape);
 
-        let comps = intersection.prepare_computations(&ray);
+        let comps = intersection
+            .prepare_computations(&ray, &Intersections::from(vec![intersection.clone()]));
 
         assert_eq!(
             comps.reflection_vector,
             vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0)
         )
+    }
+
+    #[parameterized(
+        index = {0, 1, 2, 3, 4, 5},
+        n1 = {1.0, 1.5, 2.0, 2.5, 2.5, 1.5},
+        n2 = {1.5, 2.0, 2.5, 2.5, 1.5, 1.0}
+    )]
+    fn finding_n1_and_n2_at_various_intersections(index: usize, n1: f64, n2: f64) {
+        let mut a = Shape::sphere_glass().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        a.material.refractive_index = 1.5;
+
+        let mut b =
+            Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, -0.25));
+        b.material.refractive_index = 2.0;
+
+        let mut c =
+            Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, 0.25));
+        c.material.refractive_index = 2.5;
+
+        let r = Ray::with(point(0.0, 0.0, -4.0), vector(0.0, 0.0, 1.0));
+        let xs = Intersections {
+            xs: vec![
+                Intersection::new(2.0, &a),
+                Intersection::new(2.75, &b),
+                Intersection::new(3.25, &c),
+                Intersection::new(4.75, &b),
+                Intersection::new(5.25, &c),
+                Intersection::new(6.0, &a),
+            ],
+        };
+
+        let comps = xs.get(index).prepare_computations(&r, &xs);
+
+        assert_eq!(comps.n1, n1);
+        assert_eq!(comps.n2, n2);
     }
 }

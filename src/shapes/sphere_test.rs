@@ -223,4 +223,13 @@ mod sphere_test {
 
         assert!(res.is_ok());
     }
+
+    #[test]
+    fn helper_for_producing_sphere_with_glassy_material() {
+        let s = Shape::sphere_glass();
+
+        assert_eq!(s.transformation, Matrix::identity());
+        assert_eq!(s.material.transparency, 1.0);
+        assert_eq!(s.material.refractive_index, 1.5);
+    }
 }

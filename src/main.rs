@@ -12,6 +12,7 @@ use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
 use crate::world::World;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_8};
+use std::process::Command;
 
 mod camera;
 mod canvas;
@@ -112,12 +113,13 @@ fn main() {
     let mut metal_material = Material::from_color(black());
     metal_material.reflective = 1.0;
     metal_material.specular = 0.3;
+    metal_material.diffuse = 0.8;
     metal_material.shininess = 300.0;
 
     let dank = Shape::sphere_from_material(metal_material).with_transform(
         Matrix::identity()
             .scale(0.45, 0.45, 0.45)
-            .translate(-2.0, 0.45, 0.75),
+            .translate(-2.5, 0.45, 0.75),
     );
 
     let world = World::with(
@@ -134,4 +136,6 @@ fn main() {
 
     let canvas = camera.render(world);
     let _ = canvas.save_to_file("src/main.ppm");
+
+    println!("{:?}", Command::new("open").arg("./src/main.ppm").output());
 }

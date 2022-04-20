@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod world_test {
     use crate::color::{black, color, white};
-    use crate::intersection::Intersection;
+    use crate::intersection::{Intersection, Intersections};
     use crate::lights::PointLight;
     use crate::material::Material;
     use crate::matrix::Matrix;
@@ -10,6 +10,7 @@ mod world_test {
     use crate::world::World;
     use crate::Shape;
     use std::f64::consts::SQRT_2;
+    use std::vec;
 
     #[test]
     fn default_world() {
@@ -50,7 +51,7 @@ mod world_test {
         let shapes = w.objects.get(0).unwrap();
         let i = Intersection::new(4.0, shapes);
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.38066, 0.47583, 0.2855));
@@ -64,7 +65,7 @@ mod world_test {
         let shapes = w.objects.get(1).unwrap();
         let i = Intersection::new(0.5, shapes);
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.90498, 0.90498, 0.90498));
@@ -81,7 +82,7 @@ mod world_test {
         let i = Intersection::new(4.0, &s2);
         let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
 
-        let comps = i.prepare_computations(&r);
+        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.1, 0.1, 0.1));
@@ -170,7 +171,8 @@ mod world_test {
         world.objects.get_mut(1).unwrap().material.ambient = 1.0;
         let intersection = Intersection::new(1.0, world.objects.get(1).unwrap());
 
-        let comps = intersection.prepare_computations(&ray);
+        let comps = intersection
+            .prepare_computations(&ray, &&Intersections::from(vec![intersection.clone()]));
 
         assert_eq!(world.reflected_color(&comps, 5), black())
     }
@@ -189,7 +191,7 @@ mod world_test {
         );
         let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
 
-        let comps = i.prepare_computations(&ray);
+        let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(
             world.shade_hit(&comps, 5).de_normalized(),
@@ -233,7 +235,7 @@ mod world_test {
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
         let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
-        let comps = i.prepare_computations(&ray);
+        let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(world.reflected_color(&comps, 0), black())
     }
