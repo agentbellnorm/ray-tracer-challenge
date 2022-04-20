@@ -1,4 +1,6 @@
 # Ray Tracer Challenge
+![test_banner](https://github.com/agentbellnorm/ray-tracer-challenge/actions/workflows/rust.yml/badge.svg)
+
 This is a ray tracer built in Rust following the book ["The ray tracer challenge" by Jamis Buck](http://raytracerchallenge.com/).
 
 My objectives with this project is to
