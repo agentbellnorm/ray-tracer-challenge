@@ -102,6 +102,14 @@ impl World {
         self.color_at(&reflect_ray, remaining - 1) * comps.object.material.reflective
     }
 
+    pub fn refracted_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
+        if is_equal_float(comps.object.material.transparency, 0.0) {
+            return black();
+        }
+
+        white()
+    }
+
     pub fn has_object(&self, o: &Shape) -> bool {
         self.objects.contains(o)
     }
