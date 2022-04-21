@@ -103,7 +103,7 @@ impl World {
     }
 
     pub fn refracted_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
-        if is_equal_float(comps.object.material.transparency, 0.0) {
+        if is_equal_float(comps.object.material.transparency, 0.0) || remaining == 0 {
             return black();
         }
 

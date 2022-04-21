@@ -214,4 +214,20 @@ mod intersection_test {
 
         assert_eq!(w.refracted_color(&comps, 5), black());
     }
+
+    #[test]
+    fn refracted_color_at_max_recursive_depth() {
+        let mut w = World::default_world();
+        w.objects.get_mut(0).unwrap().material.transparency = 1.0;
+        w.objects.get_mut(0).unwrap().material.refractive_index = 1.5;
+        let shape = w.objects.get(0).unwrap();
+        let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
+        let xs = Intersections::from(vec![
+            Intersection::new(4.0, shape),
+            Intersection::new(6.0, shape),
+        ]);
+        let comps = xs.get(0).prepare_computations(&r, &xs);
+
+        assert_eq!(w.refracted_color(&comps, 0), black());
+    }
 }
