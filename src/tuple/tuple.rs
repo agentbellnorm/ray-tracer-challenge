@@ -155,6 +155,14 @@ pub fn point(x: f64, y: f64, z: f64) -> Tuple {
     Tuple { x, y, z, w: 1.0 }
 }
 
+pub fn point_i(x: i32, y: i32, z: i32) -> Tuple {
+    point(x as f64, y as f64, z as f64)
+}
+
+pub fn vector_i(x: i32, y: i32, z: i32) -> Tuple {
+    vector(x as f64, y as f64, z as f64)
+}
+
 pub fn is_point(t: &Tuple) -> bool {
     t.w == 1.0
 }

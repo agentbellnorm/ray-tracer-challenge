@@ -13,6 +13,7 @@ pub struct PreparedComputation<'a> {
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
+    pub under_point: Tuple,
     pub eye_vector: Tuple,
     pub normal_vector: Tuple,
     pub reflection_vector: Tuple,
@@ -44,12 +45,14 @@ impl<'a> Intersection<'a> {
         let reflection_vector = ray.direction.reflect(&normal_vector);
 
         let over_point = point + (normal_vector * EPSILON);
+        let under_point = point - (normal_vector * EPSILON);
 
         let (n1, n2) = get_refractive_indices(self, intersections);
 
         PreparedComputation {
             point,
             over_point,
+            under_point,
             eye_vector,
             inside,
             t: self.t,

@@ -3,7 +3,7 @@ mod intersection_test {
     use crate::intersection::{Intersection, Intersections};
     use crate::matrix::Matrix;
     use crate::rays::Ray;
-    use crate::tuple::{point, vector, EPSILON};
+    use crate::tuple::{point, point_i, vector, vector_i, EPSILON};
     use crate::Shape;
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
@@ -184,5 +184,19 @@ mod intersection_test {
 
         assert_eq!(comps.n1, n1);
         assert_eq!(comps.n2, n2);
+    }
+
+    #[test]
+    fn under_point_is_offset_below_the_surface() {
+        let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
+        let shape =
+            Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, 1.0));
+        let i = Intersection::new(5.0, &shape);
+        let xs = Intersections::from(vec![i.clone()]);
+
+        let comps = i.prepare_computations(&r, &xs);
+
+        assert!(comps.under_point.z > EPSILON / 2.0);
+        assert!(comps.point.z < comps.under_point.z)
     }
 }
