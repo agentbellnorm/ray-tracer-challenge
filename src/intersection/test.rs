@@ -4,7 +4,7 @@ mod intersection_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::tuple::{point, point_i, vector, vector_i, EPSILON};
-    use crate::{black, white, Shape, World};
+    use crate::{black, Shape, World};
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
     use std::vec;
@@ -229,5 +229,21 @@ mod intersection_test {
         let comps = xs.get(0).prepare_computations(&r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 0), black());
+    }
+
+    #[test]
+    fn refracted_color_under_total_internal_reflection() {
+        let mut w = World::default_world();
+        w.objects.get_mut(0).unwrap().material.transparency = 1.0;
+        w.objects.get_mut(0).unwrap().material.refractive_index = 1.5;
+        let shape = w.objects.get(0).unwrap();
+        let r = Ray::with(point(0.0, 0.0, SQRT_2 / 2.0), vector_i(0, 1, 0));
+        let xs = Intersections::from(vec![
+            Intersection::new(-SQRT_2 / 2.0, shape),
+            Intersection::new(SQRT_2 / 2.0, shape),
+        ]);
+        let comps = xs.get(1).prepare_computations(&r, &xs);
+
+        assert_eq!(w.refracted_color(&comps, 5), black());
     }
 }
