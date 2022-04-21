@@ -54,7 +54,7 @@ impl<'a> Intersection<'a> {
         let over_point = point + (normal_vector * EPSILON);
         let under_point = point - (normal_vector * EPSILON);
 
-        let (n1, n2) = get_refractive_indices(self, intersections);
+        let (n1, n2) = self.get_refractive_indices(intersections);
 
         PreparedComputation {
             point,
@@ -69,6 +69,47 @@ impl<'a> Intersection<'a> {
             n1,
             n2,
         }
+    }
+
+    fn get_refractive_indices(&self, xs: &Intersections) -> (f64, f64) {
+        let mut n1: Option<f64> = None;
+        let mut n2: Option<f64> = None;
+
+        let mut containers: Vec<&Shape> = Vec::new();
+
+        for i in 0..xs.len() {
+            let current_intersection = xs.get(i);
+            let hit_is_current_intersection = self == current_intersection;
+
+            if hit_is_current_intersection {
+                if containers.is_empty() {
+                    n1 = Some(1.0);
+                } else {
+                    n1 = Some(containers.last().unwrap().material.refractive_index);
+                }
+            }
+
+            if containers
+                .iter()
+                .find(|intersection_obj| **intersection_obj == current_intersection.object)
+                .is_some()
+            {
+                containers
+                    .retain(|intersection_obj| *intersection_obj != current_intersection.object)
+            } else {
+                containers.push(current_intersection.object)
+            }
+
+            if hit_is_current_intersection {
+                if containers.is_empty() {
+                    n2 = Some(1.0);
+                } else {
+                    n2 = Some(containers.last().unwrap().material.refractive_index);
+                }
+            }
+        }
+
+        (n1.unwrap(), n2.unwrap())
     }
 }
 
@@ -100,44 +141,4 @@ impl<'a> Intersections<'a> {
     pub fn from(xs: Vec<Intersection<'a>>) -> Self {
         Intersections { xs }
     }
-}
-
-fn get_refractive_indices(intersection: &Intersection, xs: &Intersections) -> (f64, f64) {
-    let mut n1: Option<f64> = None;
-    let mut n2: Option<f64> = None;
-
-    let mut containers: Vec<&Shape> = Vec::new();
-
-    for i in 0..xs.len() {
-        let current_intersection = xs.get(i);
-        let hit_is_current_intersection = intersection == current_intersection;
-
-        if hit_is_current_intersection {
-            if containers.is_empty() {
-                n1 = Some(1.0);
-            } else {
-                n1 = Some(containers.last().unwrap().material.refractive_index);
-            }
-        }
-
-        if containers
-            .iter()
-            .find(|intersection_obj| **intersection_obj == current_intersection.object)
-            .is_some()
-        {
-            containers.retain(|intersection_obj| *intersection_obj != current_intersection.object)
-        } else {
-            containers.push(current_intersection.object)
-        }
-
-        if hit_is_current_intersection {
-            if containers.is_empty() {
-                n2 = Some(1.0);
-            } else {
-                n2 = Some(containers.last().unwrap().material.refractive_index);
-            }
-        }
-    }
-
-    (n1.unwrap(), n2.unwrap())
 }
