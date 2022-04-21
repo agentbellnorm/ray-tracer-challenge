@@ -4,7 +4,7 @@ mod intersection_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::tuple::{point, point_i, vector, vector_i, EPSILON};
-    use crate::{black, Shape, World};
+    use crate::{black, color, Pattern, Shape, World};
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
     use std::vec;
@@ -245,5 +245,33 @@ mod intersection_test {
         let comps = xs.get(1).prepare_computations(&r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 5), black());
+    }
+
+    #[test]
+    fn refracted_color_with_refracted_ray() {
+        let mut w = World::default_world();
+        w.objects.get_mut(0).unwrap().material.ambient = 1.0;
+        w.objects.get_mut(0).unwrap().material.pattern = Some(Pattern::test());
+
+        w.objects.get_mut(1).unwrap().material.transparency = 1.0;
+        w.objects.get_mut(1).unwrap().material.refractive_index = 1.5;
+
+        let a = w.objects.get(0).unwrap();
+        let b = w.objects.get(1).unwrap();
+
+        let r = Ray::with(point(0.0, 0.0, 0.1), vector_i(0, 1, 0));
+        let xs = Intersections::from(vec![
+            Intersection::new(-0.9899, a),
+            Intersection::new(-0.4899, b),
+            Intersection::new(0.4899, b),
+            Intersection::new(0.9899, a),
+        ]);
+
+        let comps = xs.get(2).prepare_computations(&r, &xs);
+
+        assert_eq!(
+            w.refracted_color(&comps, 5),
+            color(0.0, 0.998874, 0.0472189)
+        )
     }
 }

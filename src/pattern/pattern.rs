@@ -1,9 +1,9 @@
 use crate::color::Color;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::pattern::noise3;
-use crate::point;
 use crate::shapes::Shape;
 use crate::tuple::Tuple;
+use crate::{black, color, point};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Pattern {
@@ -20,6 +20,7 @@ enum PatternType {
     Gradient,
     Ring,
     Checkers,
+    Test,
 }
 
 impl Pattern {
@@ -46,6 +47,7 @@ impl Pattern {
                     _ => self.b,
                 }
             }
+            PatternType::Test => color(point.x, point.y, point.z),
         }
     }
 
@@ -115,6 +117,16 @@ impl Pattern {
             b,
             transformation: Matrix::identity(),
             pattern_type: PatternType::Checkers,
+            noise: 0.0,
+        }
+    }
+
+    pub fn test() -> Self {
+        Pattern {
+            a: black(),
+            b: black(),
+            transformation: Matrix::identity(),
+            pattern_type: PatternType::Test,
             noise: 0.0,
         }
     }

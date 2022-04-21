@@ -24,14 +24,6 @@ pub struct PreparedComputation<'a> {
 }
 
 impl<'a> PreparedComputation<'a> {
-    pub fn is_total_internal_reflection(&self) -> bool {
-        let n_ratio = self.n1 / self.n2;
-        let cos_i = self.eye_vector.dot(&self.normal_vector);
-        let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
-
-        sin2_t > 1.0
-    }
-
     pub fn is_opaque(&self) -> bool {
         is_equal_float(self.object.material.transparency, 0.0)
     }

@@ -103,11 +103,26 @@ impl World {
     }
 
     pub fn refracted_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
-        if comps.is_opaque() || remaining == 0 || comps.is_total_internal_reflection() {
+        let n_ratio = comps.n1 / comps.n2;
+        let cos_i = comps.eye_vector.dot(&comps.normal_vector);
+        let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
+
+        let is_total_internal_reflection = sin2_t > 1.0;
+
+        if comps.is_opaque() || remaining == 0 || is_total_internal_reflection {
             return black();
         }
 
-        white()
+        // cos(theta_t) via trig identity
+        let cos_t = f64::sqrt(1.0 - sin2_t);
+
+        // direction of refracted ray
+        let direction =
+            comps.normal_vector * (n_ratio * cos_i - cos_t) - comps.eye_vector * n_ratio;
+
+        let refract_ray = Ray::with(comps.under_point, direction);
+
+        self.color_at(&refract_ray, remaining - 1) * comps.object.material.transparency
     }
 
     pub fn has_object(&self, o: &Shape) -> bool {
