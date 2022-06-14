@@ -27,6 +27,30 @@ impl<'a> PreparedComputation<'a> {
     pub fn is_opaque(&self) -> bool {
         is_equal_float(self.object.material.transparency, 0.0)
     }
+
+    // todo read "Reflections and Refractions in Ray Tracing"
+    pub fn schlick(&self) -> f64 {
+        // cosine angle between eye and normal vector
+        let mut cos = self.eye_vector.dot(&self.normal_vector);
+
+        // total internal reflection can only occur if n1 > n2
+        if self.n1 > self.n2 {
+            let n = self.n1 / self.n2;
+            let sin2_t = n.powi(2) * (1.0 - cos.powi(2));
+
+            if sin2_t > 1.0 {
+                return 1.0;
+            }
+
+            // cosine(theta) using trig identity
+            let cos_t = (1.0 - sin2_t).sqrt();
+            cos = cos_t
+        }
+
+        let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powi(2);
+
+        return r0 + (1.0 - r0) * (1.0 - cos).powi(5);
+    }
 }
 
 impl<'a> Intersection<'a> {

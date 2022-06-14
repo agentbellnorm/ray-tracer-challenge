@@ -58,9 +58,18 @@ impl World {
             is_in_shadow,
         );
 
-        surface_color
-            + self.reflected_color(computations, remaining)
-            + self.refracted_color(computations, remaining)
+        let reflected = self.reflected_color(computations, remaining);
+        let refracted = self.refracted_color(computations, remaining);
+
+        let material = computations.object.material;
+
+        if material.reflective > 0.0 && material.transparency > 0.0 {
+            let reflectance = computations.schlick();
+
+            return surface_color + reflected * reflectance + refracted * (1.0 - reflectance);
+        }
+
+        surface_color + reflected + refracted
     }
 
     pub fn color_at(&self, ray: &Ray, remaining: i32) -> Color {
