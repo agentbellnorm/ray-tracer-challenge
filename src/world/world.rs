@@ -57,9 +57,10 @@ impl World {
             computations.normal_vector,
             is_in_shadow,
         );
-        let reflected_color = self.reflected_color(computations, remaining);
 
-        surface_color + reflected_color
+        surface_color
+            + self.reflected_color(computations, remaining)
+            + self.refracted_color(computations, remaining)
     }
 
     pub fn color_at(&self, ray: &Ray, remaining: i32) -> Color {

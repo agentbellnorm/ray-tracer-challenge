@@ -1,10 +1,11 @@
 #[cfg(test)]
 mod intersection_test {
+    use crate::color::Color;
     use crate::intersection::{Intersection, Intersections};
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::tuple::{point, point_i, vector, vector_i, EPSILON};
-    use crate::{black, color, Pattern, Shape, World};
+    use crate::{black, color, rgb, white, Material, Pattern, Shape, World};
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
     use std::vec;
@@ -273,5 +274,32 @@ mod intersection_test {
             w.refracted_color(&comps, 5),
             color(0.0, 0.998874, 0.0472189)
         )
+    }
+
+    #[test]
+    fn shade_hit_with_a_transparent_material() {
+        let mut w = World::default_world();
+
+        let mut floor_material = Material::new();
+        floor_material.transparency = 0.5;
+        floor_material.refractive_index = 1.5;
+        let floor = Shape::plane_from_material(floor_material)
+            .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
+
+        let mut ball_material = Material::from_color(color(1.0, 0.0, 0.0));
+        ball_material.ambient = 0.5;
+        let ball = Shape::sphere_from_material(ball_material)
+            .with_transform(Matrix::identity().translate(0.0, -3.5, -0.5));
+
+        w = w.add_object(floor.clone());
+        w = w.add_object(ball);
+
+        let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
+        let xs = Intersections::from(vec![Intersection::new(SQRT_2, &floor)]);
+
+        let comps = xs.get(0).prepare_computations(&ray, &xs);
+        let c = w.shade_hit(&comps, 5);
+
+        assert_eq!(c, color(0.93642, 0.68642, 0.68642));
     }
 }
