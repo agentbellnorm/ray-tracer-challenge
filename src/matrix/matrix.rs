@@ -185,6 +185,10 @@ impl Matrix {
             .set(2, 1, zy)
             * self
     }
+
+    pub fn apply(&self, other: &Matrix) -> Matrix {
+        other * self
+    }
 }
 
 pub fn is_equal_float(a: f64, b: f64) -> bool {
