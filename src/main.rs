@@ -7,7 +7,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::maggies_world;
+use crate::scenes::{maggies_world, shiny_scene};
 use crate::shapes::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
@@ -37,7 +37,7 @@ fn main() {
         PointLight::with(point(-10.0, 10.0, -10.0), white()),
     );
 
-    let camera = Camera::new(200, 100, FRAC_PI_3).set_transform(view_transformation(
+    let camera = Camera::new(1920, 1080, FRAC_PI_3).set_transform(view_transformation(
         point(0.0, 1.5, -5.0),
         point(0.0, 1.0, 0.0),
         vector(0.0, 1.0, 0.0),

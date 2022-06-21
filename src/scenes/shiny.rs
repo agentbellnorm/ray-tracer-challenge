@@ -1,12 +1,11 @@
+use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::FRAC_PI_2;
-use crate::{Material, Matrix, Pattern, rgb, Shape, white};
 
-pub fn maggies_world() -> Vec<Shape> {
-    let mut grass_material =
-        Material::from_pattern(Pattern::gradient(rgb(255, 182, 193), rgb(124, 252, 0)));
-    grass_material.diffuse = 0.9;
-    grass_material.specular = 0.1;
-    let grass = Shape::plane_from_material(grass_material);
+pub fn shiny_scene() -> Vec<Shape> {
+    let mut ground_materal = Material::from_color(rgb(255, 182, 193));
+    ground_materal.diffuse = 0.9;
+    ground_materal.specular = 0.1;
+    let ground = Shape::plane_from_material(ground_materal);
 
     let mut sky_material = Material::from_pattern(
         Pattern::gradient(rgb(135, 206, 250), white()).with_transformation(Matrix::identity()),
@@ -20,3 +19,6 @@ pub fn maggies_world() -> Vec<Shape> {
             .rotate_z(FRAC_PI_2)
             .translate(0.0, 0.0, 40.0),
     );
+
+    vec![ground, sky]
+}

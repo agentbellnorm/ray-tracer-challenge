@@ -5,8 +5,7 @@ fn daisy() -> Vec<Shape> {
     let daisy_position = Matrix::identity()
         .translate(1.5, 1.5, 0.7)
         .rotate_y(FRAC_PI_8)
-        .rotate_x(FRAC_PI_8)
-        .scale(0.5, 0.5, 0.5);
+        .rotate_x(FRAC_PI_8);
 
     let mut center_material = Material::from_color(rgb(255, 215, 0));
     center_material.diffuse = 0.8;
@@ -24,9 +23,9 @@ fn daisy() -> Vec<Shape> {
     stem_material.shininess = 300.0;
     let stem = Shape::sphere_from_material(stem_material).with_transform(
         Matrix::identity()
-            .scale(0.05, 0.4, 0.05)
-            .translate(0.0, 0.4, 0.0)
-            .translate(0.9, 0.0, 0.6),
+            .scale(0.05, 0.7, 0.05)
+            .translate(0.0, 0.7, 0.0)
+            .translate(1.7, 0.0, 0.6),
     );
 
     let mut petal_material = Material::from_color(white());
@@ -54,6 +53,23 @@ fn daisy() -> Vec<Shape> {
     petals
 }
 
+fn pond() -> Vec<Shape> {
+    let mut pond_material = Material::from_color(rgb(0, 191, 255));
+    pond_material.diffuse = 0.9;
+    pond_material.specular = 1.0;
+    pond_material.shininess = 300.0;
+    pond_material.transparency = 0.9;
+    pond_material.reflective = 0.9;
+    pond_material.refractive_index = 1.5;
+    let pond = Shape::sphere_from_material(pond_material).with_transform(
+        Matrix::identity()
+            .scale(2.5, 0.03, 1.4)
+            .translate(0.0, 0.0, -0.8),
+    );
+
+    vec![pond]
+}
+
 pub fn maggies_world() -> Vec<Shape> {
     let mut grass_material = Material::from_color(rgb(124, 252, 0));
     grass_material.diffuse = 0.9;
@@ -73,9 +89,8 @@ pub fn maggies_world() -> Vec<Shape> {
             .translate(0.0, 0.0, 40.0),
     );
 
-    // let mut daisy = daisy();
-
     let mut v = vec![sky, grass];
     v.extend(daisy());
+    v.extend(pond());
     v
 }
