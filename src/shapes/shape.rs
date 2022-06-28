@@ -16,6 +16,7 @@ pub enum ShapeType {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Shape {
     pub transformation: Matrix,
+    inverse_transformation: Matrix,
     pub material: Material,
     shape_type: ShapeType,
 }
@@ -26,6 +27,7 @@ impl Shape {
             shape_type,
             material: Material::new(),
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
         }
     }
 
@@ -56,21 +58,21 @@ impl Shape {
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
         assert!(world_point.is_point());
 
-        let object_point = world_point * &self.transformation.inverse();
+        let object_point = world_point * &self.inverse_transformation;
 
         let object_normal = match self.shape_type {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
         };
 
-        let mut world_normal = object_normal * &self.transformation.inverse().transpose();
+        let mut world_normal = object_normal * &self.inverse_transformation.transpose();
         world_normal.w = 0.0;
 
         world_normal.normalize()
     }
 
     pub fn intersects(&self, ray: &Ray) -> Intersections {
-        let transformed_ray = ray.transform(&self.transformation.inverse());
+        let transformed_ray = ray.transform(&self.inverse_transformation);
 
         let v = match self.shape_type {
             ShapeType::Sphere => shapes::sphere_intersects(&transformed_ray),
@@ -84,6 +86,7 @@ impl Shape {
 
     pub fn with_transform(mut self, transformation: Matrix) -> Self {
         self.transformation = transformation;
+        self.inverse_transformation = transformation.inverse();
         self
     }
 
