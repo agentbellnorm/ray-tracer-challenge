@@ -11,6 +11,7 @@ pub struct Camera {
     pub vsize: i32,
     pub field_of_view: f64,
     pub transform: Matrix,
+    inverse_transform: Matrix,
     pub pixel_size: f64,
     pub half_width: f64,
     pub half_height: f64,
@@ -37,6 +38,7 @@ impl Camera {
             vsize,
             field_of_view,
             transform: Matrix::identity(),
+            inverse_transform: Matrix::identity().inverse(),
             pixel_size: (half_width * 2.0) / (hsize as f64),
             half_width,
             half_height,
@@ -50,7 +52,7 @@ impl Camera {
         let world_x = self.half_width - x_offset;
         let world_y = self.half_height - y_offset;
 
-        let inv_transform = self.transform.inverse(); // TODO: seems like this can be done once?
+        let inv_transform = self.inverse_transform;
 
         let pixel = point(world_x, world_y, -1.0) * &inv_transform;
         let origin = point(0.0, 0.0, 0.0) * &inv_transform;
@@ -61,6 +63,7 @@ impl Camera {
 
     pub fn set_transform(mut self, transform: Matrix) -> Camera {
         self.transform = transform;
+        self.inverse_transform = transform.inverse();
         self
     }
 
