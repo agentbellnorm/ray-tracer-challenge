@@ -10,6 +10,7 @@ pub struct Pattern {
     a: Color,
     b: Color,
     transformation: Matrix,
+    inverse_transformation: Matrix,
     pattern_type: PatternType,
     noise: f64,
 }
@@ -53,6 +54,7 @@ impl Pattern {
 
     pub fn with_transformation(mut self, transformation: Matrix) -> Self {
         self.transformation = transformation;
+        self.transformation = transformation.inverse();
         self
     }
 
@@ -66,8 +68,8 @@ impl Pattern {
     }
 
     pub fn color_at_object(self, object: &Shape, p: Tuple) -> Color {
-        let object_space = p * &object.transformation.inverse();
-        let mut pattern_space = object_space * &self.transformation.inverse();
+        let object_space = p * &object.inverse_transformation;
+        let mut pattern_space = object_space * &self.inverse_transformation;
 
         if self.has_noise() {
             let factor = self.noise * noise3(pattern_space.x, pattern_space.y, pattern_space.z);
@@ -86,6 +88,7 @@ impl Pattern {
             a,
             b,
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Striped,
             noise: 0.0,
         }
@@ -96,6 +99,7 @@ impl Pattern {
             a,
             b,
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Gradient,
             noise: 0.0,
         }
@@ -106,6 +110,7 @@ impl Pattern {
             a,
             b,
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Ring,
             noise: 0.0,
         }
@@ -116,6 +121,7 @@ impl Pattern {
             a,
             b,
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Checkers,
             noise: 0.0,
         }
@@ -126,6 +132,7 @@ impl Pattern {
             a: black(),
             b: black(),
             transformation: Matrix::identity(),
+            inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Test,
             noise: 0.0,
         }

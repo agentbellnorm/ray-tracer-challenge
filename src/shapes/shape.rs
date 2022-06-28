@@ -16,7 +16,7 @@ pub enum ShapeType {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Shape {
     pub transformation: Matrix,
-    inverse_transformation: Matrix,
+    pub inverse_transformation: Matrix,
     pub material: Material,
     shape_type: ShapeType,
 }
