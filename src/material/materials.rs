@@ -45,10 +45,45 @@ impl Material {
     }
 
     pub fn glass() -> Self {
-        let mut glass = Material::new();
-        glass.transparency = 1.0;
-        glass.refractive_index = 1.5;
-        glass
+        Material {
+            color: white(),
+            ambient: 0.0,
+            diffuse: 0.0,
+            transparency: 0.9,
+            refractive_index: 1.5,
+            shininess: 300.0,
+            specular: 0.9,
+            reflective: 0.9,
+            pattern: None,
+        }
+    }
+
+    pub fn chrome() -> Self {
+        Material {
+            color: white(),
+            ambient: 0.0,
+            diffuse: 0.0,
+            specular: 1.0,
+            shininess: 400.0,
+            reflective: 1.0,
+            transparency: 0.0,
+            refractive_index: 1.0,
+            pattern: None,
+        }
+    }
+
+    pub fn air() -> Self {
+        Material {
+            color: white(),
+            ambient: 0.0,
+            diffuse: 0.0,
+            specular: 0.9,
+            shininess: 300.0,
+            reflective: 0.9,
+            transparency: 0.9,
+            refractive_index: 1.0000034,
+            pattern: None,
+        }
     }
 
     pub fn lighting(
