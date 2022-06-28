@@ -73,11 +73,13 @@ impl World {
     }
 
     pub fn color_at(&self, ray: &Ray, remaining: i32) -> Color {
-        let intersection = self.intersect_world(ray).xs.into_iter().find(|i| i.t > 0.0);
+        let intersections = self.intersect_world(ray).xs;
+        let positive_intersection = intersections.iter().find(|i| i.t > 0.0);
 
-        match intersection {
-            Some(i) => self.shade_hit(
-                &i.prepare_computations(ray, &Intersections::from(vec![i.clone()])),
+        match positive_intersection {
+            Some(intersection) => self.shade_hit(
+                &intersection
+                    .prepare_computations(ray, &Intersections::from(intersections.clone())),
                 remaining,
             ),
             None => black(),
