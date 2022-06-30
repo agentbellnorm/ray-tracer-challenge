@@ -49,11 +49,11 @@ impl Material {
             color: white(),
             ambient: 0.0,
             diffuse: 0.0,
-            transparency: 0.9,
+            transparency: 1.0,
             refractive_index: 1.5,
             shininess: 300.0,
             specular: 0.9,
-            reflective: 0.9,
+            reflective: 1.0,
             pattern: None,
         }
     }
