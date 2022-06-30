@@ -54,7 +54,7 @@ impl Pattern {
 
     pub fn with_transformation(mut self, transformation: Matrix) -> Self {
         self.transformation = transformation;
-        self.transformation = transformation.inverse();
+        self.inverse_transformation = transformation.inverse();
         self
     }
 
