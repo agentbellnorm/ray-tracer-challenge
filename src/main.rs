@@ -37,6 +37,7 @@ fn main() {
         PointLight::with(point(-10.0, 10.0, -10.0), white()),
     );
 
+    // let (horizontal, vertical) = (640, 360);
     // let (horizontal, vertical) = (1280, 720);
     let (horizontal, vertical) = (1920, 1080);
 
@@ -46,7 +47,7 @@ fn main() {
         vector(0.0, 1.0, 0.0),
     ));
 
-    camera.render(world).save_to_file("src/main.ppm");
+    camera.render(world).save_to_file("src/main.ppm").unwrap();
 
     println!("{:?}", Command::new("open").arg("./src/main.ppm").output());
 }

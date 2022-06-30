@@ -4,7 +4,7 @@ use std::f64::consts::FRAC_PI_2;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
-const SEED: u64 = 8122325293;
+const SEED: u64 = 89443326544;
 
 const PASTELS: [[i32; 3]; 6] = [
     [49, 191, 243],

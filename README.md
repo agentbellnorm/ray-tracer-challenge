@@ -8,6 +8,9 @@ My objectives with this project is to
 * Learn Rust
 
 ## Examples
+### Chapter 11, Reflection and Refraction
+![sphere](./doc/reflection_refraction.png)
+
 ### Chapter 10, Patterns
 ![sphere](./doc/patterns.png)
 
