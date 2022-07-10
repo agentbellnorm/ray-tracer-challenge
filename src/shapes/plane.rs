@@ -12,10 +12,3 @@ pub fn plane_intersects(ray: &Ray) -> Vec<f64> {
 pub fn plane_normal_at(_object_point: Tuple) -> Tuple {
     vector(0.0, 1.0, 0.0)
 }
-
-// pub fn plane_from_transform(transformation: Matrix) -> Shape {
-//     Shape::Plane {
-//         transformation,
-//         material: Material::new(),
-//     }
-// }
