@@ -15,7 +15,6 @@ pub enum ShapeType {
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Shape {
-    pub transformation: Matrix,
     pub inverse_transformation: Matrix,
     pub material: Material,
     shape_type: ShapeType,
@@ -26,7 +25,6 @@ impl Shape {
         Shape {
             shape_type,
             material: Material::new(),
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
         }
     }
@@ -89,7 +87,6 @@ impl Shape {
     }
 
     pub fn with_transform(mut self, transformation: Matrix) -> Self {
-        self.transformation = transformation;
         self.inverse_transformation = transformation.inverse();
         self
     }

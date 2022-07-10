@@ -9,7 +9,6 @@ use crate::{black, color, point};
 pub struct Pattern {
     a: Color,
     b: Color,
-    transformation: Matrix,
     inverse_transformation: Matrix,
     pattern_type: PatternType,
     noise: f64,
@@ -53,7 +52,6 @@ impl Pattern {
     }
 
     pub fn with_transformation(mut self, transformation: Matrix) -> Self {
-        self.transformation = transformation;
         self.inverse_transformation = transformation.inverse();
         self
     }
@@ -87,7 +85,6 @@ impl Pattern {
         Pattern {
             a,
             b,
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Striped,
             noise: 0.0,
@@ -98,7 +95,6 @@ impl Pattern {
         Pattern {
             a,
             b,
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Gradient,
             noise: 0.0,
@@ -109,7 +105,6 @@ impl Pattern {
         Pattern {
             a,
             b,
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Ring,
             noise: 0.0,
@@ -120,7 +115,6 @@ impl Pattern {
         Pattern {
             a,
             b,
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Checkers,
             noise: 0.0,
@@ -131,7 +125,6 @@ impl Pattern {
         Pattern {
             a: black(),
             b: black(),
-            transformation: Matrix::identity(),
             inverse_transformation: Matrix::identity().inverse(),
             pattern_type: PatternType::Test,
             noise: 0.0,

@@ -14,7 +14,7 @@ mod sphere_test {
     #[test]
     fn default_transformation() {
         let s = Shape::sphere_default();
-        assert_eq!(s.transformation, Matrix::identity());
+        assert_eq!(s.inverse_transformation, Matrix::identity().inverse());
     }
 
     #[test]
@@ -22,7 +22,7 @@ mod sphere_test {
         let t = Matrix::identity().translate(2.0, 3.0, 4.0);
         let s = Shape::sphere_from_transform(t.clone());
 
-        assert_eq!(s.transformation, t);
+        assert_eq!(s.inverse_transformation, t.inverse());
     }
 
     #[test]
@@ -228,7 +228,8 @@ mod sphere_test {
     fn helper_for_producing_sphere_with_glassy_material() {
         let s = Shape::sphere_glass();
 
-        assert_eq!(s.transformation, Matrix::identity());
+        // not storing the actual transformation, so comparing the inverse instead
+        assert_eq!(s.inverse_transformation, Matrix::identity().inverse());
         assert_eq!(s.material.transparency, 1.0);
         assert_eq!(s.material.refractive_index, 1.5);
     }
