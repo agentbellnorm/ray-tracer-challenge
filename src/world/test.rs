@@ -117,7 +117,7 @@ mod world_test {
         material.specular = 0.2;
         material.ambient = 1.0;
 
-        let outer = Shape::sphere_from_material(material.clone());
+        let outer = Shape::sphere_from_material(material);
         let inner = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5))
             .with_material(material);
         let inner_color = inner.material.color;
@@ -137,7 +137,7 @@ mod world_test {
         let world = World::default_world();
         let p = point(0.0, 10.0, 0.0);
 
-        assert_eq!(world.is_shadowed(p), false);
+        assert!(!world.is_shadowed(p));
     }
 
     #[test]
@@ -145,7 +145,7 @@ mod world_test {
         let world = World::default_world();
         let p = point(10.0, -10.0, 10.0);
 
-        assert_eq!(world.is_shadowed(p), true);
+        assert!(world.is_shadowed(p));
     }
 
     #[test]
@@ -153,7 +153,7 @@ mod world_test {
         let world = World::default_world();
         let p = point(-20.0, 20.0, -20.0);
 
-        assert_eq!(world.is_shadowed(p), false);
+        assert!(!world.is_shadowed(p));
     }
 
     #[test]
@@ -161,7 +161,7 @@ mod world_test {
         let world = World::default_world();
         let p = point(-2.0, 2.0, -2.0);
 
-        assert_eq!(world.is_shadowed(p), false);
+        assert!(!world.is_shadowed(p));
     }
 
     #[test]
@@ -172,7 +172,7 @@ mod world_test {
         let intersection = Intersection::new(1.0, world.objects.get(1).unwrap());
 
         let comps = intersection
-            .prepare_computations(&ray, &&Intersections::from(vec![intersection.clone()]));
+            .prepare_computations(&ray, &Intersections::from(vec![intersection.clone()]));
 
         assert_eq!(world.reflected_color(&comps, 5), black())
     }
@@ -205,7 +205,7 @@ mod world_test {
         let mut material = Material::new();
         material.reflective = 1.0;
 
-        let lower = Shape::plane_from_material(material.clone())
+        let lower = Shape::plane_from_material(material)
             .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
 
         let upper = Shape::plane_from_material(material)
@@ -214,9 +214,9 @@ mod world_test {
         let world = World::with(vec![lower, upper], light);
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
 
-        world.color_at(&ray, 5);
+        let c = world.color_at(&ray, 5);
 
-        assert!(true, "color_at did not blow the stack")
+        assert_eq!(color(11.4, 11.4, 11.4), c, "color at terminated")
     }
 
     #[test]

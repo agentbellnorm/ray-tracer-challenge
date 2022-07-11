@@ -102,7 +102,7 @@ mod intersection_test {
 
         let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
 
-        assert_eq!(comps.inside, false);
+        assert!(!comps.inside);
     }
 
     #[test]
@@ -115,7 +115,7 @@ mod intersection_test {
 
         assert_eq!(comps.point, point(0.0, 0.0, 1.0));
         assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
-        assert_eq!(comps.inside, true);
+        assert!(comps.inside);
         // inverted!
         assert_eq!(comps.normal_vector, vector(0.0, 0.0, -1.0));
     }

@@ -20,7 +20,7 @@ mod sphere_test {
     #[test]
     fn change_transformation() {
         let t = Matrix::identity().translate(2.0, 3.0, 4.0);
-        let s = Shape::sphere_from_transform(t.clone());
+        let s = Shape::sphere_from_transform(t);
 
         assert_eq!(s.inverse_transformation, t.inverse());
     }
@@ -168,7 +168,7 @@ mod sphere_test {
         let mut m = Material::new();
 
         m.ambient = 1.0;
-        s = s.with_material(m.clone());
+        s = s.with_material(m);
 
         assert_eq!(s.material, m);
     }

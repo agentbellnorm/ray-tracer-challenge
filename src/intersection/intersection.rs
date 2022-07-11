@@ -49,7 +49,7 @@ impl<'a> PreparedComputation<'a> {
 
         let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powi(2);
 
-        return r0 + (1.0 - r0) * (1.0 - cos).powi(5);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
     }
 }
 
@@ -115,8 +115,7 @@ impl<'a> Intersection<'a> {
 
             if containers
                 .iter()
-                .find(|intersection_obj| **intersection_obj == current_intersection.object)
-                .is_some()
+                .any(|intersection_obj| *intersection_obj == current_intersection.object)
             {
                 containers
                     .retain(|intersection_obj| *intersection_obj != current_intersection.object)

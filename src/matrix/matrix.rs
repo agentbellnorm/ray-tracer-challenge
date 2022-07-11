@@ -22,9 +22,7 @@ impl Matrix {
 
         let flat = from.into_iter().flatten().collect::<Vec<f64>>();
 
-        for i in 0..flat.len() {
-            storage[i] = flat[i];
-        }
+        storage[..flat.len()].clone_from_slice(&flat[..]);
 
         Matrix {
             storage,

@@ -7,12 +7,12 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::{debug_glass, maggies_world, shiny_scene};
+use crate::scenes::shiny_scene;
 use crate::shapes::Shape;
 use crate::transformation::view_transformation;
-use crate::tuple::{point, point_i, vector, vector_i};
+use crate::tuple::{point, vector};
 use crate::world::World;
-use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_8, PI};
+use std::f64::consts::FRAC_PI_3;
 use std::process::Command;
 
 mod camera;

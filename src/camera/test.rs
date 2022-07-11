@@ -90,11 +90,11 @@ mod camera_test {
         // floor
         let mut wall_material = Material::from_color(color(1.0, 0.9, 0.9));
         wall_material.specular = 0.0;
-        let floor = Shape::sphere_from_material(wall_material.clone())
+        let floor = Shape::sphere_from_material(wall_material)
             .with_transform(Matrix::identity().scale(10.0, 0.01, 10.0));
 
         // left wall
-        let left_wall = Shape::sphere_from_material(wall_material.clone()).with_transform(
+        let left_wall = Shape::sphere_from_material(wall_material).with_transform(
             Matrix::identity()
                 .scale(10.0, 0.01, 10.0)
                 .rotate_x(FRAC_PI_2)
@@ -103,7 +103,7 @@ mod camera_test {
         );
 
         // right wall
-        let right_wall = Shape::sphere_from_material(wall_material.clone()).with_transform(
+        let right_wall = Shape::sphere_from_material(wall_material).with_transform(
             Matrix::identity()
                 .scale(10.0, 0.01, 10.0)
                 .rotate_x(FRAC_PI_2)

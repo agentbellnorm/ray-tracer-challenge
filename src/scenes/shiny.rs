@@ -51,9 +51,8 @@ pub fn chrome_balls() -> Vec<Shape> {
 pub fn billiard_balls() -> Vec<Shape> {
     let mut rng = StdRng::seed_from_u64(SEED);
     let mut v = vec![];
-    for i in 0..8 {
-        let rnd_c = BILLIARDS[i];
-        let mut material = Material::from_color(rgb(rnd_c[0], rnd_c[1], rnd_c[2]));
+    for c in BILLIARDS {
+        let mut material = Material::from_color(rgb(c[0], c[1], c[2]));
         material.shininess = 300.0;
         material.specular = 1.0;
         material.diffuse = 0.3;

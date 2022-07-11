@@ -29,7 +29,7 @@ mod matrix_test {
             vec![0.0, 1.0, 1.0],
         ]);
 
-        let b = a.clone();
+        let b = a;
         assert_eq!(a, b);
     }
 
