@@ -103,7 +103,6 @@ impl Material {
         normal_vector: Tuple,
         in_shadow: bool,
     ) -> Color {
-        let ambient: Color;
         let diffuse: Color;
         let specular: Color;
 
@@ -120,7 +119,7 @@ impl Material {
         let light_vector = (light.position - point).normalize();
 
         // ambient contribution
-        ambient = effective_color * self.ambient;
+        let ambient = effective_color * self.ambient;
 
         if in_shadow {
             return ambient;
