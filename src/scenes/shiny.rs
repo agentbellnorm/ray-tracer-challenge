@@ -1,6 +1,7 @@
 use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::FRAC_PI_2;
 
+use crate::scenes::Scene;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
@@ -101,7 +102,7 @@ pub fn pastel_balls() -> Vec<Shape> {
     v
 }
 
-pub fn shiny_scene() -> Vec<Shape> {
+pub fn shiny_scene() -> Scene {
     let mut ground_material = Material::from_color(white());
     ground_material.diffuse = 0.9;
     ground_material.specular = 0.1;

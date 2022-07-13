@@ -1,7 +1,8 @@
+use crate::scenes::Scene;
 use crate::{black, color, rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_8};
 
-pub fn maggies_nightmare() -> Vec<Shape> {
+pub fn maggies_nightmare() -> Scene {
     let mut floor_material = Material::from_pattern(
         Pattern::checkers(black(), white())
             .with_transformation(Matrix::identity().scale(0.8, 0.8, 0.8)),

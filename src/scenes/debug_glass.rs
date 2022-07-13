@@ -1,3 +1,4 @@
+use crate::scenes::Scene;
 use crate::{color, Material, Matrix, Pattern, Shape};
 use std::f64::consts::FRAC_PI_2;
 
@@ -13,7 +14,7 @@ use std::f64::consts::FRAC_PI_2;
 //     vector_i(0, 1, 0),
 // ));
 
-pub fn debug_glass() -> Vec<Shape> {
+pub fn debug_glass() -> Scene {
     vec![
         Shape::plane_from_material(Material::from_pattern(Pattern::checkers(
             color(0.15, 0.15, 0.15),

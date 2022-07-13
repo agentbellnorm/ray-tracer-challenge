@@ -1,3 +1,4 @@
+use crate::scenes::Scene;
 use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_8};
 
@@ -70,7 +71,7 @@ fn pond() -> Vec<Shape> {
     vec![pond]
 }
 
-pub fn maggies_world() -> Vec<Shape> {
+pub fn maggies_world() -> Scene {
     let mut grass_material = Material::from_color(rgb(124, 252, 0));
     grass_material.diffuse = 0.9;
     grass_material.specular = 0.1;
