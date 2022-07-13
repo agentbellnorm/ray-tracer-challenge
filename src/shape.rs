@@ -6,6 +6,7 @@ use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
+use crate::shape::cube::cube_intersects;
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
@@ -88,7 +89,7 @@ impl Shape {
         let v = match self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
-            ShapeType::Cube => panic!("intersects not implemented for cube"),
+            ShapeType::Cube => cube_intersects(&transformed_ray),
         };
 
         Intersections {
