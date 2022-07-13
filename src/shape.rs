@@ -1,3 +1,4 @@
+pub mod cube;
 pub mod plane;
 pub mod sphere;
 
@@ -6,13 +7,14 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::shape::plane::{plane_intersects, plane_normal_at};
-use crate::shape::sphere::sphere_normal_at;
+use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
     Sphere,
     Plane,
+    Cube,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -37,6 +39,10 @@ impl Shape {
 
     pub fn sphere_default() -> Self {
         Shape::default(ShapeType::Sphere)
+    }
+
+    pub fn cube_default() -> Self {
+        Shape::default(ShapeType::Cube)
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -67,6 +73,7 @@ impl Shape {
         let object_normal = match self.shape_type {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
+            ShapeType::Cube => panic!("normal_at not implemented for cube"),
         };
 
         let mut world_normal = object_normal * &self.inverse_transformation.transpose();
@@ -79,8 +86,9 @@ impl Shape {
         let transformed_ray = ray.transform(&self.inverse_transformation);
 
         let v = match self.shape_type {
-            ShapeType::Sphere => sphere::sphere_intersects(&transformed_ray),
+            ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
+            ShapeType::Cube => panic!("intersects not implemented for cube"),
         };
 
         Intersections {

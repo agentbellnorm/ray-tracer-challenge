@@ -98,7 +98,7 @@ mod sphere_test {
             }
         }
 
-        let res = canvas.save_to_file("src/shape/cirkel.ppm");
+        let res = canvas.save_to_file("tests/output/cirkel.ppm");
 
         assert!(res.is_ok());
     }
@@ -244,7 +244,7 @@ mod sphere_test {
             }
         }
 
-        let res = canvas.save_to_file("src/shape/shape.ppm");
+        let res = canvas.save_to_file("tests/output/shape.ppm");
 
         assert!(res.is_ok());
     }
