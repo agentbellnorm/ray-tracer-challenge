@@ -1,0 +1,5 @@
+# This file exists so that I can have an empty folder in the repo.
+# All files inside it will be ignored by git.
+*
+# Except this file
+!.gitignore
