@@ -1,4 +1,6 @@
 use crate::rays::Ray;
+use crate::tuple::{point_i, vector_i, Tuple};
+use crate::vector;
 
 fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
     let tmin_numerator = -1.0 - origin;
@@ -27,6 +29,18 @@ pub fn cube_intersects(ray: &Ray) -> Vec<f64> {
     }
 
     vec![t_min, t_max]
+}
+
+pub fn cube_normal_at(point: Tuple) -> Tuple {
+    let max_c = point.x.abs().max(point.y.abs().max(point.z.abs()));
+
+    if max_c == point.x.abs() {
+        return vector(point.x, 0.0, 0.0);
+    } else if max_c == point.y.abs() {
+        return vector(0.0, point.y, 0.0);
+    }
+
+    return vector(0.0, 0.0, point.z);
 }
 
 #[cfg(test)]
@@ -66,5 +80,13 @@ mod cube_test {
         let xs = cube.intersects(&ray);
 
         assert_eq!(xs.len(), 0)
+    }
+
+    #[parameterized(
+    point = {   point(1.0, 0.5, -0.8),  point(-1.0, -0.2, 0.9), point(-0.4, 1.0, -0.1), point(0.3, -1.0, -0.7), point(-0.6, 0.3, 1.0),  point(0.4, 0.4, -1.0),  point_i(1, 1, 1),   point_i(-1, -1, -1) },
+    normal = {  vector_i(1, 0, 0),      vector_i(-1, 0, 0),     vector_i(0, 1, 0),      vector_i(0, -1, 0),     vector_i(0, 0, 1),      vector_i(0, 0, -1),     vector_i(1, 0, 0),  vector_i(-1, 0, 0)  },
+    )]
+    fn normal_on_surface_of_cube(point: Tuple, normal: Tuple) {
+        assert_eq!(Shape::cube_default().normal_at(point), normal)
     }
 }

@@ -16,13 +16,7 @@ impl Tuple {
     }
 
     pub fn normalize(&self) -> Self {
-        let magnitude = self.magnitude();
-        Tuple {
-            x: self.x / magnitude,
-            y: self.y / magnitude,
-            z: self.z / magnitude,
-            w: self.w / magnitude,
-        }
+        *self / self.magnitude()
     }
 
     pub fn dot(&self, other: &Self) -> f64 {

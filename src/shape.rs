@@ -6,7 +6,7 @@ use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
-use crate::shape::cube::cube_intersects;
+use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
@@ -74,7 +74,7 @@ impl Shape {
         let object_normal = match self.shape_type {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
-            ShapeType::Cube => panic!("normal_at not implemented for cube"),
+            ShapeType::Cube => cube_normal_at(object_point),
         };
 
         let mut world_normal = object_normal * &self.inverse_transformation.transpose();
