@@ -94,6 +94,16 @@ impl Material {
         }
     }
 
+    pub fn pastel(color: Color) -> Material {
+        Material {
+            color,
+            shininess: 1.0,
+            specular: 0.0,
+            ambient: 0.3,
+            ..Material::default()
+        }
+    }
+
     pub fn lighting(
         &self,
         object: &Shape,

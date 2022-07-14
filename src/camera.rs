@@ -71,7 +71,6 @@ impl Camera {
         let mut image = Canvas::new(self.hsize, self.vsize, black());
 
         let n_pixels = self.vsize * self.hsize;
-        let mut progress = 0;
 
         let start_time = Instant::now();
 
@@ -80,12 +79,6 @@ impl Camera {
                 let ray = self.ray_for_pixel(x, y);
                 let color = world.color_at(&ray, 5);
                 image = image.write_pixel(x, y, color);
-            }
-
-            let curr_progress = y / self.vsize;
-            if curr_progress > progress {
-                progress += 1;
-                println!("{}%", progress);
             }
         }
 

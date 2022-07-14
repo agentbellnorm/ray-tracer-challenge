@@ -1,5 +1,5 @@
 use crate::rays::Ray;
-use crate::tuple::{point_i, vector_i, Tuple};
+use crate::tuple::Tuple;
 use crate::vector;
 
 fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
@@ -40,7 +40,7 @@ pub fn cube_normal_at(point: Tuple) -> Tuple {
         return vector(0.0, point.y, 0.0);
     }
 
-    return vector(0.0, 0.0, point.z);
+    vector(0.0, 0.0, point.z)
 }
 
 #[cfg(test)]

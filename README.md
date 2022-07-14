@@ -20,6 +20,8 @@ cargo run --release
 ```
 
 ## Examples
+### Chapter 12, Cubes
+![cubes](./doc/cubes.png)
 ### Chapter 11, Reflection and Refraction
 ![sphere](./doc/reflection_refraction.png)
 
