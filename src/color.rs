@@ -22,6 +22,13 @@ fn clamp(n: i32) -> i32 {
     n.max(0).min(255)
 }
 
+#[test]
+fn to_255_test() {
+    assert_eq!(to_255(0.0), 0);
+    assert_eq!(to_255(1.0), 255);
+    assert_eq!(to_255(0.5), 128);
+}
+
 fn to_255(f: f64) -> i32 {
     clamp((f * 255.0).round() as i32)
 }
