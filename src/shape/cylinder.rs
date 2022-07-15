@@ -1,6 +1,7 @@
 use crate::matrix::is_equal_float;
 use crate::rays::Ray;
-use crate::tuple::{vector_i, Tuple};
+use crate::tuple::Tuple;
+use crate::vector;
 
 pub fn cylinder_intersects(ray: &Ray) -> Vec<f64> {
     let a = ray.direction.x.powi(2) + ray.direction.z.powi(2);
@@ -25,7 +26,7 @@ pub fn cylinder_intersects(ray: &Ray) -> Vec<f64> {
 }
 
 pub fn cylinder_normal_at(point: Tuple) -> Tuple {
-    vector_i(1, 1, 1)
+    vector(point.x, 0.0, point.z)
 }
 
 #[cfg(test)]
@@ -62,5 +63,15 @@ mod cylinder_test {
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
         assert!(is_equal_float(xs.get(1).t, t1));
+    }
+
+    #[parameterized(
+    point = {   point_i(1, 0 ,0),   point_i(0, 5, -1),  point_i(0, -2, 1),  point_i(-1, 1, 0)},
+    normal = {  vector_i(1, 0, 0),  vector_i(0, 0, -1), vector_i(0, 0, 1),  vector_i(-1, 0, 0)},
+    )]
+    fn normal_vector_on_cylinder(point: Tuple, normal: Tuple) {
+        let cylinder = Shape::cylinder_default();
+
+        assert_eq!(cylinder.normal_at(point), normal);
     }
 }
