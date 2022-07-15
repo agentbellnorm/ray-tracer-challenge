@@ -1,4 +1,5 @@
 pub mod cube;
+pub mod cylinder;
 pub mod plane;
 pub mod sphere;
 
@@ -7,6 +8,7 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
 use crate::shape::cube::{cube_intersects, cube_normal_at};
+use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
@@ -16,6 +18,7 @@ pub enum ShapeType {
     Sphere,
     Plane,
     Cube,
+    Cylinder,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -44,6 +47,10 @@ impl Shape {
 
     pub fn cube_default() -> Self {
         Shape::default(ShapeType::Cube)
+    }
+
+    pub fn cylinder_default() -> Self {
+        Shape::default(ShapeType::Cylinder)
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -75,6 +82,7 @@ impl Shape {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
+            ShapeType::Cylinder => cylinder_normal_at(object_point),
         };
 
         let mut world_normal = object_normal * &self.inverse_transformation.transpose();
@@ -90,6 +98,7 @@ impl Shape {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
             ShapeType::Cube => cube_intersects(&transformed_ray),
+            ShapeType::Cylinder => cylinder_intersects(&transformed_ray),
         };
 
         Intersections {
