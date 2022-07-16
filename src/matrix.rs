@@ -195,6 +195,10 @@ pub fn is_equal_float(a: f64, b: f64) -> bool {
     (a - b).abs() < EPSILON
 }
 
+pub fn is_zero_float(a: f64) -> bool {
+    is_equal_float(a, 0.0)
+}
+
 impl PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
         if self.storage.len() != other.storage.len() || self.size != other.size {

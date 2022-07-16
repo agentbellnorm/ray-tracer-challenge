@@ -1,4 +1,4 @@
-use crate::matrix::is_equal_float;
+use crate::matrix::{is_equal_float, is_zero_float};
 use crate::rays::Ray;
 use crate::tuple::{Tuple, EPSILON};
 use crate::vector;
@@ -32,7 +32,7 @@ pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> V
     let a = ray.direction.x.powi(2) + ray.direction.z.powi(2);
     let mut xs: Vec<f64> = Vec::with_capacity(2);
 
-    if is_equal_float(a, 0.0) {
+    if is_zero_float(a) {
         return intersect_caps(y_min, y_max, closed, ray, xs);
     }
 
@@ -128,7 +128,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
 
         let (min, max) = match cylinder.shape_type {
-            ShapeType::Cylinder(mi, ma, false) => (mi, ma),
+            Cylinder(mi, ma, false) => (mi, ma),
             _ => panic!("cylinder is no cylinder"),
         };
 
@@ -142,7 +142,7 @@ mod cylinder_test {
     count = {       0,                      0,                  0,                  0,                  0,                  2}
     )]
     fn intersecting_constrained_cylinder(point: Tuple, direction: Tuple, count: usize) {
-        let cylinder = Shape::cylinder_bounded(1.0, 2.0, false);
+        let cylinder = Shape::cylinder(1.0, 2.0, false);
         let ray = Ray::with(point, direction.normalize());
 
         assert_eq!(cylinder.intersects(&ray).xs.len(), count)
@@ -163,7 +163,7 @@ mod cylinder_test {
     count = {       2,                  2,                  2,                  2,                  2                   }
     )]
     fn intersecting_caps_of_closed_cylinder(point: Tuple, direction: Tuple, count: usize) {
-        let cylinder = Shape::cylinder_bounded(1.0, 2.0, true);
+        let cylinder = Shape::cylinder(1.0, 2.0, true);
         let ray = Ray::with(point, direction.normalize());
 
         assert_eq!(cylinder.intersects(&ray).xs.len(), count);
@@ -174,7 +174,7 @@ mod cylinder_test {
     normal = {  vector_i(0, -1, 0), vector_i(0, -1, 0),     vector_i(0, -1, 0),     vector_i(0, 1, 0),  vector_i(0, 1, 0),      vector_i(0, 1, 0)}
     )]
     fn normal_vector_on_cylinder_end_caps(point: Tuple, normal: Tuple) {
-        let cylinder = Shape::cylinder_bounded(1.0, 2.0, true);
+        let cylinder = Shape::cylinder(1.0, 2.0, true);
 
         assert_eq!(cylinder.normal_at(point), normal)
     }

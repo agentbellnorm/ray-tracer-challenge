@@ -1,3 +1,4 @@
+pub mod cone;
 pub mod cube;
 pub mod cylinder;
 pub mod plane;
@@ -7,6 +8,7 @@ use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::rays::Ray;
+use crate::shape::cone::{cone_intersects, cone_normal_at};
 use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
@@ -19,6 +21,7 @@ pub enum ShapeType {
     Plane,
     Cube,
     Cylinder(f64, f64, bool), // Cylinder(min_y, max_y, closed)
+    Cone(f64, f64, bool),     // Cone(min_y, max_y, closed)
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -53,8 +56,16 @@ impl Shape {
         Shape::default(ShapeType::Cylinder(-f64::INFINITY, f64::INFINITY, false))
     }
 
-    pub fn cylinder_bounded(min: f64, max: f64, closed: bool) -> Self {
+    pub fn cylinder(min: f64, max: f64, closed: bool) -> Self {
         Shape::default(ShapeType::Cylinder(min, max, closed))
+    }
+    
+    pub fn cone_default() -> Self {
+        Shape::default(ShapeType::Cone(-f64::INFINITY, f64::INFINITY, false))
+    }
+    
+    pub fn cone(y_min: f64, y_max: f64, closed: bool) -> Self {
+        Shape::default(ShapeType::Cone(y_min, y_max, closed))
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -87,6 +98,7 @@ impl Shape {
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
             ShapeType::Cylinder(y_min, y_max, _) => cylinder_normal_at(object_point, y_min, y_max),
+            ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min, y_max),
         };
 
         let mut world_normal = object_normal * &self.inverse_transformation.transpose();
@@ -104,6 +116,9 @@ impl Shape {
             ShapeType::Cube => cube_intersects(&transformed_ray),
             ShapeType::Cylinder(y_min, y_max, closed) => {
                 cylinder_intersects(&transformed_ray, y_min, y_max, closed)
+            }
+            ShapeType::Cone(y_min, y_max, closed) => {
+                cone_intersects(&transformed_ray, y_min, y_max, closed)
             }
         };
 
