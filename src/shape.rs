@@ -18,7 +18,7 @@ pub enum ShapeType {
     Sphere,
     Plane,
     Cube,
-    Cylinder(f64, f64), // Cylinder(min_y, max_y)
+    Cylinder(f64, f64, bool), // Cylinder(min_y, max_y, closed)
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -50,11 +50,11 @@ impl Shape {
     }
 
     pub fn cylinder_default() -> Self {
-        Shape::default(ShapeType::Cylinder(-f64::INFINITY, f64::INFINITY))
+        Shape::default(ShapeType::Cylinder(-f64::INFINITY, f64::INFINITY, false))
     }
 
-    pub fn cylinder_bounded(min: f64, max: f64) -> Self {
-        Shape::default(ShapeType::Cylinder(min, max))
+    pub fn cylinder_bounded(min: f64, max: f64, closed: bool) -> Self {
+        Shape::default(ShapeType::Cylinder(min, max, closed))
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -86,7 +86,7 @@ impl Shape {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
-            ShapeType::Cylinder(_, _) => cylinder_normal_at(object_point),
+            ShapeType::Cylinder(y_min, y_max, _) => cylinder_normal_at(object_point, y_min, y_max),
         };
 
         let mut world_normal = object_normal * &self.inverse_transformation.transpose();
@@ -102,8 +102,8 @@ impl Shape {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
             ShapeType::Cube => cube_intersects(&transformed_ray),
-            ShapeType::Cylinder(y_min, y_max) => {
-                cylinder_intersects(&transformed_ray, y_min, y_max)
+            ShapeType::Cylinder(y_min, y_max, closed) => {
+                cylinder_intersects(&transformed_ray, y_min, y_max, closed)
             }
         };
 

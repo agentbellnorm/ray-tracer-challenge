@@ -9,6 +9,10 @@ pub struct Matrix {
     size: usize,
 }
 
+const IDENTITY: [f64; 16] = [
+    1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+];
+
 impl Matrix {
     pub fn from_vec(v: Storage, size: usize) -> Matrix {
         Matrix { storage: v, size }
@@ -41,9 +45,7 @@ impl Matrix {
     pub fn identity() -> Matrix {
         Matrix {
             size: 4,
-            storage: [
-                1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-            ],
+            storage: IDENTITY,
         }
     }
 

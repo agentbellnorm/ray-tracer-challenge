@@ -1,13 +1,39 @@
 use crate::matrix::is_equal_float;
 use crate::rays::Ray;
-use crate::tuple::Tuple;
+use crate::tuple::{Tuple, EPSILON};
 use crate::vector;
 
-pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64) -> Vec<f64> {
+fn check_cap(ray: &Ray, t: f64) -> bool {
+    let x = ray.origin.x + t * ray.direction.x;
+    let z = ray.origin.z + t * ray.direction.z;
+
+    x.powi(2) + z.powi(2) <= 1.0
+}
+
+fn intersect_caps(y_min: f64, y_max: f64, closed: bool, ray: &Ray, mut xs: Vec<f64>) -> Vec<f64> {
+    if !closed || is_equal_float(ray.direction.y, 0.0) {
+        return xs;
+    }
+
+    let t = (y_min - ray.origin.y) / ray.direction.y;
+    if check_cap(ray, t) {
+        xs.push(t);
+    }
+
+    let t = (y_max - ray.origin.y) / ray.direction.y;
+    if check_cap(ray, t) {
+        xs.push(t);
+    }
+
+    xs
+}
+
+pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> Vec<f64> {
     let a = ray.direction.x.powi(2) + ray.direction.z.powi(2);
+    let mut xs: Vec<f64> = Vec::with_capacity(2);
 
     if is_equal_float(a, 0.0) {
-        return vec![];
+        return intersect_caps(y_min, y_max, closed, ray, xs);
     }
 
     let b = 2.0 * ray.origin.x * ray.direction.x + 2.0 * ray.origin.z * ray.direction.z;
@@ -22,8 +48,6 @@ pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64) -> Vec<f64> {
     let t0 = (-b - disc.sqrt()) / (2.0 * a);
     let t1 = (-b + disc.sqrt()) / (2.0 * a);
 
-    let mut xs: Vec<f64> = Vec::with_capacity(2);
-
     let y0 = ray.origin.y + t0 * ray.direction.y;
     if y_min < y0 && y0 < y_max {
         xs.push(t0);
@@ -34,10 +58,20 @@ pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64) -> Vec<f64> {
         xs.push(t1);
     }
 
-    xs
+    intersect_caps(y_min, y_max, closed, ray, xs)
 }
 
-pub fn cylinder_normal_at(point: Tuple) -> Tuple {
+pub fn cylinder_normal_at(point: Tuple, y_min: f64, y_max: f64) -> Tuple {
+    let dist = point.x.powi(2) + point.z.powi(2);
+
+    if dist < 1.0 && point.y >= y_max - EPSILON {
+        return vector(0.0, 1.0, 0.0);
+    }
+
+    if dist < 1.0 && point.y <= y_min + EPSILON {
+        return vector(0.0, -1.0, 0.0);
+    }
+
     vector(point.x, 0.0, point.z)
 }
 
@@ -46,6 +80,7 @@ mod cylinder_test {
     use crate::matrix::is_equal_float;
     use crate::rays::Ray;
     use crate::shape::ShapeType;
+    use crate::shape::ShapeType::Cylinder;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
     use crate::Shape;
     use parameterized::parameterized;
@@ -93,7 +128,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
 
         let (min, max) = match cylinder.shape_type {
-            ShapeType::Cylinder(mi, ma) => (mi, ma),
+            ShapeType::Cylinder(mi, ma, false) => (mi, ma),
             _ => panic!("cylinder is no cylinder"),
         };
 
@@ -107,9 +142,40 @@ mod cylinder_test {
     count = {       0,                      0,                  0,                  0,                  0,                  2}
     )]
     fn intersecting_constrained_cylinder(point: Tuple, direction: Tuple, count: usize) {
-        let cylinder = Shape::cylinder_bounded(1.0, 2.0);
+        let cylinder = Shape::cylinder_bounded(1.0, 2.0, false);
         let ray = Ray::with(point, direction.normalize());
 
         assert_eq!(cylinder.intersects(&ray).xs.len(), count)
+    }
+
+    #[test]
+    fn default_closed_value_for_cylinder() {
+        if let Cylinder(_, _, closed) = Shape::cylinder_default().shape_type {
+            assert!(!closed);
+        } else {
+            panic!("cylinder is no cylinder");
+        }
+    }
+
+    #[parameterized(
+    point = {       point_i(0, 3, 0),   point_i(0, 3, -2),  point_i(0, 4, -2),  point_i(0, 0, -2),  point_i(0, -1, -2)  },
+    direction = {   vector_i(0, -1, 0), vector_i(0, -1, 2), vector_i(0, -1, 1), vector_i(0, 1, 2),  vector_i(0, 1, 1)   },
+    count = {       2,                  2,                  2,                  2,                  2                   }
+    )]
+    fn intersecting_caps_of_closed_cylinder(point: Tuple, direction: Tuple, count: usize) {
+        let cylinder = Shape::cylinder_bounded(1.0, 2.0, true);
+        let ray = Ray::with(point, direction.normalize());
+
+        assert_eq!(cylinder.intersects(&ray).xs.len(), count);
+    }
+
+    #[parameterized(
+    point = {   point_i(0, 1, 0),    point(0.5, 1.0, 0.0),  point(0.0, 1.0, 0.5),   point_i(0, 2, 0),   point(0.5, 2.0, 0.0),   point(0.0, 2.0, 0.5)},
+    normal = {  vector_i(0, -1, 0), vector_i(0, -1, 0),     vector_i(0, -1, 0),     vector_i(0, 1, 0),  vector_i(0, 1, 0),      vector_i(0, 1, 0)}
+    )]
+    fn normal_vector_on_cylinder_end_caps(point: Tuple, normal: Tuple) {
+        let cylinder = Shape::cylinder_bounded(1.0, 2.0, true);
+
+        assert_eq!(cylinder.normal_at(point), normal)
     }
 }

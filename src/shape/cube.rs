@@ -49,7 +49,9 @@ mod cube_test {
     use crate::tuple::Tuple;
     use crate::tuple::{point, point_i, vector, vector_i};
     use crate::Shape;
-    use parameterized::parameterized;
+    use parameterized::{ide, parameterized};
+
+    ide!();
 
     #[parameterized(
     scenario= {     "+x",                   "-x",                   "+y",                   "-y",                   "+z",                   "-z",                   "inside"                },
