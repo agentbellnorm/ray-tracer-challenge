@@ -20,7 +20,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::cubes::cubes_scene;
+use crate::scenes::cylinder_and_cone::cylinder_and_cone_scene;
 use crate::shape::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
@@ -30,7 +30,7 @@ use std::process::Command;
 
 pub fn main_lib() {
     let world = World::with(
-        cubes_scene(),
+        cylinder_and_cone_scene(),
         PointLight::with(point(-10.0, 10.0, -10.0), white()),
     );
 
