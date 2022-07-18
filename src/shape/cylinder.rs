@@ -79,7 +79,6 @@ pub fn cylinder_normal_at(point: Tuple, y_min: f64, y_max: f64) -> Tuple {
 mod cylinder_test {
     use crate::matrix::is_equal_float;
     use crate::rays::Ray;
-    use crate::shape::ShapeType;
     use crate::shape::ShapeType::Cylinder;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
     use crate::Shape;
