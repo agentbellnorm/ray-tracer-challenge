@@ -91,7 +91,7 @@ mod cone_test {
     use crate::rays::Ray;
     use crate::shape::cone::cone_normal_at;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
-    use crate::Shape;
+    use crate::{Shape, World};
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
 
@@ -102,10 +102,11 @@ mod cone_test {
     t1 = {          5.0,                8.66025,            49.44994                }
     )]
     fn intersecting_cone_with_ray(origin: Tuple, direction: Tuple, t0: f64, t1: f64) {
+        let world = World::default();
         let cone = Shape::cone_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = cone.intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -117,7 +118,7 @@ mod cone_test {
         let cone = Shape::cone_default();
         let ray = Ray::with(point_i(0, 0, -1), vector_i(0, 1, 1).normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = cone.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 1);
         assert!(is_equal_float(xs.get(0).t, 0.35355));
@@ -132,7 +133,7 @@ mod cone_test {
         let cone = Shape::cone(-0.5, 0.5, true);
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = cone.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), count)
     }

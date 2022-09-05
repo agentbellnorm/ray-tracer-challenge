@@ -206,12 +206,12 @@ mod intersection_test {
 
     #[test]
     fn refracted_color_with_opaque_surface() {
-        let w = World::default_world();
-        let shape = w.objects.get(0).unwrap();
+        let w = World::test_world();
+        let world_shape = w.objects.get(0).unwrap();
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
         let xs = Intersections::from(vec![
-            Intersection::new(4.0, shape),
-            Intersection::new(6.0, shape),
+            Intersection::new(4.0, &world_shape.shape),
+            Intersection::new(6.0, &world_shape.shape),
         ]);
 
         let comps = xs.get(0).prepare_computations(&r, &xs);
@@ -221,14 +221,19 @@ mod intersection_test {
 
     #[test]
     fn refracted_color_at_max_recursive_depth() {
-        let mut w = World::default_world();
-        w.objects.get_mut(0).unwrap().material.transparency = 1.0;
-        w.objects.get_mut(0).unwrap().material.refractive_index = 1.5;
-        let shape = w.objects.get(0).unwrap();
+        let mut w = World::test_world();
+        w.objects.get_mut(0).unwrap().shape.material.transparency = 1.0;
+        w.objects
+            .get_mut(0)
+            .unwrap()
+            .shape
+            .material
+            .refractive_index = 1.5;
+        let world_shape = w.objects.get(0).unwrap();
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
         let xs = Intersections::from(vec![
-            Intersection::new(4.0, shape),
-            Intersection::new(6.0, shape),
+            Intersection::new(4.0, &world_shape.shape),
+            Intersection::new(6.0, &world_shape.shape),
         ]);
         let comps = xs.get(0).prepare_computations(&r, &xs);
 
@@ -237,14 +242,19 @@ mod intersection_test {
 
     #[test]
     fn refracted_color_under_total_internal_reflection() {
-        let mut w = World::default_world();
-        w.objects.get_mut(0).unwrap().material.transparency = 1.0;
-        w.objects.get_mut(0).unwrap().material.refractive_index = 1.5;
-        let shape = w.objects.get(0).unwrap();
+        let mut w = World::test_world();
+        w.objects.get_mut(0).unwrap().shape.material.transparency = 1.0;
+        w.objects
+            .get_mut(0)
+            .unwrap()
+            .shape
+            .material
+            .refractive_index = 1.5;
+        let world_shape = w.objects.get(0).unwrap();
         let r = Ray::with(point(0.0, 0.0, SQRT_2 / 2.0), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
-            Intersection::new(-SQRT_2 / 2.0, shape),
-            Intersection::new(SQRT_2 / 2.0, shape),
+            Intersection::new(-SQRT_2 / 2.0, &world_shape.shape),
+            Intersection::new(SQRT_2 / 2.0, &world_shape.shape),
         ]);
         let comps = xs.get(1).prepare_computations(&r, &xs);
 
@@ -253,22 +263,27 @@ mod intersection_test {
 
     #[test]
     fn refracted_color_with_refracted_ray() {
-        let mut w = World::default_world();
-        w.objects.get_mut(0).unwrap().material.ambient = 1.0;
-        w.objects.get_mut(0).unwrap().material.pattern = Some(Pattern::test());
+        let mut w = World::test_world();
+        w.objects.get_mut(0).unwrap().shape.material.ambient = 1.0;
+        w.objects.get_mut(0).unwrap().shape.material.pattern = Some(Pattern::test());
 
-        w.objects.get_mut(1).unwrap().material.transparency = 1.0;
-        w.objects.get_mut(1).unwrap().material.refractive_index = 1.5;
+        w.objects.get_mut(1).unwrap().shape.material.transparency = 1.0;
+        w.objects
+            .get_mut(1)
+            .unwrap()
+            .shape
+            .material
+            .refractive_index = 1.5;
 
         let a = w.objects.get(0).unwrap();
         let b = w.objects.get(1).unwrap();
 
         let r = Ray::with(point(0.0, 0.0, 0.1), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
-            Intersection::new(-0.9899, a),
-            Intersection::new(-0.4899, b),
-            Intersection::new(0.4899, b),
-            Intersection::new(0.9899, a),
+            Intersection::new(-0.9899, &a.shape),
+            Intersection::new(-0.4899, &b.shape),
+            Intersection::new(0.4899, &b.shape),
+            Intersection::new(0.9899, &a.shape),
         ]);
 
         let comps = xs.get(2).prepare_computations(&r, &xs);
@@ -281,7 +296,7 @@ mod intersection_test {
 
     #[test]
     fn shade_hit_with_a_transparent_material() {
-        let mut w = World::default_world();
+        let mut w = World::test_world();
 
         let mut floor_material = Material::default();
         floor_material.transparency = 0.5;
@@ -294,8 +309,8 @@ mod intersection_test {
         let ball = Shape::sphere_from_material(ball_material)
             .with_transform(Matrix::identity().translate(0.0, -3.5, -0.5));
 
-        w = w.add_object(floor.clone());
-        w = w.add_object(ball);
+        w = w.add_shape(floor.clone());
+        w = w.add_shape(ball);
 
         let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, &floor)]);
@@ -350,7 +365,7 @@ mod intersection_test {
 
     #[test]
     fn shade_hit_with_reflective_transparent_material() {
-        let mut w = World::default_world();
+        let mut w = World::test_world();
         let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
 
         let mut floor_material = Material::default();
@@ -365,8 +380,8 @@ mod intersection_test {
         let ball = Shape::sphere_from_material(ball_material)
             .with_transform(Matrix::identity().translate(0.0, -3.5, -0.5));
 
-        w = w.add_object(floor.clone());
-        w = w.add_object(ball);
+        w = w.add_shape(floor.clone());
+        w = w.add_shape(ball);
 
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, &floor)]);
 

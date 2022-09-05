@@ -1,5 +1,6 @@
 use crate::color::Color;
 use crate::tuple::Tuple;
+use crate::{point, white};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PointLight {
@@ -14,6 +15,10 @@ impl PointLight {
             position,
             intensity,
         }
+    }
+
+    pub fn default() -> Self {
+        PointLight::with(point(-10.0, 10.0, -10.0), white())
     }
 }
 

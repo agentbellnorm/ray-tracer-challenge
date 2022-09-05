@@ -5,6 +5,7 @@ mod pattern_test {
     use ray_tracer_challenge::pattern::Pattern;
     use ray_tracer_challenge::shape::Shape;
     use ray_tracer_challenge::tuple::point;
+    use ray_tracer_challenge::world::World;
 
     #[test]
     fn creating_stripe_pattern() {
@@ -43,7 +44,7 @@ mod pattern_test {
         let o = Shape::sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
         let p = Pattern::striped(white(), black());
 
-        let c = p.color_at_object(&o, point(1.5, 0.0, 0.0));
+        let c = p.color_at_object(&World::default(), &o, point(1.5, 0.0, 0.0));
 
         assert_eq!(c, white());
     }
@@ -54,7 +55,7 @@ mod pattern_test {
         let p = Pattern::striped(white(), black())
             .with_transformation(Matrix::identity().scale(2.0, 2.0, 2.0));
 
-        let c = p.color_at_object(&o, point(1.5, 0.0, 0.0));
+        let c = p.color_at_object(&World::default(), &o, point(1.5, 0.0, 0.0));
 
         assert_eq!(c, white());
     }
@@ -65,7 +66,7 @@ mod pattern_test {
         let p = Pattern::striped(white(), black())
             .with_transformation(Matrix::identity().translate(0.5, 0.0, 0.0));
 
-        let c = p.color_at_object(&o, point(2.5, 0.0, 0.0));
+        let c = p.color_at_object(&World::default(), &o, point(2.5, 0.0, 0.0));
 
         assert_eq!(c, white())
     }

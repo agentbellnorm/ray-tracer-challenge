@@ -3,6 +3,7 @@ use crate::lights::PointLight;
 use crate::pattern::Pattern;
 use crate::shape::Shape;
 use crate::tuple::Tuple;
+use crate::World;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Material {
@@ -112,13 +113,14 @@ impl Material {
         eye_vector: Tuple,
         normal_vector: Tuple,
         in_shadow: bool,
+        world: &World,
     ) -> Color {
         let diffuse: Color;
         let specular: Color;
 
         let black = black();
         let color = match self.pattern {
-            Some(pattern) => pattern.color_at_object(object, point),
+            Some(pattern) => pattern.color_at_object(world, object, point),
             None => self.color,
         };
 

@@ -1,16 +1,17 @@
-use crate::matrix::is_equal_float;
 use crate::rays::Ray;
-use crate::shape::Shape;
 use crate::tuple::{Tuple, EPSILON};
+use crate::world::ShapeId;
+use crate::World;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Intersection<'a> {
+#[derive(Debug, Clone, PartialEq, Copy)]
+pub struct Intersection {
     pub t: f64,
-    pub object: &'a Shape,
+    pub object: ShapeId,
 }
 
-pub struct PreparedComputation<'a> {
-    pub object: &'a Shape,
+#[derive(Debug, Clone, PartialEq, Copy)]
+pub struct PreparedComputation {
+    pub object: ShapeId,
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
@@ -23,11 +24,7 @@ pub struct PreparedComputation<'a> {
     pub n2: f64,
 }
 
-impl<'a> PreparedComputation<'a> {
-    pub fn is_opaque(&self) -> bool {
-        is_equal_float(self.object.material.transparency, 0.0)
-    }
-
+impl PreparedComputation {
     // todo read "Reflections and Refractions in Ray Tracing"
     pub fn schlick(&self) -> f64 {
         // cosine angle between eye and normal vector
@@ -53,18 +50,21 @@ impl<'a> PreparedComputation<'a> {
     }
 }
 
-impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &'a Shape) -> Intersection {
+impl Intersection {
+    pub fn new(t: f64, object: ShapeId) -> Intersection {
         Intersection { t, object }
     }
 
     pub fn prepare_computations(
         &self,
+        world: &World,
         ray: &Ray,
         intersections: &Intersections,
     ) -> PreparedComputation {
         let point = ray.position(self.t);
-        let mut normal_vector = self.object.normal_at(point);
+        let mut normal_vector = world
+            .get_shape(self.object)
+            .normal_at(world, point);
         let eye_vector = -ray.direction;
         let inside = normal_vector.dot(&eye_vector) < 0.0;
 
@@ -78,7 +78,7 @@ impl<'a> Intersection<'a> {
         let over_point = point + (normal_vector * EPSILON);
         let under_point = point - (normal_vector * EPSILON);
 
-        let (n1, n2) = self.get_refractive_indices(intersections);
+        let (n1, n2) = self.get_refractive_indices(world, intersections);
 
         PreparedComputation {
             point,
@@ -95,11 +95,11 @@ impl<'a> Intersection<'a> {
         }
     }
 
-    fn get_refractive_indices(&self, xs: &Intersections) -> (f64, f64) {
+    fn get_refractive_indices(&self, world: &World, xs: &Intersections) -> (f64, f64) {
         let mut n1: Option<f64> = None;
         let mut n2: Option<f64> = None;
 
-        let mut containers: Vec<&Shape> = Vec::new();
+        let mut containers: Vec<ShapeId> = Vec::new();
 
         for i in 0..xs.len() {
             let current_intersection = xs.get(i);
@@ -109,7 +109,12 @@ impl<'a> Intersection<'a> {
                 if containers.is_empty() {
                     n1 = Some(1.0);
                 } else {
-                    n1 = Some(containers.last().unwrap().material.refractive_index);
+                    n1 = Some(
+                        world
+                            .get_shape(*containers.last().unwrap())
+                            .material
+                            .refractive_index,
+                    );
                 }
             }
 
@@ -127,7 +132,12 @@ impl<'a> Intersection<'a> {
                 if containers.is_empty() {
                     n2 = Some(1.0);
                 } else {
-                    n2 = Some(containers.last().unwrap().material.refractive_index);
+                    n2 = Some(
+                        world
+                            .get_shape(*containers.last().unwrap())
+                            .material
+                            .refractive_index,
+                    );
                 }
             }
         }
@@ -136,11 +146,11 @@ impl<'a> Intersection<'a> {
     }
 }
 
-pub struct Intersections<'a> {
-    pub xs: Vec<Intersection<'a>>,
+pub struct Intersections {
+    pub xs: Vec<Intersection>,
 }
 
-impl<'a> Intersections<'a> {
+impl Intersections {
     // Sounds like doing sorting here can become a problem in the future, see p. 66
     pub fn hit(&self) -> Option<Intersection> {
         let mut sorted = self.xs.clone();
@@ -161,7 +171,7 @@ impl<'a> Intersections<'a> {
         &self.xs[index]
     }
 
-    pub fn from(xs: Vec<Intersection<'a>>) -> Self {
+    pub fn from(xs: Vec<Intersection>) -> Self {
         Intersections { xs }
     }
 }

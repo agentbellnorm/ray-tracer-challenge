@@ -48,7 +48,7 @@ mod cube_test {
     use crate::rays::Ray;
     use crate::tuple::Tuple;
     use crate::tuple::{point, point_i, vector, vector_i};
-    use crate::Shape;
+    use crate::{Shape, World};
     use parameterized::{ide, parameterized};
 
     ide!();
@@ -64,7 +64,7 @@ mod cube_test {
         let cube = Shape::cube_default();
         let ray = Ray::with(origin, direction);
 
-        let xs = cube.intersects(&ray);
+        let xs = cube.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 2, "{}", scenario);
         assert_eq!(xs.get(0).t, t1, "{}", scenario);
@@ -79,7 +79,7 @@ mod cube_test {
         let cube = Shape::cube_default();
         let ray = Ray::with(origin, direction);
 
-        let xs = cube.intersects(&ray);
+        let xs = cube.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 0)
     }
@@ -89,6 +89,9 @@ mod cube_test {
     normal = {  vector_i(1, 0, 0),      vector_i(-1, 0, 0),     vector_i(0, 1, 0),      vector_i(0, -1, 0),     vector_i(0, 0, 1),      vector_i(0, 0, -1),     vector_i(1, 0, 0),  vector_i(-1, 0, 0)  },
     )]
     fn normal_on_surface_of_cube(point: Tuple, normal: Tuple) {
-        assert_eq!(Shape::cube_default().normal_at(point), normal)
+        assert_eq!(
+            Shape::cube_default().normal_at(&World::default(), point),
+            normal
+        )
     }
 }

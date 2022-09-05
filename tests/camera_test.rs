@@ -73,7 +73,7 @@ mod camera_test {
 
     #[test]
     fn rendering_world_with_camera() {
-        let world = World::default_world();
+        let world = World::test_world();
         let mut camera = Camera::new(11, 11, PI / 2.0);
         let from = point(0.0, 0.0, -5.0);
         let to = point(0.0, 0.0, 0.0);
@@ -137,10 +137,8 @@ mod camera_test {
                 .translate(-1.5, 0.33, -0.75),
         );
 
-        let world = World::with(
-            vec![floor, left_wall, right_wall, middle, right, left],
-            PointLight::with(point(-10.0, 10.0, -10.0), white()),
-        );
+        let world = World::with_light(PointLight::with(point(-10.0, 10.0, -10.0), white()))
+            .with_objects(vec![floor, left_wall, right_wall, middle, right, left]);
 
         let mut camera = Camera::new(100, 50, FRAC_PI_3);
         camera = camera.set_transform(view_transformation(
@@ -206,10 +204,8 @@ mod camera_test {
                 .translate(-1.5, 0.33, -0.75),
         );
 
-        let world = World::with(
-            vec![floor, wall, middle, right, left],
-            PointLight::with(point(-10.0, 10.0, -10.0), white()),
-        );
+        let world = World::with_light(PointLight::with(point(-10.0, 10.0, -10.0), white()))
+            .with_objects(vec![floor, wall, middle, right, left]);
 
         let mut camera = Camera::new(200, 100, FRAC_PI_3);
         camera = camera.set_transform(view_transformation(

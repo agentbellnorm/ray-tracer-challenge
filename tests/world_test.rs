@@ -19,19 +19,23 @@ mod world_test {
         material.diffuse = 0.7;
         material.specular = 0.2;
 
-        let s1 = Shape::sphere_from_material(material);
-        let s2 = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
+        let mut s1 = Shape::sphere_from_material(material);
+        let mut s2 = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
-        let default_world = World::default_world();
+        //these are the ids that the shapes will get when they are created in test_world
+        s1.id = Some(0);
+        s2.id = Some(1);
+
+        let default_world = World::test_world();
 
         assert_eq!(&default_world.light_source, &light);
-        assert!(default_world.has_object(&s1));
-        assert!(default_world.has_object(&s2));
+        assert_eq!(default_world.get_shape(0), &s1);
+        assert_eq!(default_world.get_shape(1), &s2);
     }
 
     #[test]
     fn intersect_world_with_ray() {
-        let world = World::default_world();
+        let world = World::test_world();
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
 
         let xs = world.intersect_world(&ray);
@@ -45,12 +49,12 @@ mod world_test {
 
     #[test]
     fn shading_an_intersection() {
-        let w = World::default_world();
+        let w = World::test_world();
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let shapes = w.objects.get(0).unwrap();
-        let i = Intersection::new(4.0, shapes);
+        let i = Intersection::new(4.0, shapes.shape.id.unwrap());
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&w, &r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.38066, 0.47583, 0.2855));
@@ -58,13 +62,13 @@ mod world_test {
 
     #[test]
     fn shading_an_intersection_from_the_inside() {
-        let mut w = World::default_world();
+        let mut w = World::test_world();
         w.light_source = PointLight::with(point(0.0, 0.25, 0.0), white());
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shapes = w.objects.get(1).unwrap();
-        let i = Intersection::new(0.5, shapes);
+        let i = Intersection::new(0.5, shapes.shape.id.unwrap());
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&w, &r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.90498, 0.90498, 0.90498));
@@ -74,14 +78,13 @@ mod world_test {
     fn shade_hit_given_intersection_in_shadow() {
         let s1 = Shape::sphere_default();
         let s2 = Shape::sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 10.0));
-        let w = World::with(
-            vec![s1, s2.clone()],
-            PointLight::with(point(0.0, 0.0, -10.0), white()),
-        );
-        let i = Intersection::new(4.0, &s2);
+        let s2_id = 1; // this is the id it will get from world
+        let w = World::with_light(PointLight::with(point(0.0, 0.0, -10.0), white()))
+            .with_objects(vec![s1, s2]);
+        let i = Intersection::new(4.0, s2_id);
         let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&w, &r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.1, 0.1, 0.1));
@@ -89,7 +92,7 @@ mod world_test {
 
     #[test]
     fn color_when_a_ray_misses() {
-        let w = World::default_world();
+        let w = World::test_world();
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
         let c = w.color_at(&r, 5);
@@ -99,7 +102,7 @@ mod world_test {
 
     #[test]
     fn color_when_a_ray_hits() {
-        let w = World::default_world();
+        let w = World::test_world();
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
 
         let c = w.color_at(&r, 5);
@@ -121,7 +124,7 @@ mod world_test {
             .with_material(material);
         let inner_color = inner.material.color;
 
-        let w = World::with(vec![outer, inner], light);
+        let w = World::with_light(light).with_objects(vec![outer, inner]);
         // above is default world with some tweaks
 
         let r = Ray::with(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
@@ -133,7 +136,7 @@ mod world_test {
 
     #[test]
     fn no_shadow_when_nothing_is_collinear_with_position_and_light() {
-        let world = World::default_world();
+        let world = World::test_world();
         let p = point(0.0, 10.0, 0.0);
 
         assert!(!world.is_shadowed(p));
@@ -141,7 +144,7 @@ mod world_test {
 
     #[test]
     fn shadow_when_object_is_between_point_and_light() {
-        let world = World::default_world();
+        let world = World::test_world();
         let p = point(10.0, -10.0, 10.0);
 
         assert!(world.is_shadowed(p));
@@ -149,7 +152,7 @@ mod world_test {
 
     #[test]
     fn no_shadow_when_object_is_behind_light() {
-        let world = World::default_world();
+        let world = World::test_world();
         let p = point(-20.0, 20.0, -20.0);
 
         assert!(!world.is_shadowed(p));
@@ -157,7 +160,7 @@ mod world_test {
 
     #[test]
     fn no_shadow_when_object_is_behind_point() {
-        let world = World::default_world();
+        let world = World::test_world();
         let p = point(-2.0, 2.0, -2.0);
 
         assert!(!world.is_shadowed(p));
@@ -165,32 +168,35 @@ mod world_test {
 
     #[test]
     fn the_reflected_color_for_a_nonreflective_material() {
-        let mut world = World::default_world();
+        let mut world = World::test_world();
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        world.objects.get_mut(1).unwrap().material.ambient = 1.0;
-        let intersection = Intersection::new(1.0, world.objects.get(1).unwrap());
+        world.objects.get_mut(1).unwrap().shape.material.ambient = 1.0;
+        let intersection = Intersection::new(1.0, world.objects.get(1).unwrap().shape.id.unwrap());
 
-        let comps = intersection
-            .prepare_computations(&ray, &Intersections::from(vec![intersection.clone()]));
+        let comps = intersection.prepare_computations(
+            &world,
+            &ray,
+            &Intersections::from(vec![intersection.clone()]),
+        );
 
         assert_eq!(world.reflected_color(&comps, 5), black())
     }
 
     #[test]
     fn shade_hit_for_reflective_material() {
-        let mut world = World::default_world();
+        let mut world = World::test_world();
         let mut material = Material::default();
         material.reflective = 0.5;
         let plane = Shape::plane_from_material(material)
             .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
-        world = world.add_object(plane);
+        world = world.add_shape(plane);
         let ray = Ray::with(
             point(0.0, 0.0, -3.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
+        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap().shape.id.unwrap());
 
-        let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&world, &ray, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(
             world.shade_hit(&comps, 5).de_normalized(),
@@ -210,7 +216,7 @@ mod world_test {
         let upper = Shape::plane_from_material(material)
             .with_transform(Matrix::identity().translate(0.0, 1.0, 0.0));
 
-        let world = World::with(vec![lower, upper], light);
+        let world = World::with_light(light).with_objects(vec![lower, upper]);
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
 
         let c = world.color_at(&ray, 5);
@@ -220,21 +226,21 @@ mod world_test {
 
     #[test]
     fn the_reflected_color_at_the_maximum_recursive_depth() {
-        let mut world = World::default_world();
+        let mut world = World::test_world();
         let mut material = Material::default();
         material.reflective = 0.5;
 
         let plane = Shape::plane_from_material(material)
             .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
 
-        world = world.add_object(plane);
+        world = world.add_shape(plane);
 
         let ray = Ray::with(
             point(0.0, 0.0, -3.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
-        let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
+        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap().shape.id.unwrap());
+        let comps = i.prepare_computations(&world, &ray, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(world.reflected_color(&comps, 0), black())
     }

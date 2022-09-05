@@ -6,6 +6,7 @@ mod material_test {
     use ray_tracer_challenge::pattern::Pattern;
     use ray_tracer_challenge::shape::Shape;
     use ray_tracer_challenge::tuple::{point, vector, Tuple};
+    use ray_tracer_challenge::world::World;
 
     #[test]
     fn default_material() {
@@ -36,6 +37,7 @@ mod material_test {
             eye_v,
             normal_v,
             false,
+            &World::default(),
         );
 
         assert_eq!(result, color(1.9, 1.9, 1.9));
@@ -55,6 +57,7 @@ mod material_test {
             eye_v,
             normal_v,
             false,
+            &World::default(),
         );
 
         assert_eq!(result, white());
@@ -74,6 +77,7 @@ mod material_test {
             eye_v,
             normal_v,
             false,
+            &World::default(),
         );
 
         assert_eq!(result, color(0.7364, 0.7364, 0.7364));
@@ -93,6 +97,7 @@ mod material_test {
             eye_v,
             normal_v,
             false,
+            &World::default(),
         );
 
         assert_eq!(result, color(1.63639, 1.63639, 1.63639));
@@ -112,6 +117,7 @@ mod material_test {
             eye_v,
             normal_v,
             false,
+            &World::default(),
         );
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
@@ -132,6 +138,7 @@ mod material_test {
             eyev,
             normalv,
             in_shadow,
+            &World::default(),
         );
 
         assert_eq!(result, color(0.1, 0.1, 0.1));
@@ -155,6 +162,7 @@ mod material_test {
             eyev,
             normalv,
             false,
+            &World::default(),
         );
         let c2 = material.lighting(
             &Shape::sphere_default(),
@@ -163,6 +171,7 @@ mod material_test {
             eyev,
             normalv,
             false,
+            &World::default(),
         );
 
         assert_eq!(c1, white());

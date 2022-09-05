@@ -81,7 +81,7 @@ mod cylinder_test {
     use crate::rays::Ray;
     use crate::shape::ShapeType::Cylinder;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
-    use crate::Shape;
+    use crate::{Shape, World};
     use parameterized::parameterized;
 
     #[parameterized(
@@ -92,7 +92,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&ray).len(), 0)
+        assert_eq!(cylinder.intersects(&World::default(), &ray).len(), 0)
     }
 
     #[parameterized(
@@ -105,7 +105,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cylinder.intersects(&ray);
+        let xs = cylinder.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -119,7 +119,7 @@ mod cylinder_test {
     fn normal_vector_on_cylinder(point: Tuple, normal: Tuple) {
         let cylinder = Shape::cylinder_default();
 
-        assert_eq!(cylinder.normal_at(point), normal);
+        assert_eq!(cylinder.normal_at(&World::default(), point), normal);
     }
 
     #[test]
@@ -144,7 +144,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, false);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&ray).xs.len(), count)
+        assert_eq!(cylinder.intersects(&World::default(), &ray).xs.len(), count)
     }
 
     #[test]
@@ -165,7 +165,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&ray).xs.len(), count);
+        assert_eq!(cylinder.intersects(&World::default(), &ray).xs.len(), count);
     }
 
     #[parameterized(
@@ -175,6 +175,6 @@ mod cylinder_test {
     fn normal_vector_on_cylinder_end_caps(point: Tuple, normal: Tuple) {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
 
-        assert_eq!(cylinder.normal_at(point), normal)
+        assert_eq!(cylinder.normal_at(&World::default(), point), normal)
     }
 }

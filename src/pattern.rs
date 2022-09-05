@@ -3,7 +3,7 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::perlin_noise::noise3;
 use crate::shape::Shape;
 use crate::tuple::Tuple;
-use crate::{black, color, point};
+use crate::{black, color, point, World};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Pattern {
@@ -65,8 +65,8 @@ impl Pattern {
         !is_equal_float(self.noise, 0.0)
     }
 
-    pub fn color_at_object(self, object: &Shape, p: Tuple) -> Color {
-        let object_space = p * &object.inverse_transformation;
+    pub fn color_at_object(self, world: &World, object: &Shape, p: Tuple) -> Color {
+        let object_space = object.world_to_object(world, p);
         let mut pattern_space = object_space * &self.inverse_transformation;
 
         if self.has_noise() {

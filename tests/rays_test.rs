@@ -4,6 +4,7 @@ mod rays_test {
     use ray_tracer_challenge::rays::Ray;
     use ray_tracer_challenge::shape::Shape;
     use ray_tracer_challenge::tuple::{point, vector};
+    use ray_tracer_challenge::world::World;
 
     #[test]
     fn create_ray() {
@@ -30,8 +31,9 @@ mod rays_test {
     fn ray_intersects_sphere_at_two_points() {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
+        let world = World::default().with_objects(vec![sphere]);
 
-        let xs = sphere.intersects(&ray);
+        let xs = world.get_shape(0).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 4.0);
@@ -42,8 +44,9 @@ mod rays_test {
     fn ray_intersects_sphere_at_tangent() {
         let ray = Ray::with(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
+        let world = World::default().with_objects(vec![sphere]);
 
-        let xs = sphere.intersects(&ray);
+        let xs = world.get_shape(0).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 5.0);
@@ -55,7 +58,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = sphere.intersects(&ray);
+        let xs = sphere.intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 0);
     }
@@ -64,8 +67,9 @@ mod rays_test {
     fn ray_originates_inside_sphere() {
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
+        let world = World::default().with_objects(vec![sphere]);
 
-        let xs = sphere.intersects(&ray);
+        let xs = world.get_shape(0).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, -1.0);
@@ -76,8 +80,9 @@ mod rays_test {
     fn sphere_behind_ray() {
         let ray = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
+        let world = World::default().with_objects(vec![sphere]);
 
-        let xs = sphere.intersects(&ray);
+        let xs = world.get_shape(0).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, -6.0);
@@ -88,12 +93,16 @@ mod rays_test {
     fn intersect_sets_the_object_on_intersection() {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
+        let world = World::default().with_objects(vec![sphere]);
 
-        let xs = sphere.intersects(&ray);
+        let xs = world.get_shape(0).intersects(&World::default(), &ray);
 
+        let mut other_default_sphere = Shape::sphere_default();
+        other_default_sphere.id = Some(0);
         assert_eq!(xs.len(), 2);
-        assert!(xs.get(0).object.eq(&sphere));
-        assert!(xs.get(1).object.eq(&sphere));
+        assert_eq!(world.get_shape(0), &other_default_sphere);
+        assert!(xs.get(0).object.eq(&0));
+        assert!(xs.get(1).object.eq(&0));
     }
 
     #[test]
