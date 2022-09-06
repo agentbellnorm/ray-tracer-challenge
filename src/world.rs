@@ -150,7 +150,7 @@ impl World {
             computations.eye_vector,
             computations.normal_vector,
             is_in_shadow,
-            &self,
+            self,
         );
 
         let reflected = self.reflected_color(computations, remaining);

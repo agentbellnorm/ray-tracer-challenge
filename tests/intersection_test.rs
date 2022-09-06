@@ -258,7 +258,9 @@ mod intersection_test {
         let first_world_shape_id = 0;
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
         let xs = Intersections::from(vec![Intersection::new(4.0, 0), Intersection::new(6.0, 0)]);
-        let comps = xs.get(0).prepare_computations(&w, &r, &xs);
+        let comps = xs
+            .get(first_world_shape_id)
+            .prepare_computations(&w, &r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 0), black());
     }
@@ -302,9 +304,6 @@ mod intersection_test {
         let a_id = 0;
         let b_id = 1;
 
-        let a = w.objects.get(0).unwrap();
-        let b = w.objects.get(1).unwrap();
-
         let r = Ray::with(point(0.0, 0.0, 0.1), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
             Intersection::new(-0.9899, a_id),
@@ -338,9 +337,7 @@ mod intersection_test {
 
         w = w.add_shape(floor.clone());
         w = w.add_shape(ball);
-        let floor_id = 2;
-        let ball_id = 3;
-        assert_eq!(w.next_index(), 4);
+        let floor_id = 2; // third item in world
 
         let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
@@ -412,9 +409,7 @@ mod intersection_test {
 
         w = w.add_shape(floor.clone());
         w = w.add_shape(ball);
-        assert_eq!(w.next_index(), 4);
-        let floor_id = 2;
-        let ball_id = 3;
+        let floor_id = 2; // third item in world
 
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
 

@@ -23,7 +23,6 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
 use crate::scenes::cylinder_and_cone::cylinder_and_cone_scene;
-use crate::scenes::shiny::shiny_scene;
 use crate::shape::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
