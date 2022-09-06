@@ -90,9 +90,10 @@ mod cylinder_test {
     )]
     fn ray_misses_cylinder(origin: Tuple, direction: Tuple) {
         let cylinder = Shape::cylinder_default();
+        let world = World::default().with_objects(vec![cylinder]);
         let ray = Ray::with(origin, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&World::default(), &ray).len(), 0)
+        assert_eq!(world.get_shape(0).intersects(&world, &ray).len(), 0)
     }
 
     #[parameterized(
@@ -103,9 +104,10 @@ mod cylinder_test {
     )]
     fn ray_strikes_cylinder(origin: Tuple, direction: Tuple, t0: f64, t1: f64) {
         let cylinder = Shape::cylinder_default();
+        let world = World::default().with_objects(vec![cylinder]);
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cylinder.intersects(&World::default(), &ray);
+        let xs = world.get_shape(0).intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -142,9 +144,10 @@ mod cylinder_test {
     )]
     fn intersecting_constrained_cylinder(point: Tuple, direction: Tuple, count: usize) {
         let cylinder = Shape::cylinder(1.0, 2.0, false);
+        let world = World::default().with_objects(vec![cylinder]);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&World::default(), &ray).xs.len(), count)
+        assert_eq!(world.get_shape(0).intersects(&world, &ray).xs.len(), count)
     }
 
     #[test]
@@ -163,9 +166,10 @@ mod cylinder_test {
     )]
     fn intersecting_caps_of_closed_cylinder(point: Tuple, direction: Tuple, count: usize) {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
+        let world = World::default().with_objects(vec![cylinder]);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(cylinder.intersects(&World::default(), &ray).xs.len(), count);
+        assert_eq!(world.get_shape(0).intersects(&world, &ray).xs.len(), count);
     }
 
     #[parameterized(
@@ -174,7 +178,8 @@ mod cylinder_test {
     )]
     fn normal_vector_on_cylinder_end_caps(point: Tuple, normal: Tuple) {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
+        let world = World::default().with_objects(vec![cylinder]);
 
-        assert_eq!(cylinder.normal_at(&World::default(), point), normal)
+        assert_eq!(world.get_shape(0).normal_at(&world, point), normal)
     }
 }

@@ -34,8 +34,9 @@ mod plane_test {
     #[test]
     fn intersect_with_ray_parallel_to_plane() {
         let p = Shape::plane_default();
+        let w = World::default().with_objects(vec![p]);
         let r = Ray::with(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
-        let xs = p.intersects(&World::default(), &r);
+        let xs = w.get_shape(0).intersects(&w, &r);
 
         assert!(xs.is_empty())
     }
@@ -43,8 +44,9 @@ mod plane_test {
     #[test]
     fn intersect_with_coplanar_ray() {
         let p = Shape::plane_default();
+        let w = World::default().with_objects(vec![p]);
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        let xs = p.intersects(&World::default(), &r);
+        let xs = w.get_shape(0).intersects(&w, &r);
 
         assert!(xs.is_empty())
     }
@@ -52,8 +54,9 @@ mod plane_test {
     #[test]
     fn ray_intersecting_plane_from_above() {
         let p = Shape::plane_default();
+        let w = World::default().with_objects(vec![p]);
         let r = Ray::with(point(0.0, 1.0, 0.0), vector(0.0, -1.0, 0.0));
-        let xs = p.intersects(&World::default(), &r);
+        let xs = w.get_shape(0).intersects(&w, &r);
 
         assert_eq!(xs.len(), 1);
     }
@@ -61,8 +64,9 @@ mod plane_test {
     #[test]
     fn ray_intersecting_plane_from_below() {
         let p = Shape::plane_default();
+        let w = World::default().with_objects(vec![p]);
         let r = Ray::with(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
-        let xs = p.intersects(&World::default(), &r);
+        let xs = w.get_shape(0).intersects(&w, &r);
 
         assert_eq!(xs.len(), 1);
     }

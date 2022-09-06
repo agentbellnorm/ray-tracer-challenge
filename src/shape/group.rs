@@ -75,10 +75,10 @@ mod group_test {
         let xs = world.intersect_world(&ray);
 
         assert_eq!(xs.len(), 4);
-        assert_eq!(xs.get(0).object, 2);
-        assert_eq!(xs.get(1).object, 2);
-        assert_eq!(xs.get(2).object, 1);
-        assert_eq!(xs.get(3).object, 1);
+        assert_eq!(xs.get(0).object_id, 2);
+        assert_eq!(xs.get(1).object_id, 2);
+        assert_eq!(xs.get(2).object_id, 1);
+        assert_eq!(xs.get(3).object_id, 1);
     }
 
     #[test]

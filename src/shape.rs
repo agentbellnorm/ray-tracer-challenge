@@ -272,7 +272,7 @@ mod shape_test {
             ),
         );
 
-        assert_eq!(transformed_vector, vector(0.2857, 0.4286, -0.8571));
+        assert_eq!(transformed_vector, vector(0.285714, 0.428571, -0.857142));
     }
 
     #[test]

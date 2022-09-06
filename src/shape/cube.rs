@@ -62,9 +62,10 @@ mod cube_test {
     )]
     pub fn ray_intersects_cube(scenario: &str, origin: Tuple, direction: Tuple, t1: f64, t2: f64) {
         let cube = Shape::cube_default();
+        let world = World::default().with_objects(vec![cube]);
         let ray = Ray::with(origin, direction);
 
-        let xs = cube.intersects(&World::default(), &ray);
+        let xs = world.get_shape(0).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 2, "{}", scenario);
         assert_eq!(xs.get(0).t, t1, "{}", scenario);

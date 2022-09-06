@@ -54,7 +54,8 @@ mod sphere_test {
     fn intersecting_scaled_sphere_with_ray() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = Shape::sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let xs = s.intersects(&World::default(), &r);
+        let world = World::default().with_objects(vec![s]);
+        let xs = world.get_shape(0).intersects(&World::default(), &r);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 3.0);
@@ -85,6 +86,8 @@ mod sphere_test {
             Matrix::identity().scale(0.5, 1.0, 1.0).rotate_z(PI / 4.0),
         );
 
+        let world = &World::default().with_objects(vec![sphere]);
+
         for y in 0..size {
             let world_y = half - pixel_size * (y as f64);
             for x in 0..size {
@@ -92,7 +95,7 @@ mod sphere_test {
                 let position = point(world_x, world_y, wall_z);
                 let ray = Ray::with(ray_origin, (position - ray_origin).normalize());
 
-                if sphere.intersects(&World::default(), &ray).hit().is_some() {
+                if world.get_shape(0).intersects(&world, &ray).hit().is_some() {
                     canvas = canvas.write_pixel(x, y, color(1.0, 0.0, 0.0));
                 }
             }

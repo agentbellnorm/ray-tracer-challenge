@@ -101,8 +101,8 @@ mod rays_test {
         other_default_sphere.id = Some(0);
         assert_eq!(xs.len(), 2);
         assert_eq!(world.get_shape(0), &other_default_sphere);
-        assert!(xs.get(0).object.eq(&0));
-        assert!(xs.get(1).object.eq(&0));
+        assert!(xs.get(0).object_id.eq(&0));
+        assert!(xs.get(1).object_id.eq(&0));
     }
 
     #[test]

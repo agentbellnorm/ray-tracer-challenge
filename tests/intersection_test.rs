@@ -15,69 +15,77 @@ mod intersection_test {
 
     #[test]
     fn intersection_encapsulates_t_and_object() {
-        let sphere = Shape::sphere_default();
-        let i = Intersection::new(3.5, &sphere);
-        assert!(i.object.eq(&sphere));
+        let sphere_id = 0;
+        let i = Intersection::new(3.5, sphere_id);
+        assert!(i.object_id.eq(&sphere_id));
         assert_eq!(i.t, 3.5);
     }
 
     #[test]
     fn hit_all_intersections_positive_t() {
-        let s = Shape::sphere_default();
-        let i1 = Intersection { t: 1.0, object: &s };
-        let i2 = Intersection { t: 2.0, object: &s };
-        let xs = Intersections {
-            xs: vec![i1.clone(), i2.clone()],
+        let i1 = Intersection {
+            t: 1.0,
+            object_id: 1,
         };
+        let i2 = Intersection {
+            t: 2.0,
+            object_id: 2,
+        };
+        let xs = Intersections { xs: vec![i1, i2] };
 
         assert_eq!(xs.hit().unwrap(), i1);
     }
 
     #[test]
     fn hit_some_intersections_negative_t() {
-        let s = Shape::sphere_default();
         let i1 = Intersection {
             t: -1.0,
-            object: &s,
+            object_id: 1,
         };
-        let i2 = Intersection { t: 1.0, object: &s };
-        let xs = Intersections {
-            xs: vec![i1.clone(), i2.clone()],
+        let i2 = Intersection {
+            t: 1.0,
+            object_id: 2,
         };
+        let xs = Intersections { xs: vec![i1, i2] };
 
         assert_eq!(xs.hit().unwrap(), i2);
     }
 
     #[test]
     fn hit_all_intersections_negative() {
-        let s = Shape::sphere_default();
         let i1 = Intersection {
             t: -2.0,
-            object: &s,
+            object_id: 1,
         };
         let i2 = Intersection {
             t: -1.0,
-            object: &s,
+            object_id: 2,
         };
-        let xs = Intersections {
-            xs: vec![i1.clone(), i2.clone()],
-        };
+        let xs = Intersections { xs: vec![i1, i2] };
 
         assert_eq!(xs.hit(), None);
     }
 
     #[test]
     fn hit_is_always_lowest_non_negative_intersection() {
-        let s = Shape::sphere_default();
-        let i1 = Intersection { t: 5.0, object: &s };
-        let i2 = Intersection { t: 7.0, object: &s };
+        let i1 = Intersection {
+            t: 5.0,
+            object_id: 1,
+        };
+        let i2 = Intersection {
+            t: 7.0,
+            object_id: 2,
+        };
         let i3 = Intersection {
             t: -3.0,
-            object: &s,
+            object_id: 3,
         };
-        let i4 = Intersection { t: 2.0, object: &s };
+        let i4 = Intersection {
+            t: 2.0,
+            object_id: 4,
+        };
         let xs = Intersections {
-            xs: vec![i1.clone(), i2.clone(), i3.clone(), i4.clone()],
+            xs: vec![i1, i2, i3, i4],
         };
 
         assert_eq!(xs.hit().unwrap(), i4);
@@ -87,12 +95,13 @@ mod intersection_test {
     fn precomputing_state_of_intersection() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let shape = Shape::sphere_default();
-        let i = Intersection::new(4.0, &shape);
+        let world = World::default().with_objects(vec![shape]);
+        let i = Intersection::new(4.0, 0);
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&world, &r, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(comps.t, i.t);
-        assert_eq!(comps.object, i.object);
+        assert_eq!(comps.object, i.object_id);
         assert_eq!(comps.point, point(0.0, 0.0, -1.0));
         assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
         assert_eq!(comps.normal_vector, vector(0.0, 0.0, -1.0));
@@ -102,9 +111,10 @@ mod intersection_test {
     fn hit_when_intersection_occurs_on_the_outside() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let shape = Shape::sphere_default();
-        let i = Intersection::new(4.0, &shape);
+        let world = World::default().with_objects(vec![shape]);
+        let i = Intersection::new(4.0, 0);
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&world, &r, &Intersections::from(vec![i.clone()]));
 
         assert!(!comps.inside);
     }
@@ -113,9 +123,10 @@ mod intersection_test {
     fn hit_when_intersection_occurs_on_the_inside() {
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shape = Shape::sphere_default();
-        let i = Intersection::new(1.0, &shape);
+        let world = World::default().with_objects(vec![shape]);
+        let i = Intersection::new(1.0, 0);
 
-        let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
+        let comps = i.prepare_computations(&world, &r, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(comps.point, point(0.0, 0.0, 1.0));
         assert_eq!(comps.eye_vector, vector(0.0, 0.0, -1.0));
@@ -128,10 +139,14 @@ mod intersection_test {
     fn hit_should_offset_the_point() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let shape = Shape::sphere_from_transform(Matrix::identity().translate(0.0, 0.0, 1.0));
-        let intersection = Intersection::new(5.0, &shape);
+        let world = World::default().with_objects(vec![shape]);
+        let intersection = Intersection::new(5.0, 0);
 
-        let comps =
-            intersection.prepare_computations(&r, &Intersections::from(vec![intersection.clone()]));
+        let comps = intersection.prepare_computations(
+            &world,
+            &r,
+            &Intersections::from(vec![intersection.clone()]),
+        );
 
         assert!(comps.over_point.z < -EPSILON / 2.0);
         assert!(comps.point.z > comps.over_point.z);
@@ -140,14 +155,18 @@ mod intersection_test {
     #[test]
     fn precomputing_the_reflection_vector() {
         let shape = Shape::plane_default();
+        let world = World::default().with_objects(vec![shape]);
         let ray = Ray::with(
             point(0.0, 1.0, -1.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let intersection = Intersection::new(SQRT_2, &shape);
+        let intersection = Intersection::new(SQRT_2, 0);
 
-        let comps = intersection
-            .prepare_computations(&ray, &Intersections::from(vec![intersection.clone()]));
+        let comps = intersection.prepare_computations(
+            &world,
+            &ray,
+            &Intersections::from(vec![intersection.clone()]),
+        );
 
         assert_eq!(
             comps.reflection_vector,
@@ -163,28 +182,34 @@ mod intersection_test {
     fn finding_n1_and_n2_at_various_intersections(index: usize, n1: f64, n2: f64) {
         let mut a = Shape::sphere_glass().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
         a.material.refractive_index = 1.5;
+        let a_id = 0;
 
         let mut b =
             Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, -0.25));
         b.material.refractive_index = 2.0;
+        let b_id = 1;
 
         let mut c =
             Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, 0.25));
         c.material.refractive_index = 2.5;
+        let c_id = 2;
 
         let r = Ray::with(point(0.0, 0.0, -4.0), vector(0.0, 0.0, 1.0));
+
+        let world = World::default().with_objects(vec![a, b, c]);
+
         let xs = Intersections {
             xs: vec![
-                Intersection::new(2.0, &a),
-                Intersection::new(2.75, &b),
-                Intersection::new(3.25, &c),
-                Intersection::new(4.75, &b),
-                Intersection::new(5.25, &c),
-                Intersection::new(6.0, &a),
+                Intersection::new(2.0, a_id),
+                Intersection::new(2.75, b_id),
+                Intersection::new(3.25, c_id),
+                Intersection::new(4.75, b_id),
+                Intersection::new(5.25, c_id),
+                Intersection::new(6.0, a_id),
             ],
         };
 
-        let comps = xs.get(index).prepare_computations(&r, &xs);
+        let comps = xs.get(index).prepare_computations(&world, &r, &xs);
 
         assert_eq!(comps.n1, n1);
         assert_eq!(comps.n2, n2);
@@ -195,10 +220,11 @@ mod intersection_test {
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
         let shape =
             Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, 1.0));
-        let i = Intersection::new(5.0, &shape);
+        let world = World::default().with_objects(vec![shape]);
+        let i = Intersection::new(5.0, 0);
         let xs = Intersections::from(vec![i.clone()]);
 
-        let comps = i.prepare_computations(&r, &xs);
+        let comps = i.prepare_computations(&world, &r, &xs);
 
         assert!(comps.under_point.z > EPSILON / 2.0);
         assert!(comps.point.z < comps.under_point.z)
@@ -207,14 +233,14 @@ mod intersection_test {
     #[test]
     fn refracted_color_with_opaque_surface() {
         let w = World::test_world();
-        let world_shape = w.objects.get(0).unwrap();
+        let first_test_world_item_id = 0;
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
         let xs = Intersections::from(vec![
-            Intersection::new(4.0, &world_shape.shape),
-            Intersection::new(6.0, &world_shape.shape),
+            Intersection::new(4.0, first_test_world_item_id),
+            Intersection::new(6.0, first_test_world_item_id),
         ]);
 
-        let comps = xs.get(0).prepare_computations(&r, &xs);
+        let comps = xs.get(0).prepare_computations(&w, &r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 5), black());
     }
@@ -229,13 +255,10 @@ mod intersection_test {
             .shape
             .material
             .refractive_index = 1.5;
-        let world_shape = w.objects.get(0).unwrap();
+        let first_world_shape_id = 0;
         let r = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
-        let xs = Intersections::from(vec![
-            Intersection::new(4.0, &world_shape.shape),
-            Intersection::new(6.0, &world_shape.shape),
-        ]);
-        let comps = xs.get(0).prepare_computations(&r, &xs);
+        let xs = Intersections::from(vec![Intersection::new(4.0, 0), Intersection::new(6.0, 0)]);
+        let comps = xs.get(0).prepare_computations(&w, &r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 0), black());
     }
@@ -250,13 +273,13 @@ mod intersection_test {
             .shape
             .material
             .refractive_index = 1.5;
-        let world_shape = w.objects.get(0).unwrap();
+        let test_world_first_item_id = 0;
         let r = Ray::with(point(0.0, 0.0, SQRT_2 / 2.0), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
-            Intersection::new(-SQRT_2 / 2.0, &world_shape.shape),
-            Intersection::new(SQRT_2 / 2.0, &world_shape.shape),
+            Intersection::new(-SQRT_2 / 2.0, test_world_first_item_id),
+            Intersection::new(SQRT_2 / 2.0, test_world_first_item_id),
         ]);
-        let comps = xs.get(1).prepare_computations(&r, &xs);
+        let comps = xs.get(1).prepare_computations(&w, &r, &xs);
 
         assert_eq!(w.refracted_color(&comps, 5), black());
     }
@@ -275,18 +298,22 @@ mod intersection_test {
             .material
             .refractive_index = 1.5;
 
+        // from the order of creation in test_world
+        let a_id = 0;
+        let b_id = 1;
+
         let a = w.objects.get(0).unwrap();
         let b = w.objects.get(1).unwrap();
 
         let r = Ray::with(point(0.0, 0.0, 0.1), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
-            Intersection::new(-0.9899, &a.shape),
-            Intersection::new(-0.4899, &b.shape),
-            Intersection::new(0.4899, &b.shape),
-            Intersection::new(0.9899, &a.shape),
+            Intersection::new(-0.9899, a_id),
+            Intersection::new(-0.4899, b_id),
+            Intersection::new(0.4899, b_id),
+            Intersection::new(0.9899, a_id),
         ]);
 
-        let comps = xs.get(2).prepare_computations(&r, &xs);
+        let comps = xs.get(2).prepare_computations(&w, &r, &xs);
 
         assert_eq!(
             w.refracted_color(&comps, 5),
@@ -311,11 +338,14 @@ mod intersection_test {
 
         w = w.add_shape(floor.clone());
         w = w.add_shape(ball);
+        let floor_id = 2;
+        let ball_id = 3;
+        assert_eq!(w.next_index(), 4);
 
         let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
-        let xs = Intersections::from(vec![Intersection::new(SQRT_2, &floor)]);
+        let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
 
-        let comps = xs.get(0).prepare_computations(&ray, &xs);
+        let comps = xs.get(0).prepare_computations(&w, &ray, &xs);
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.93642, 0.68642, 0.68642));
@@ -324,13 +354,14 @@ mod intersection_test {
     #[test]
     fn schlick_approximation_under_total_internal_reflection() {
         let shape = Shape::sphere_glass();
+        let world = World::default().with_objects(vec![shape]);
         let ray = Ray::with(point(0.0, 0.0, SQRT_2 / 2.0), vector_i(0, 1, 0));
         let xs = Intersections::from(vec![
-            Intersection::new(-SQRT_2 / 2.0, &shape),
-            Intersection::new(SQRT_2 / 2.0, &shape),
+            Intersection::new(-SQRT_2 / 2.0, 0),
+            Intersection::new(SQRT_2 / 2.0, 0),
         ]);
 
-        let comps = xs.get(1).prepare_computations(&ray, &xs);
+        let comps = xs.get(1).prepare_computations(&world, &ray, &xs);
 
         let reflectance = comps.schlick();
         assert_eq!(reflectance, 1.0);
@@ -339,13 +370,11 @@ mod intersection_test {
     #[test]
     fn schlick_approximation_with_a_perpendicular_viewing_angle() {
         let shape = Shape::sphere_glass();
+        let world = World::default().with_objects(vec![shape]);
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector_i(0, 1, 0));
-        let xs = Intersections::from(vec![
-            Intersection::new(-1.0, &shape),
-            Intersection::new(1.0, &shape),
-        ]);
+        let xs = Intersections::from(vec![Intersection::new(-1.0, 0), Intersection::new(1.0, 0)]);
 
-        let comps = xs.get(1).prepare_computations(&ray, &xs);
+        let comps = xs.get(1).prepare_computations(&world, &ray, &xs);
 
         let reflectance = comps.schlick();
         assert!(is_equal_float(reflectance, 0.04));
@@ -354,10 +383,11 @@ mod intersection_test {
     #[test]
     fn schlick_approximation_with_small_angle_and_n2_greater_than_n1() {
         let shape = Shape::sphere_glass();
+        let world = World::default().with_objects(vec![shape]);
         let ray = Ray::with(point(0.0, 0.99, -2.0), vector_i(0, 0, 1));
-        let xs = Intersections::from(vec![Intersection::new(1.8589, &shape)]);
+        let xs = Intersections::from(vec![Intersection::new(1.8589, 0)]);
 
-        let comps = xs.get(0).prepare_computations(&ray, &xs);
+        let comps = xs.get(0).prepare_computations(&world, &ray, &xs);
 
         let reflectance = comps.schlick();
         assert!(is_equal_float(reflectance, 0.48873));
@@ -382,10 +412,13 @@ mod intersection_test {
 
         w = w.add_shape(floor.clone());
         w = w.add_shape(ball);
+        assert_eq!(w.next_index(), 4);
+        let floor_id = 2;
+        let ball_id = 3;
 
-        let xs = Intersections::from(vec![Intersection::new(SQRT_2, &floor)]);
+        let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
 
-        let comps = xs.get(0).prepare_computations(&ray, &xs);
+        let comps = xs.get(0).prepare_computations(&w, &ray, &xs);
         let c = w.shade_hit(&comps, 5);
 
         assert_eq!(c, color(0.93391, 0.69643, 0.69243));

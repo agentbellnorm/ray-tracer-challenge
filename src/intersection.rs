@@ -6,7 +6,7 @@ use crate::World;
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Intersection {
     pub t: f64,
-    pub object: ShapeId,
+    pub object_id: ShapeId,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -51,8 +51,8 @@ impl PreparedComputation {
 }
 
 impl Intersection {
-    pub fn new(t: f64, object: ShapeId) -> Intersection {
-        Intersection { t, object }
+    pub fn new(t: f64, object_id: ShapeId) -> Intersection {
+        Intersection { t, object_id }
     }
 
     pub fn prepare_computations(
@@ -62,9 +62,7 @@ impl Intersection {
         intersections: &Intersections,
     ) -> PreparedComputation {
         let point = ray.position(self.t);
-        let mut normal_vector = world
-            .get_shape(self.object)
-            .normal_at(world, point);
+        let mut normal_vector = world.get_shape(self.object_id).normal_at(world, point);
         let eye_vector = -ray.direction;
         let inside = normal_vector.dot(&eye_vector) < 0.0;
 
@@ -87,7 +85,7 @@ impl Intersection {
             eye_vector,
             inside,
             t: self.t,
-            object: self.object,
+            object: self.object_id,
             normal_vector,
             reflection_vector,
             n1,
@@ -120,12 +118,12 @@ impl Intersection {
 
             if containers
                 .iter()
-                .any(|intersection_obj| *intersection_obj == current_intersection.object)
+                .any(|intersection_obj| *intersection_obj == current_intersection.object_id)
             {
                 containers
-                    .retain(|intersection_obj| *intersection_obj != current_intersection.object)
+                    .retain(|intersection_obj| *intersection_obj != current_intersection.object_id)
             } else {
-                containers.push(current_intersection.object)
+                containers.push(current_intersection.object_id)
             }
 
             if hit_is_current_intersection {
