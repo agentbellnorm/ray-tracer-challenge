@@ -16,10 +16,9 @@ use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::shape::ShapeType::Group;
 use crate::tuple::Tuple;
-use std::borrow::{Borrow, BorrowMut};
+use std::borrow::Borrow;
 use std::cell::{Ref, RefCell};
-use std::ops::Deref;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
@@ -114,11 +113,9 @@ impl Shape {
 
     pub fn add_shape_to_group(group: &Rc<Shape>, mut child: Shape) {
         // add parent to child
-
-        // let child_ref = Rc::new(child);
         child.parent = Some(RefCell::new(group.clone()));
 
-        // add children to groups list
+        // add child to parent
         if let Group(children) = &group.shape_type {
             children.borrow_mut().push(Rc::clone(&Rc::new(child)));
         } else {
@@ -135,14 +132,9 @@ impl Shape {
     }
 
     pub fn get_parent(&self) -> Option<&RefCell<Rc<Shape>>> {
-        // println!("get parent parent {:?}", self.parent);
-        // self.parent.borrow()
         match self.parent.borrow() {
             Some(parent) => Some(parent),
-            None => {
-                println!("no upgrade");
-                return None;
-            }
+            None => None,
         }
     }
 

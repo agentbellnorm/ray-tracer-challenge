@@ -2,7 +2,6 @@
 mod group_test {
     use crate::matrix::Matrix;
     use crate::shape::{Shape, ShapeType};
-    use crate::world::World;
     use std::rc::Rc;
 
     #[test]
@@ -24,12 +23,11 @@ mod group_test {
         let g = Rc::new(Shape::group());
         Shape::add_shape_to_group(&g, s);
 
-        // assert!(g.has_children());
-        // matches!(
-        //     g.get_children().unwrap().get(0).unwrap().shape_type,
-        //     ShapeType::Sphere
-        // );
-        // println!("{:?}", g);
+        assert!(g.has_children());
+        matches!(
+            g.get_children().unwrap().get(0).unwrap().shape_type,
+            ShapeType::Sphere
+        );
         matches!(
             g.get_children()
                 .unwrap()
@@ -41,9 +39,5 @@ mod group_test {
                 .shape_type,
             ShapeType::Group(_)
         );
-        // assert!(matches!(&gr.shape_type, ShapeType::Group(children) if
-        //             matches!(
-        //                 children.borrow().get(0).unwrap().get_parent().unwrap().shape_type,
-        //                 ShapeType::Group(_))));
     }
 }
