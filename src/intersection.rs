@@ -6,11 +6,11 @@ use crate::tuple::{Tuple, EPSILON};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Intersection<'a> {
     pub t: f64,
-    pub object: &'a Shape,
+    pub object: &'a Shape<'a>,
 }
 
 pub struct PreparedComputation<'a> {
-    pub object: &'a Shape,
+    pub object: &'a Shape<'a>,
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
@@ -54,7 +54,7 @@ impl<'a> PreparedComputation<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &'a Shape) -> Intersection {
+    pub fn new(t: f64, object: &'a Shape) -> Intersection<'a> {
         Intersection { t, object }
     }
 

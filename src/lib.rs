@@ -20,7 +20,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::cylinder_and_cone::cylinder_and_cone_scene;
+use crate::scenes::cubes::cubes_scene;
 use crate::shape::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
@@ -30,13 +30,13 @@ use std::process::Command;
 
 pub fn main_lib() {
     let world = World::with(
-        cylinder_and_cone_scene(),
+        cubes_scene(),
         PointLight::with(point(-10.0, 10.0, -10.0), white()),
     );
 
-    // let (horizontal, vertical) = (640, 360);
+    let (horizontal, vertical) = (640, 360);
     // let (horizontal, vertical) = (1280, 720);
-    let (horizontal, vertical) = (1920, 1080);
+    // let (horizontal, vertical) = (1920, 1080);
 
     let camera = Camera::new(horizontal, vertical, FRAC_PI_3).set_transform(view_transformation(
         point(0.0, 2.8, -5.0),
@@ -46,5 +46,8 @@ pub fn main_lib() {
 
     camera.render(world).save_to_file("src/main.ppm").unwrap();
 
-    println!("{:?}", Command::new("open").arg("./src/main.ppm").output());
+    match Command::new("open").arg("./src/main.ppm").output() {
+        Ok(_) => println!("Success! 🎉"),
+        Err(e) => println!("Error! 😰: {}", e),
+    }
 }

@@ -9,12 +9,12 @@ use crate::tuple::{point, Tuple};
 use std::vec;
 
 #[derive(Debug)]
-pub struct World {
-    pub objects: Vec<Shape>,
+pub struct World<'a> {
+    pub objects: Vec<Shape<'a>>,
     pub light_source: PointLight,
 }
 
-impl World {
+impl<'a> World<'a> {
     pub fn with(objects: Vec<Shape>, light_source: PointLight) -> World {
         World {
             objects,
@@ -22,7 +22,7 @@ impl World {
         }
     }
 
-    pub fn default_world() -> World {
+    pub fn default_world() -> World<'a> {
         let light = PointLight::with(point(-10.0, 10.0, -10.0), white());
 
         let mut material = Material::from_color(color(0.8, 1.0, 0.6));
@@ -141,7 +141,7 @@ impl World {
         self.objects.contains(o)
     }
 
-    pub fn add_object(mut self, o: Shape) -> Self {
+    pub fn add_object(mut self, o: Shape<'a>) -> Self {
         self.objects.push(o);
         self
     }

@@ -1,7 +1,7 @@
 use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::FRAC_PI_2;
 
-use crate::scenes::Scene;
+use crate::shape::Scene;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
@@ -27,7 +27,7 @@ const BILLIARDS: [[i32; 3]; 8] = [
     [165, 42, 42],
 ];
 
-pub fn glass_balls() -> Vec<Shape> {
+pub fn glass_balls() -> Scene<'static> {
     let size = 1.5;
     let ball = Shape::sphere_glass().with_transform(
         Matrix::identity()
@@ -38,7 +38,7 @@ pub fn glass_balls() -> Vec<Shape> {
     vec![ball]
 }
 
-pub fn chrome_balls() -> Vec<Shape> {
+pub fn chrome_balls() -> Scene<'static> {
     let size = 1.0;
     let ball = Shape::sphere_chrome().with_transform(
         Matrix::identity()
@@ -49,7 +49,7 @@ pub fn chrome_balls() -> Vec<Shape> {
     vec![ball]
 }
 
-pub fn billiard_balls() -> Vec<Shape> {
+pub fn billiard_balls() -> Scene<'static> {
     let mut rng = StdRng::seed_from_u64(SEED);
     let mut v = vec![];
     for c in BILLIARDS {
@@ -76,7 +76,7 @@ pub fn billiard_balls() -> Vec<Shape> {
     v
 }
 
-pub fn pastel_balls() -> Vec<Shape> {
+pub fn pastel_balls() -> Scene<'static> {
     let mut rng = StdRng::seed_from_u64(SEED);
     let mut v = vec![];
     for _ in 0..100 {
@@ -102,7 +102,7 @@ pub fn pastel_balls() -> Vec<Shape> {
     v
 }
 
-pub fn shiny_scene() -> Scene {
+pub fn shiny_scene() -> Scene<'static> {
     let mut ground_material = Material::from_color(white());
     ground_material.diffuse = 0.9;
     ground_material.specular = 0.1;

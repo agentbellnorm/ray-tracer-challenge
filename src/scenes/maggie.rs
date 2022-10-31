@@ -1,8 +1,8 @@
-use crate::scenes::Scene;
+use crate::shape::Scene;
 use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_8};
 
-fn daisy() -> Vec<Shape> {
+fn daisy() -> Scene<'static> {
     let daisy_position = Matrix::identity()
         .translate(1.5, 1.5, 0.7)
         .rotate_y(FRAC_PI_8)
@@ -54,7 +54,7 @@ fn daisy() -> Vec<Shape> {
     petals
 }
 
-fn pond() -> Vec<Shape> {
+fn pond() -> Scene<'static> {
     let mut pond_material = Material::from_color(rgb(0, 191, 255));
     pond_material.diffuse = 0.9;
     pond_material.specular = 1.0;
@@ -71,7 +71,7 @@ fn pond() -> Vec<Shape> {
     vec![pond]
 }
 
-pub fn maggies_world() -> Scene {
+pub fn maggies_world() -> Scene<'static> {
     let mut grass_material = Material::from_color(rgb(124, 252, 0));
     grass_material.diffuse = 0.9;
     grass_material.specular = 0.1;
