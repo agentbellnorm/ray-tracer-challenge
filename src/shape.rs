@@ -292,4 +292,16 @@ mod shape_test {
 
         assert_eq!(normal, vector(0.285703, 0.42854, -0.85716));
     }
+
+    #[test]
+    fn convert_point_from_world_to_object_space() {
+        let g0 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
+        let g1 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let world = World::default()
+            .with_group_and_children(g0, vec![g1])
+            .add_shape_to_existing_group(
+                1,
+                Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+            );
+    }
 }
