@@ -94,6 +94,7 @@ mod cone_test {
     use crate::Shape;
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
+    use std::rc::Rc;
 
     #[parameterized(
     origin = {      point_i(0, 0, -5),   point_i(0, 0, -5),  point_i(1, 1, -5)       },
@@ -105,7 +106,7 @@ mod cone_test {
         let cone = Shape::cone_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = Shape::intersects(cone.to_rc(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -117,7 +118,7 @@ mod cone_test {
         let cone = Shape::cone_default();
         let ray = Ray::with(point_i(0, 0, -1), vector_i(0, 1, 1).normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = Shape::intersects(cone.to_rc(), &ray);
 
         assert_eq!(xs.len(), 1);
         assert!(is_equal_float(xs.get(0).t, 0.35355));
@@ -132,7 +133,7 @@ mod cone_test {
         let cone = Shape::cone(-0.5, 0.5, true);
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = cone.intersects(&ray);
+        let xs = Shape::intersects(cone.to_rc(), &ray);
 
         assert_eq!(xs.len(), count)
     }

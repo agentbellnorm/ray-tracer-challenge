@@ -27,7 +27,7 @@ const BILLIARDS: [[i32; 3]; 8] = [
     [165, 42, 42],
 ];
 
-pub fn glass_balls() -> Scene<'static> {
+fn glass_balls() -> Scene {
     let size = 1.5;
     let ball = Shape::sphere_glass().with_transform(
         Matrix::identity()
@@ -38,7 +38,7 @@ pub fn glass_balls() -> Scene<'static> {
     vec![ball]
 }
 
-pub fn chrome_balls() -> Scene<'static> {
+fn chrome_balls() -> Scene {
     let size = 1.0;
     let ball = Shape::sphere_chrome().with_transform(
         Matrix::identity()
@@ -49,7 +49,7 @@ pub fn chrome_balls() -> Scene<'static> {
     vec![ball]
 }
 
-pub fn billiard_balls() -> Scene<'static> {
+fn billiard_balls() -> Scene {
     let mut rng = StdRng::seed_from_u64(SEED);
     let mut v = vec![];
     for c in BILLIARDS {
@@ -76,7 +76,7 @@ pub fn billiard_balls() -> Scene<'static> {
     v
 }
 
-pub fn pastel_balls() -> Scene<'static> {
+fn pastel_balls() -> Scene {
     let mut rng = StdRng::seed_from_u64(SEED);
     let mut v = vec![];
     for _ in 0..100 {
@@ -102,7 +102,7 @@ pub fn pastel_balls() -> Scene<'static> {
     v
 }
 
-pub fn shiny_scene() -> Scene<'static> {
+pub fn shiny_scene() -> Scene {
     let mut ground_material = Material::from_color(white());
     ground_material.diffuse = 0.9;
     ground_material.specular = 0.1;

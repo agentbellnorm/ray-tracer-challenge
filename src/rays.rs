@@ -1,6 +1,7 @@
 use crate::matrix::Matrix;
 use crate::tuple::Tuple;
 
+#[derive(Clone)]
 pub struct Ray {
     pub origin: Tuple,
     pub direction: Tuple,

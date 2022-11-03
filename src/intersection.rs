@@ -2,11 +2,13 @@ use crate::matrix::is_equal_float;
 use crate::rays::Ray;
 use crate::shape::Shape;
 use crate::tuple::{Tuple, EPSILON};
+use std::borrow::Borrow;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Intersection<'a> {
+pub struct Intersection {
     pub t: f64,
-    pub object: &'a Shape,
+    pub object: Rc<Shape>,
 }
 
 pub struct PreparedComputation<'a> {
@@ -53,8 +55,8 @@ impl<'a> PreparedComputation<'a> {
     }
 }
 
-impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &'a Shape) -> Intersection {
+impl Intersection {
+    pub fn new(t: f64, object: Rc<Shape>) -> Intersection {
         Intersection { t, object }
     }
 
@@ -87,7 +89,7 @@ impl<'a> Intersection<'a> {
             eye_vector,
             inside,
             t: self.t,
-            object: self.object,
+            object: self.object.as_ref(),
             normal_vector,
             reflection_vector,
             n1,
@@ -115,12 +117,13 @@ impl<'a> Intersection<'a> {
 
             if containers
                 .iter()
-                .any(|intersection_obj| *intersection_obj == current_intersection.object)
+                .any(|intersection_obj| *intersection_obj == current_intersection.object.borrow())
             {
-                containers
-                    .retain(|intersection_obj| *intersection_obj != current_intersection.object)
+                containers.retain(|intersection_obj| {
+                    *intersection_obj != current_intersection.object.borrow()
+                })
             } else {
-                containers.push(current_intersection.object)
+                containers.push(current_intersection.object.borrow())
             }
 
             if hit_is_current_intersection {
@@ -136,11 +139,11 @@ impl<'a> Intersection<'a> {
     }
 }
 
-pub struct Intersections<'a> {
-    pub xs: Vec<Intersection<'a>>,
+pub struct Intersections {
+    pub xs: Vec<Intersection>,
 }
 
-impl<'a> Intersections<'a> {
+impl Intersections {
     // Sounds like doing sorting here can become a problem in the future, see p. 66
     pub fn hit(&self) -> Option<Intersection> {
         let mut sorted = self.xs.clone();
@@ -161,7 +164,7 @@ impl<'a> Intersections<'a> {
         &self.xs[index]
     }
 
-    pub fn from(xs: Vec<Intersection<'a>>) -> Self {
+    pub fn from(xs: Vec<Intersection>) -> Self {
         Intersections { xs }
     }
 }

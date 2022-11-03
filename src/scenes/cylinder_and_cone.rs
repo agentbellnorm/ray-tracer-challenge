@@ -2,7 +2,7 @@ use crate::shape::Scene;
 use crate::{rgb, white, Material, Matrix, Pattern, Shape};
 use std::f64::consts::FRAC_PI_2;
 
-pub fn cylinder_and_cone_scene() -> Scene<'static> {
+pub fn cylinder_and_cone_scene() -> Scene {
     vec![
         Shape::plane_from_material(Material::from_pattern(Pattern::ring(
             rgb(107, 144, 149),

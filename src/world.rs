@@ -6,18 +6,20 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shape::Shape;
 use crate::tuple::{point, Tuple};
+use std::borrow::Borrow;
+use std::rc::Rc;
 use std::vec;
 
 #[derive(Debug)]
 pub struct World {
-    pub objects: Vec<Shape>,
+    pub objects: Vec<Rc<Shape>>,
     pub light_source: PointLight,
 }
 
 impl World {
     pub fn with(objects: Vec<Shape>, light_source: PointLight) -> World {
         World {
-            objects,
+            objects: objects.into_iter().map(Shape::to_rc).collect(),
             light_source,
         }
     }
@@ -39,7 +41,7 @@ impl World {
         let mut xs: Vec<Intersection> = Vec::new();
 
         for i in 0..self.objects.len() {
-            xs.append(&mut self.objects[i].intersects(ray).xs);
+            xs.append(&mut Shape::intersects(self.objects[i].clone(), ray).xs);
         }
 
         xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
@@ -50,7 +52,7 @@ impl World {
     pub fn shade_hit(&self, computations: &PreparedComputation, remaining: i32) -> Color {
         let is_in_shadow = self.is_shadowed(computations.over_point);
         let surface_color = computations.object.material.lighting(
-            computations.object,
+            computations.object.borrow(),
             &self.light_source,
             computations.over_point,
             computations.eye_vector,
@@ -138,11 +140,11 @@ impl World {
     }
 
     pub fn has_object(&self, o: &Shape) -> bool {
-        self.objects.contains(o)
+        self.objects.iter().any(|object| object.as_ref() == o)
     }
 
     pub fn add_object(mut self, o: Shape) -> Self {
-        self.objects.push(o);
+        self.objects.push(o.to_rc());
         self
     }
 }

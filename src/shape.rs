@@ -14,7 +14,6 @@ use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
-use crate::shape::ShapeType::Group;
 use crate::tuple::Tuple;
 use std::borrow::Borrow;
 use std::cell::{Ref, RefCell};
@@ -30,13 +29,13 @@ pub enum ShapeType {
     Group(RefCell<Vec<Rc<Shape>>>), // Group(children, parent)
 }
 
-pub type Scene<'a> = Vec<Shape>;
+pub type Scene = Vec<Shape>;
 
 #[derive(Clone, Debug)]
 pub struct Shape {
     pub inverse_transformation: Matrix,
     pub material: Material,
-    shape_type: ShapeType,
+    pub shape_type: ShapeType,
     parent: Option<RefCell<Rc<Shape>>>,
 }
 
@@ -87,8 +86,17 @@ impl Shape {
         Shape::default(ShapeType::Cone(y_min, y_max, closed))
     }
 
-    pub fn group() -> Self {
+    pub fn group() -> Shape {
         Shape::default(ShapeType::Group(RefCell::new(vec![])))
+    }
+
+    pub fn group_with_children(children: Vec<Shape>) -> Shape {
+        let children_rc = children.into_iter().map(|child| Rc::new(child)).collect();
+        Shape::default(ShapeType::Group(RefCell::new(children_rc)))
+    }
+
+    pub fn to_rc(self) -> Rc<Self> {
+        Rc::new(self)
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -116,15 +124,19 @@ impl Shape {
         child.parent = Some(RefCell::new(group.clone()));
 
         // add child to parent
-        if let Group(children) = &group.shape_type {
+        if let ShapeType::Group(children) = &group.shape_type {
             children.borrow_mut().push(Rc::clone(&Rc::new(child)));
         } else {
             panic!("can only add children to group")
         }
     }
 
+    pub fn is_group(&self) -> bool {
+        matches!(self.shape_type, ShapeType::Group(_))
+    }
+
     pub fn has_children(&self) -> bool {
-        if let Group(children) = &self.shape_type {
+        if let ShapeType::Group(children) = &self.shape_type {
             return !children.borrow().is_empty();
         } else {
             return false;
@@ -140,9 +152,19 @@ impl Shape {
 
     pub fn get_children(&self) -> Option<Ref<Vec<Rc<Shape>>>> {
         match &self.shape_type {
-            Group(children) => Some(children.borrow()),
+            ShapeType::Group(children) => Some(children.borrow()),
             _ => None,
         }
+    }
+
+    pub fn world_to_object(&self, point: Tuple) -> Tuple {
+        let mut result_point = point;
+        println!("self.ty");
+        if let Some(parent) = &self.parent {
+            result_point = parent.borrow().world_to_object(point);
+        }
+
+        result_point * &self.inverse_transformation
     }
 
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
@@ -167,10 +189,24 @@ impl Shape {
         world_normal.normalize()
     }
 
-    pub fn intersects(&self, ray: &Ray) -> Intersections {
-        let transformed_ray = ray.transform(&self.inverse_transformation);
+    pub fn intersects(shape: Rc<Shape>, ray: &Ray) -> Intersections {
+        let transformed_ray = ray.transform(&shape.inverse_transformation);
 
-        let v = match &self.shape_type {
+        if let ShapeType::Group(children) = &shape.shape_type {
+            let mut all_intersections = children
+                .borrow()
+                .iter()
+                .flat_map(|child| Self::intersects(child.clone(), ray).xs)
+                .collect::<Vec<Intersection>>();
+
+            all_intersections.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+
+            return Intersections {
+                xs: all_intersections,
+            };
+        }
+
+        let v = match &shape.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
             ShapeType::Cube => cube_intersects(&transformed_ray),
@@ -180,11 +216,14 @@ impl Shape {
             ShapeType::Cone(y_min, y_max, closed) => {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
-            ShapeType::Group(_) => panic!(),
+            unknown => panic!("what shape type?? {:?}", unknown),
         };
 
         Intersections {
-            xs: v.into_iter().map(|t| Intersection::new(t, self)).collect(),
+            xs: v
+                .into_iter()
+                .map(|t| Intersection::new(t, shape.clone()))
+                .collect(),
         }
     }
 
