@@ -48,7 +48,7 @@ mod world_test {
         let w = World::default_world();
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let shapes = w.objects.get(0).unwrap();
-        let i = Intersection::new(4.0, shapes);
+        let i = Intersection::new(4.0, shapes.clone());
 
         let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
@@ -62,7 +62,7 @@ mod world_test {
         w.light_source = PointLight::with(point(0.0, 0.25, 0.0), white());
         let r = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shapes = w.objects.get(1).unwrap();
-        let i = Intersection::new(0.5, shapes);
+        let i = Intersection::new(0.5, shapes.clone());
 
         let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
         let c = w.shade_hit(&comps, 5);
@@ -78,7 +78,7 @@ mod world_test {
             vec![s1, s2.clone()],
             PointLight::with(point(0.0, 0.0, -10.0), white()),
         );
-        let i = Intersection::new(4.0, &s2);
+        let i = Intersection::new(4.0, s2.to_rc());
         let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
 
         let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
@@ -167,8 +167,18 @@ mod world_test {
     fn the_reflected_color_for_a_nonreflective_material() {
         let mut world = World::default_world();
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        world.objects.get_mut(1).unwrap().material.ambient = 1.0;
-        let intersection = Intersection::new(1.0, world.objects.get(1).unwrap());
+
+        let second_obj = world.objects[1].clone();
+        world.objects[1] = Shape {
+            material: Material {
+                ambient: 1.0,
+                ..second_obj.material
+            },
+            ..second_obj.as_ref().clone()
+        }
+        .to_rc();
+
+        let intersection = Intersection::new(1.0, world.objects.get(1).unwrap().clone());
 
         let comps = intersection
             .prepare_computations(&ray, &Intersections::from(vec![intersection.clone()]));
@@ -188,7 +198,7 @@ mod world_test {
             point(0.0, 0.0, -3.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
+        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap().clone());
 
         let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
 
@@ -233,7 +243,7 @@ mod world_test {
             point(0.0, 0.0, -3.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap());
+        let i = Intersection::new(SQRT_2, world.objects.get(2).unwrap().clone());
         let comps = i.prepare_computations(&ray, &Intersections::from(vec![i.clone()]));
 
         assert_eq!(world.reflected_color(&comps, 0), black())

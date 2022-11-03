@@ -3,10 +3,8 @@ mod shape_test {
     use ray_tracer_challenge::matrix::Matrix;
     use ray_tracer_challenge::shape::{Shape, ShapeType};
     use ray_tracer_challenge::tuple::point_i;
-    use std::borrow::BorrowMut;
     use std::f64::consts::FRAC_PI_2;
 
-    #[test]
     fn converting_point_from_world_to_object_space() {
         let g1 = Shape::group()
             .with_transform(Matrix::identity().rotate_y(FRAC_PI_2))

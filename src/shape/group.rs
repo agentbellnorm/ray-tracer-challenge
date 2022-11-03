@@ -1,18 +1,9 @@
-use crate::intersection::{Intersection, Intersections};
-use crate::rays::Ray;
-use crate::shape::Shape;
-use crate::tuple::Tuple;
-use std::cell::Ref;
-use std::rc::Rc;
-
 #[cfg(test)]
 mod group_test {
     use crate::matrix::Matrix;
     use crate::rays::Ray;
     use crate::shape::{Shape, ShapeType};
     use crate::tuple::{point_i, vector_i};
-    use std::borrow::Borrow;
-    use std::rc::Rc;
 
     #[test]
     pub fn creating_new_group() {
@@ -82,18 +73,3 @@ mod group_test {
         assert_eq!(xs.get(3).object.as_ref(), &s1);
     }
 }
-
-// pub fn group_intersects<'a, 'b>(
-//     ray: &'b Ray,
-//     children: Ref<'a, Vec<Rc<Shape>>>,
-// ) -> Vec<Intersection<'a>> {
-//     let mut all_intersections = children
-//         .iter()
-//         .flat_map(|child| Shape::intersects(child.to_rc(), ray).xs)
-//         .map(|intersection| Intersection { ..intersection })
-//         .collect::<Vec<Intersection>>();
-//
-//     all_intersections.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
-//
-//     all_intersections
-// }

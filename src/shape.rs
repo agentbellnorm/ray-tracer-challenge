@@ -36,7 +36,7 @@ pub struct Shape {
     pub inverse_transformation: Matrix,
     pub material: Material,
     pub shape_type: ShapeType,
-    parent: Option<RefCell<Rc<Shape>>>,
+    pub parent: Option<RefCell<Rc<Shape>>>,
 }
 
 impl PartialEq for Shape {

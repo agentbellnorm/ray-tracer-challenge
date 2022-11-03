@@ -94,7 +94,6 @@ mod cone_test {
     use crate::Shape;
     use parameterized::parameterized;
     use std::f64::consts::SQRT_2;
-    use std::rc::Rc;
 
     #[parameterized(
     origin = {      point_i(0, 0, -5),   point_i(0, 0, -5),  point_i(1, 1, -5)       },
