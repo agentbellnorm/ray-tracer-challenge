@@ -21,19 +21,35 @@ mod group_test {
     #[test]
     fn add_child_to_group() {
         let s = Shape::sphere_default();
-        let g = Shape::group().to_rc();
-        Shape::add_shape_to_group(&g, s);
+        let g = Shape::group_with_children(vec![s]);
 
-        assert!(g.has_children());
+        // {
+        //     s.parent = Some(g.clone());
+        //     let mut shape_type = &g.as_ref().shape_type;
+        //     if let ShapeType::Group(mut children) = shape_type {
+        //         children.push(Rc::new(RefCell::new(s)))
+        //     };
+        //     // g = Shape::add_shape_to_group(g, s);
+        // }
+
+        assert!(g.borrow().has_children());
         matches!(
-            g.get_children().unwrap().get(0).unwrap().shape_type,
-            ShapeType::Sphere
-        );
-        matches!(
-            g.get_children()
+            g.borrow()
+                .get_children()
                 .unwrap()
                 .get(0)
                 .unwrap()
+                .borrow()
+                .shape_type,
+            ShapeType::Sphere
+        );
+        matches!(
+            g.borrow()
+                .get_children()
+                .unwrap()
+                .get(0)
+                .unwrap()
+                .borrow()
                 .get_parent()
                 .unwrap()
                 .borrow()
@@ -47,7 +63,7 @@ mod group_test {
         let g = Shape::group();
         let r = Ray::with(point_i(0, 0, 0), vector_i(0, 0, 1));
 
-        let xs = Shape::intersects(g.to_rc(), &r);
+        let xs = Shape::intersects(g.pack(), &r);
 
         assert!(xs.is_empty())
     }
@@ -64,12 +80,34 @@ mod group_test {
         let group = Shape::group_with_children(children);
         let ray = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
 
-        let xs = Shape::intersects(group.to_rc(), &ray);
+        let xs = Shape::intersects(group, &ray);
 
         assert_eq!(xs.len(), 4);
-        assert_eq!(xs.get(0).object.as_ref(), &s2);
-        assert_eq!(xs.get(1).object.as_ref(), &s2);
-        assert_eq!(xs.get(2).object.as_ref(), &s1);
-        assert_eq!(xs.get(3).object.as_ref(), &s1);
+        assert_eq!(&*xs.get(0).object.borrow(), &s2);
+        assert_eq!(&*xs.get(1).object.borrow(), &s2);
+        assert_eq!(&*xs.get(2).object.borrow(), &s1);
+        assert_eq!(&*xs.get(3).object.borrow(), &s1);
+    }
+
+    #[test]
+    fn intersecting_a_transformed_group() {
+        let sphere =
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
+        let group = Shape::group()
+            .with_transform(Matrix::identity().scale(2.0, 2.0, 2.0))
+            .pack();
+        Shape::add_child_rc_to_group(group.clone(), sphere.pack());
+        let ray = Ray::with(point_i(10, 0, -10), vector_i(0, 0, 1));
+
+        assert!(group
+            .borrow()
+            .get_children()
+            .unwrap()
+            .get(0)
+            .unwrap()
+            .borrow()
+            .parent
+            .is_some());
+        assert_eq!(Shape::intersects(group.clone(), &ray).xs.len(), 2);
     }
 }

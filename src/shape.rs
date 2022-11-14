@@ -16,7 +16,7 @@ use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use std::borrow::Borrow;
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -26,7 +26,7 @@ pub enum ShapeType {
     Cube,
     Cylinder(f64, f64, bool),       // Cylinder(min_y, max_y, closed)
     Cone(f64, f64, bool),           // Cone(min_y, max_y, closed)
-    Group(RefCell<Vec<Rc<Shape>>>), // Group(children, parent)
+    Group(Vec<Rc<RefCell<Shape>>>), // Group(children, parent)
 }
 
 pub type Scene = Vec<Shape>;
@@ -36,7 +36,7 @@ pub struct Shape {
     pub inverse_transformation: Matrix,
     pub material: Material,
     pub shape_type: ShapeType,
-    pub parent: Option<RefCell<Rc<Shape>>>,
+    pub parent: Option<Rc<RefCell<Shape>>>,
 }
 
 impl PartialEq for Shape {
@@ -87,16 +87,20 @@ impl Shape {
     }
 
     pub fn group() -> Shape {
-        Shape::default(ShapeType::Group(RefCell::new(vec![])))
+        Shape::default(ShapeType::Group(vec![]))
     }
 
-    pub fn group_with_children(children: Vec<Shape>) -> Shape {
-        let children_rc = children.into_iter().map(|child| Rc::new(child)).collect();
-        Shape::default(ShapeType::Group(RefCell::new(children_rc)))
+    pub fn group_with_children(children: Vec<Shape>) -> Rc<RefCell<Shape>> {
+        let group = Shape::group().pack();
+        for child in children {
+            Self::add_child_rc_to_group(group.clone(), child.pack())
+        }
+
+        group
     }
 
-    pub fn to_rc(self) -> Rc<Self> {
-        Rc::new(self)
+    pub fn pack(self) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(self))
     }
 
     pub fn sphere_from_material(material: Material) -> Self {
@@ -119,17 +123,34 @@ impl Shape {
         Shape::sphere_from_material(Material::chrome())
     }
 
-    pub fn add_shape_to_group(group: &Rc<Shape>, mut child: Shape) {
-        // add parent to child
-        child.parent = Some(RefCell::new(group.clone()));
+    // pub fn add_shape_to_group(group: &mut Rc<RefCell<Shape>>, child: &mut Rc<RefCell<Shape>>) {
+    //     // add parent to child
+    //     child.parent = Some(RefCell::new(group.clone()));
+    //
+    //     // add child to parent
+    //     if let ShapeType::Group(children) = &group.shape_type {
+    //         children.borrow_mut().push(Rc::clone(&Rc::new(child)));
+    //     } else {
+    //         panic!("can only add children to group")
+    //     }
+    // }
 
-        // add child to parent
-        if let ShapeType::Group(children) = &group.shape_type {
-            children.borrow_mut().push(Rc::clone(&Rc::new(child)));
-        } else {
-            panic!("can only add children to group")
-        }
+    pub fn add_child_rc_to_group(group: Rc<RefCell<Shape>>, child: Rc<RefCell<Shape>>) {
+        // add parent to child
+        // child.parent = Some(RefCell::new(group.clone()));
+
+        child.borrow_mut().parent = Some(group.clone());
+        // let x = group.borrow_mut();
+        if let ShapeType::Group(children) = &mut group.as_ref().borrow_mut().shape_type {
+            children.push(child.clone())
+        };
     }
+
+    // pub fn add_children_to_group(group: Rc<Shape>, children: Vec<Shape>) {
+    //     for child in children {
+    //         Self::add_child_to_group(group.clone(), child)
+    //     }
+    // }
 
     pub fn is_group(&self) -> bool {
         matches!(self.shape_type, ShapeType::Group(_))
@@ -137,34 +158,34 @@ impl Shape {
 
     pub fn has_children(&self) -> bool {
         if let ShapeType::Group(children) = &self.shape_type {
-            return !children.borrow().is_empty();
+            return !children.is_empty();
         } else {
             return false;
         }
     }
 
-    pub fn get_parent(&self) -> Option<&RefCell<Rc<Shape>>> {
+    pub fn get_parent(&self) -> Option<Rc<RefCell<Shape>>> {
         match self.parent.borrow() {
-            Some(parent) => Some(parent),
+            Some(parent) => Some(parent.clone()),
             None => None,
         }
     }
 
-    pub fn get_children(&self) -> Option<Ref<Vec<Rc<Shape>>>> {
+    pub fn get_children(&self) -> Option<&Vec<Rc<RefCell<Shape>>>> {
         match &self.shape_type {
-            ShapeType::Group(children) => Some(children.borrow()),
+            ShapeType::Group(children) => Some(children),
             _ => None,
         }
     }
 
     pub fn world_to_object(&self, point: Tuple) -> Tuple {
-        let mut result_point = point;
-        println!("self.ty");
+        let mut res_point = point.clone();
+        println!("{:?}", self.parent);
         if let Some(parent) = &self.parent {
-            result_point = parent.borrow().world_to_object(point);
+            res_point = parent.as_ref().borrow().world_to_object(point);
         }
 
-        result_point * &self.inverse_transformation
+        res_point * &self.inverse_transformation
     }
 
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
@@ -189,15 +210,17 @@ impl Shape {
         world_normal.normalize()
     }
 
-    pub fn intersects(shape: Rc<Shape>, ray: &Ray) -> Intersections {
-        let transformed_ray = ray.transform(&shape.inverse_transformation);
+    pub fn intersects(shape: Rc<RefCell<Shape>>, ray: &Ray) -> Intersections {
+        let shape_ref = shape.as_ref().borrow();
+        let transformed_ray = ray.transform(&shape.as_ref().borrow().inverse_transformation);
 
-        if let ShapeType::Group(children) = &shape.shape_type {
+        if let ShapeType::Group(children) = &shape_ref.shape_type {
             let mut all_intersections = children
-                .borrow()
                 .iter()
-                .flat_map(|child| Self::intersects(child.clone(), ray).xs)
+                .flat_map(|child| Self::intersects(child.clone(), &transformed_ray).xs)
                 .collect::<Vec<Intersection>>();
+
+            // println!("den är {:?}", all_intersections.len());
 
             all_intersections.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
 
@@ -206,7 +229,7 @@ impl Shape {
             };
         }
 
-        let v = match &shape.shape_type {
+        let v = match &shape_ref.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
             ShapeType::Cube => cube_intersects(&transformed_ray),

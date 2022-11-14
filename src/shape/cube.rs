@@ -64,7 +64,7 @@ mod cube_test {
         let cube = Shape::cube_default();
         let ray = Ray::with(origin, direction);
 
-        let xs = Shape::intersects(cube.to_rc(), &ray);
+        let xs = Shape::intersects(cube.pack(), &ray);
 
         assert_eq!(xs.len(), 2, "{}", scenario);
         assert_eq!(xs.get(0).t, t1, "{}", scenario);
@@ -79,7 +79,7 @@ mod cube_test {
         let cube = Shape::cube_default();
         let ray = Ray::with(origin, direction);
 
-        let xs = Shape::intersects(cube.to_rc(), &ray);
+        let xs = Shape::intersects(cube.pack(), &ray);
 
         assert_eq!(xs.len(), 0)
     }

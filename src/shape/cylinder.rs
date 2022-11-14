@@ -92,7 +92,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        assert_eq!(Shape::intersects(cylinder.to_rc(), &ray).len(), 0)
+        assert_eq!(Shape::intersects(cylinder.pack(), &ray).len(), 0)
     }
 
     #[parameterized(
@@ -105,7 +105,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = Shape::intersects(cylinder.to_rc(), &ray);
+        let xs = Shape::intersects(cylinder.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -144,7 +144,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, false);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(Shape::intersects(cylinder.to_rc(), &ray).xs.len(), count)
+        assert_eq!(Shape::intersects(cylinder.pack(), &ray).xs.len(), count)
     }
 
     #[test]
@@ -165,7 +165,7 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(Shape::intersects(cylinder.to_rc(), &ray).xs.len(), count);
+        assert_eq!(Shape::intersects(cylinder.pack(), &ray).xs.len(), count);
     }
 
     #[parameterized(

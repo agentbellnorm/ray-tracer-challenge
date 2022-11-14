@@ -15,6 +15,7 @@ pub fn sphere_intersects(transformed_ray: &Ray) -> Vec<f64> {
     let discriminant = b.powi(2) - 4.0 * a * c;
 
     if discriminant < 0.0 {
+        println!("åh nej");
         return Vec::new();
     }
 
@@ -54,7 +55,7 @@ mod sphere_test {
     fn intersecting_scaled_sphere_with_ray() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = Shape::sphere_from_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let xs = Shape::intersects(s.to_rc(), &r);
+        let xs = Shape::intersects(s.pack(), &r);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 3.0);
@@ -65,7 +66,7 @@ mod sphere_test {
     fn intersecting_translated_sphere_with_ray() {
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = Shape::sphere_from_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        let xs = Shape::intersects(s.to_rc(), &r);
+        let xs = Shape::intersects(s.pack(), &r);
 
         assert_eq!(xs.len(), 0);
     }
@@ -84,7 +85,7 @@ mod sphere_test {
         let sphere = Shape::sphere_from_transform(
             Matrix::identity().scale(0.5, 1.0, 1.0).rotate_z(PI / 4.0),
         )
-        .to_rc();
+        .pack();
 
         for y in 0..size {
             let world_y = half - pixel_size * (y as f64);
@@ -213,7 +214,7 @@ mod sphere_test {
         let material = Material::from_color(color(1.0, 0.2, 1.0));
         let sphere = Shape::sphere_from_material(material)
             .with_transform(Matrix::identity().scale(1.0, 0.9, 1.0).rotate_z(-0.4))
-            .to_rc();
+            .pack();
 
         let light_position = point(-10.0, 0.0, -10.0);
         let light_color = white();
@@ -229,9 +230,9 @@ mod sphere_test {
                 canvas = match Shape::intersects(sphere.clone(), &ray).hit() {
                     Some(hit) => {
                         let point_on_sphere = ray.position(hit.t);
-                        let normal_on_sphere = hit.object.normal_at(point_on_sphere);
+                        let normal_on_sphere = hit.object.borrow().normal_at(point_on_sphere);
                         let eye = -ray.direction;
-                        let color = hit.object.material.lighting(
+                        let color = hit.object.borrow().material.lighting(
                             &Shape::sphere_default(),
                             &light,
                             point_on_sphere,

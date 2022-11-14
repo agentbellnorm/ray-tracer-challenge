@@ -31,7 +31,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.to_rc(), &ray);
+        let xs = Shape::intersects(sphere.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 4.0);
@@ -43,7 +43,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.to_rc(), &ray);
+        let xs = Shape::intersects(sphere.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, 5.0);
@@ -55,7 +55,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.to_rc(), &ray);
+        let xs = Shape::intersects(sphere.pack(), &ray);
 
         assert_eq!(xs.len(), 0);
     }
@@ -65,7 +65,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.to_rc(), &ray);
+        let xs = Shape::intersects(sphere.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, -1.0);
@@ -77,7 +77,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.to_rc(), &ray);
+        let xs = Shape::intersects(sphere.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.get(0).t, -6.0);
@@ -89,7 +89,7 @@ mod rays_test {
         let ray = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let sphere = Shape::sphere_default();
 
-        let xs = Shape::intersects(sphere.clone().to_rc(), &ray);
+        let xs = Shape::intersects(sphere.clone().pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(xs.get(0).object.as_ref().eq(&sphere));

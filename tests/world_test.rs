@@ -78,7 +78,7 @@ mod world_test {
             vec![s1, s2.clone()],
             PointLight::with(point(0.0, 0.0, -10.0), white()),
         );
-        let i = Intersection::new(4.0, s2.to_rc());
+        let i = Intersection::new(4.0, s2.pack());
         let r = Ray::with(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
 
         let comps = i.prepare_computations(&r, &Intersections::from(vec![i.clone()]));
@@ -176,7 +176,7 @@ mod world_test {
             },
             ..second_obj.as_ref().clone()
         }
-        .to_rc();
+        .pack();
 
         let intersection = Intersection::new(1.0, world.objects.get(1).unwrap().clone());
 

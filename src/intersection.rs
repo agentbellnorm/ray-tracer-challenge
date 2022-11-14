@@ -2,17 +2,17 @@ use crate::matrix::is_equal_float;
 use crate::rays::Ray;
 use crate::shape::Shape;
 use crate::tuple::{Tuple, EPSILON};
-use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Intersection {
     pub t: f64,
-    pub object: Rc<Shape>,
+    pub object: Rc<RefCell<Shape>>,
 }
 
-pub struct PreparedComputation<'a> {
-    pub object: &'a Shape,
+pub struct PreparedComputation {
+    pub object: Rc<RefCell<Shape>>,
     pub t: f64,
     pub point: Tuple,
     pub over_point: Tuple,
@@ -25,9 +25,9 @@ pub struct PreparedComputation<'a> {
     pub n2: f64,
 }
 
-impl<'a> PreparedComputation<'a> {
+impl PreparedComputation {
     pub fn is_opaque(&self) -> bool {
-        is_equal_float(self.object.material.transparency, 0.0)
+        is_equal_float(self.object.as_ref().borrow().material.transparency, 0.0)
     }
 
     // todo read "Reflections and Refractions in Ray Tracing"
@@ -56,7 +56,7 @@ impl<'a> PreparedComputation<'a> {
 }
 
 impl Intersection {
-    pub fn new(t: f64, object: Rc<Shape>) -> Intersection {
+    pub fn new(t: f64, object: Rc<RefCell<Shape>>) -> Intersection {
         Intersection { t, object }
     }
 
@@ -66,7 +66,7 @@ impl Intersection {
         intersections: &Intersections,
     ) -> PreparedComputation {
         let point = ray.position(self.t);
-        let mut normal_vector = self.object.normal_at(point);
+        let mut normal_vector = self.object.as_ref().borrow().normal_at(point);
         let eye_vector = -ray.direction;
         let inside = normal_vector.dot(&eye_vector) < 0.0;
 
@@ -89,7 +89,7 @@ impl Intersection {
             eye_vector,
             inside,
             t: self.t,
-            object: self.object.as_ref(),
+            object: self.object.clone(),
             normal_vector,
             reflection_vector,
             n1,
@@ -101,7 +101,7 @@ impl Intersection {
         let mut n1: Option<f64> = None;
         let mut n2: Option<f64> = None;
 
-        let mut containers: Vec<&Shape> = Vec::new();
+        let mut containers: Vec<Rc<RefCell<Shape>>> = Vec::new();
 
         for i in 0..xs.len() {
             let current_intersection = xs.get(i);
@@ -111,26 +111,41 @@ impl Intersection {
                 if containers.is_empty() {
                     n1 = Some(1.0);
                 } else {
-                    n1 = Some(containers.last().unwrap().material.refractive_index);
+                    n1 = Some(
+                        containers
+                            .last()
+                            .unwrap()
+                            .as_ref()
+                            .borrow()
+                            .material
+                            .refractive_index,
+                    );
                 }
             }
 
             if containers
                 .iter()
-                .any(|intersection_obj| *intersection_obj == current_intersection.object.borrow())
+                .any(|intersection_obj| *intersection_obj == current_intersection.object)
             {
-                containers.retain(|intersection_obj| {
-                    *intersection_obj != current_intersection.object.borrow()
-                })
+                containers
+                    .retain(|intersection_obj| *intersection_obj != current_intersection.object)
             } else {
-                containers.push(current_intersection.object.borrow())
+                containers.push(current_intersection.object.clone())
             }
 
             if hit_is_current_intersection {
                 if containers.is_empty() {
                     n2 = Some(1.0);
                 } else {
-                    n2 = Some(containers.last().unwrap().material.refractive_index);
+                    n2 = Some(
+                        containers
+                            .last()
+                            .unwrap()
+                            .as_ref()
+                            .borrow()
+                            .material
+                            .refractive_index,
+                    );
                 }
             }
         }

@@ -6,20 +6,20 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shape::Shape;
 use crate::tuple::{point, Tuple};
-use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::rc::Rc;
 use std::vec;
 
 #[derive(Debug)]
 pub struct World {
-    pub objects: Vec<Rc<Shape>>,
+    pub objects: Vec<Rc<RefCell<Shape>>>,
     pub light_source: PointLight,
 }
 
 impl World {
     pub fn with(objects: Vec<Shape>, light_source: PointLight) -> World {
         World {
-            objects: objects.into_iter().map(Shape::to_rc).collect(),
+            objects: objects.into_iter().map(Shape::pack).collect(),
             light_source,
         }
     }
@@ -51,8 +51,8 @@ impl World {
 
     pub fn shade_hit(&self, computations: &PreparedComputation, remaining: i32) -> Color {
         let is_in_shadow = self.is_shadowed(computations.over_point);
-        let surface_color = computations.object.material.lighting(
-            computations.object.borrow(),
+        let surface_color = computations.object.as_ref().borrow().material.lighting(
+            &*computations.object.as_ref().borrow(),
             &self.light_source,
             computations.over_point,
             computations.eye_vector,
@@ -63,7 +63,7 @@ impl World {
         let reflected = self.reflected_color(computations, remaining);
         let refracted = self.refracted_color(computations, remaining);
 
-        let material = computations.object.material;
+        let material = computations.object.as_ref().borrow().material;
 
         if material.reflective > 0.0 && material.transparency > 0.0 {
             let reflectance = computations.schlick();
@@ -107,13 +107,15 @@ impl World {
     }
 
     pub fn reflected_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
-        if is_equal_float(comps.object.material.reflective, 0.0) || remaining <= 0 {
+        if is_equal_float(comps.object.as_ref().borrow().material.reflective, 0.0) || remaining <= 0
+        {
             return black();
         }
 
         let reflect_ray = Ray::with(comps.over_point, comps.reflection_vector);
 
-        self.color_at(&reflect_ray, remaining - 1) * comps.object.material.reflective
+        self.color_at(&reflect_ray, remaining - 1)
+            * comps.object.as_ref().borrow().material.reflective
     }
 
     pub fn refracted_color(&self, comps: &PreparedComputation, remaining: i32) -> Color {
@@ -136,15 +138,18 @@ impl World {
 
         let refract_ray = Ray::with(comps.under_point, direction);
 
-        self.color_at(&refract_ray, remaining - 1) * comps.object.material.transparency
+        self.color_at(&refract_ray, remaining - 1)
+            * comps.object.as_ref().borrow().material.transparency
     }
 
     pub fn has_object(&self, o: &Shape) -> bool {
-        self.objects.iter().any(|object| object.as_ref() == o)
+        self.objects
+            .iter()
+            .any(|object| &*object.as_ref().borrow() == o)
     }
 
     pub fn add_object(mut self, o: Shape) -> Self {
-        self.objects.push(o.to_rc());
+        self.objects.push(Rc::new(RefCell::new(o)));
         self
     }
 }

@@ -105,7 +105,7 @@ mod cone_test {
         let cone = Shape::cone_default();
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = Shape::intersects(cone.to_rc(), &ray);
+        let xs = Shape::intersects(cone.pack(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -117,7 +117,7 @@ mod cone_test {
         let cone = Shape::cone_default();
         let ray = Ray::with(point_i(0, 0, -1), vector_i(0, 1, 1).normalize());
 
-        let xs = Shape::intersects(cone.to_rc(), &ray);
+        let xs = Shape::intersects(cone.pack(), &ray);
 
         assert_eq!(xs.len(), 1);
         assert!(is_equal_float(xs.get(0).t, 0.35355));
@@ -132,7 +132,7 @@ mod cone_test {
         let cone = Shape::cone(-0.5, 0.5, true);
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = Shape::intersects(cone.to_rc(), &ray);
+        let xs = Shape::intersects(cone.pack(), &ray);
 
         assert_eq!(xs.len(), count)
     }
