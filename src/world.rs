@@ -6,6 +6,7 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
+use std::f64::consts::FRAC_PI_2;
 use std::vec;
 
 pub type ShapeId = usize;
@@ -121,6 +122,16 @@ impl World {
         let s2 = Shape::sphere_from_transform(Matrix::identity().scale(0.5, 0.5, 0.5));
 
         Self::with_light(light).with_objects(vec![s1, s2])
+    }
+
+    pub fn test_world_with_group() -> World {
+        let g1 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
+        let g2 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let sphere =
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
+        World::default()
+            .with_group_and_children(g1, vec![g2])
+            .add_shape_to_existing_group(1, sphere)
     }
 
     pub fn intersect_world(&self, ray: &Ray) -> Intersections {
