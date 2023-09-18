@@ -1,10 +1,11 @@
 use crate::rays::Ray;
+use crate::shape::bounds::Bounds;
 use crate::tuple::Tuple;
 use crate::vector;
 
-fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
-    let tmin_numerator = -1.0 - origin;
-    let tmax_numerator = 1.0 - origin;
+fn check_axis(origin: f64, direction: f64, axis_min: f64, axis_max: f64) -> (f64, f64) {
+    let tmin_numerator = axis_min - origin;
+    let tmax_numerator = axis_max - origin;
 
     let tmin = tmin_numerator / direction;
     let tmax = tmax_numerator / direction;
@@ -16,10 +17,10 @@ fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
     (tmin, tmax)
 }
 
-pub fn cube_intersects(ray: &Ray) -> Vec<f64> {
-    let (xt_min, xt_max) = check_axis(ray.origin.x, ray.direction.x);
-    let (yt_min, yt_max) = check_axis(ray.origin.y, ray.direction.y);
-    let (zt_min, zt_max) = check_axis(ray.origin.z, ray.direction.z);
+pub fn cube_intersects(ray: &Ray, bounds: Bounds) -> Vec<f64> {
+    let (xt_min, xt_max) = check_axis(ray.origin.x, ray.direction.x, bounds.min.x, bounds.max.x);
+    let (yt_min, yt_max) = check_axis(ray.origin.y, ray.direction.y, bounds.min.y, bounds.max.y);
+    let (zt_min, zt_max) = check_axis(ray.origin.z, ray.direction.z, bounds.min.z, bounds.max.x);
 
     let t_min = xt_min.max(yt_min).max(zt_min);
     let t_max = xt_max.min(yt_max).min(zt_max);

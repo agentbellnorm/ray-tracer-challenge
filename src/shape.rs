@@ -1,3 +1,4 @@
+pub mod bounds;
 pub mod cone;
 pub mod cube;
 pub mod cylinder;
@@ -16,6 +17,8 @@ use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use crate::World;
+
+use self::bounds::{bound, CUBE_BOUNDS};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
@@ -144,7 +147,7 @@ impl Shape {
         let v = match &self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
-            ShapeType::Cube => cube_intersects(&transformed_ray),
+            ShapeType::Cube => cube_intersects(&transformed_ray, CUBE_BOUNDS),
             ShapeType::Cylinder(y_min, y_max, closed) => {
                 cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
@@ -152,6 +155,11 @@ impl Shape {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
             ShapeType::Group(child_ids) => {
+                let group_bounds = bound(world, self.id.unwrap());
+                if cube_intersects(ray, group_bounds).is_empty() {
+                    return Intersections { xs: vec![] };
+                }
+
                 let mut xs: Vec<Intersection> =
                     child_ids
                         .iter()
