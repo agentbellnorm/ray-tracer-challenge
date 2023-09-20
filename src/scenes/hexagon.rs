@@ -23,14 +23,17 @@ fn hexagon_edge() -> Shape {
 }
 
 pub fn hexagon_scene(mut world: World) -> World {
-    let hexagon = Shape::group();
-
-    world = world.add_shape(hexagon);
+    let hexagon = world.add_shape(Shape::group());
 
     for i in [0..6] {
-        let side = Shape::group();
-        world = world.with_group_and_children(side, vec![hexagon_corner(), hexagon_edge()])
-        
+        let corner = world.add_shape(hexagon_corner());
+        let edge = world.add_shape(hexagon_edge());
+
+        let side = world.add_shape(Shape::group());
+
+        world.add_shape_to_group(side, corner);
+        world.add_shape_to_group(side, edge);
+        world.add_shape_to_group(hexagon, side);
     }
 
     world
