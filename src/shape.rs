@@ -239,13 +239,17 @@ mod shape_test {
 
     #[test]
     fn converting_point_from_world_to_object_space() {
-        let g1 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
-        let g2 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let sphere =
-            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        let world = World::default()
-            .with_group_and_children(g1, vec![g2])
-            .add_shape_to_existing_group(1, sphere);
+        let mut world = World::default();
+        let g1 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
+        let g2 = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
+
+        world.add_shape_to_group(g1, g2);
+        world.add_shape_to_group(g2, sphere);
 
         let sphere = world.get_shape(2);
         assert_eq!(sphere.shape_type, ShapeType::Sphere);
@@ -255,12 +259,38 @@ mod shape_test {
     }
 
     #[test]
+    fn converting_point_from_world_to_object_space2() {
+        let g1 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
+        let g2 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
+        let sphere =
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
+
+        let mut world = World::default();
+        let g1_id = world.add_shape(g1);
+        let g2_id = world.add_shape(g2);
+        let sphere_id = world.add_shape(sphere);
+
+        world.add_shape_to_group(g1_id, g2_id);
+        world.add_shape_to_group(g2_id, sphere_id);
+
+        let sphere = world.get_shape(sphere_id);
+        assert_eq!(sphere.shape_type, ShapeType::Sphere);
+        let transformed_point = sphere.world_to_object(&world, point_i(-2, 0, -10));
+
+        assert_eq!(transformed_point, point_i(0, 0, -1));
+    }
+
+    #[test]
     fn converting_normal_from_object_to_world_space() {
-        let g0 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
-        let g1 = Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0));
-        let world = World::default()
-            .with_group_and_children(g0, vec![g1])
-            .add_shape_to_existing_group(1, Shape::sphere_default());
+        let mut world = World::default();
+        let g0 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
+        let g1 = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
+        let sphere = world.add_shape(Shape::sphere_default());
+
+        world.add_shape_to_group(g0, g1);
+        world.add_shape_to_group(g1, sphere);
 
         let sphere = world.get_shape(2);
         let transformed_vector = sphere.normal_to_world(
@@ -277,14 +307,17 @@ mod shape_test {
 
     #[test]
     fn finding_normal_on_child_object() {
-        let g0 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
-        let g1 = Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0));
-        let world = World::default()
-            .with_group_and_children(g0, vec![g1])
-            .add_shape_to_existing_group(
-                1,
-                Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
-            );
+        let mut world = World::default();
+        let g0 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
+        let g1 = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
+
+        world.add_shape_to_group(g0, g1);
+        world.add_shape_to_group(g1, sphere);
 
         let normal = world
             .get_shape(2)
@@ -295,13 +328,17 @@ mod shape_test {
 
     #[test]
     fn convert_point_from_world_to_object_space() {
-        let g0 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
-        let g1 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let world = World::default()
-            .with_group_and_children(g0, vec![g1])
-            .add_shape_to_existing_group(
-                1,
-                Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
-            );
+        // todo what is going on here?
+        let mut world = World::default();
+        let g0 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
+        let g1 = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
+
+        world.add_shape_to_group(g0, g1);
+        world.add_shape_to_group(g1, sphere);
     }
 }

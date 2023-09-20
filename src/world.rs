@@ -6,6 +6,7 @@ use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
+use std::borrow::BorrowMut;
 use std::f64::consts::FRAC_PI_2;
 use std::vec;
 
@@ -37,56 +38,15 @@ impl World {
 
     pub fn with_objects(mut self, objects: Vec<Shape>) -> World {
         for obj in objects {
-            self = self.add_shape(obj);
+            self.add_shape(obj);
         }
 
         self
     }
 
-    /*
-    Add a new group and a vec of new children to the world, assigning them with their ids.
-    */
-    pub fn with_group_and_children(mut self, mut group: Shape, children: Vec<Shape>) -> World {
-        let group_id = self.next_index();
-
-        group.id = Some(group_id);
-
-        self.objects.push(WorldShape {
-            shape: group,
-            id: group_id,
-        });
-
-        let child_indices = children
-            .into_iter()
-            .map(|mut child| {
-                let shape_id = self.next_index();
-                child.id = Some(shape_id);
-                let world_shape = WorldShape {
-                    shape: Shape {
-                        parent: Some(group_id),
-                        ..child
-                    },
-                    id: shape_id,
-                };
-                self.objects.push(world_shape);
-                self.current_index()
-            })
-            .collect::<Vec<usize>>();
-
-        self.objects.get_mut(group_id).unwrap().shape.shape_type = ShapeType::Group(child_indices);
-
-        self
-    }
-
-    pub fn add_shape_to_existing_group(mut self, group_id: ShapeId, mut shape: Shape) -> Self {
-        let shape_id = self.next_index();
-        shape.id = Some(shape_id);
-        shape.parent = Some(group_id);
-        let world_shape = WorldShape {
-            shape,
-            id: shape_id,
-        };
-        self.objects.push(world_shape);
+    pub fn add_shape_to_group(&mut self, group_id: ShapeId, shape_id: ShapeId) -> usize {
+        let mut shape = self.objects.get_mut(shape_id).unwrap();
+        shape.shape.parent = Some(group_id);
 
         let mut group_members = match &self.get_shape(group_id).shape_type {
             ShapeType::Group(children) => children.clone(),
@@ -96,10 +56,10 @@ impl World {
 
         self.objects.get_mut(group_id).unwrap().shape.shape_type = ShapeType::Group(group_members);
 
-        self
+        shape_id
     }
 
-    pub fn add_shape(mut self, mut shape: Shape) -> Self {
+    pub fn add_shape(&mut self, mut shape: Shape) -> usize {
         let shape_id = self.next_index();
         shape.id = Some(shape_id);
         let world_shape = WorldShape {
@@ -108,7 +68,7 @@ impl World {
         };
         self.objects.push(world_shape);
 
-        self
+        shape_id
     }
 
     pub fn test_world() -> World {
@@ -125,13 +85,19 @@ impl World {
     }
 
     pub fn test_world_with_group() -> World {
-        let g1 = Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2));
-        let g2 = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let sphere =
-            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        World::default()
-            .with_group_and_children(g1, vec![g2])
-            .add_shape_to_existing_group(1, sphere)
+        let mut world = World::default();
+        let g1 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
+        let g2 = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
+
+        world.add_shape_to_group(g1, g2);
+        world.add_shape_to_group(g2, sphere);
+
+        world
     }
 
     pub fn intersect_world(&self, ray: &Ray) -> Intersections {

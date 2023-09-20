@@ -335,9 +335,8 @@ mod intersection_test {
         let ball = Shape::sphere_from_material(ball_material)
             .with_transform(Matrix::identity().translate(0.0, -3.5, -0.5));
 
-        w = w.add_shape(floor.clone());
-        w = w.add_shape(ball);
-        let floor_id = 2; // third item in world
+        let floor_id = w.add_shape(floor.clone());
+        w.add_shape(ball);
 
         let ray = Ray::with(point_i(0, 0, -3), vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0));
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
@@ -407,9 +406,8 @@ mod intersection_test {
         let ball = Shape::sphere_from_material(ball_material)
             .with_transform(Matrix::identity().translate(0.0, -3.5, -0.5));
 
-        w = w.add_shape(floor.clone());
-        w = w.add_shape(ball);
-        let floor_id = 2; // third item in world
+        let floor_id = w.add_shape(floor.clone());
+        w.add_shape(ball);
 
         let xs = Intersections::from(vec![Intersection::new(SQRT_2, floor_id)]);
 
