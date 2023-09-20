@@ -6,5 +6,6 @@ pub mod debug_glass;
 pub mod first_demo;
 pub mod maggie;
 pub mod shiny;
+pub mod hexagon;
 
 type Scene = Vec<Shape>;

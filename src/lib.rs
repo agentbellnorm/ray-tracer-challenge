@@ -22,7 +22,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::cylinder_and_cone::cylinder_and_cone_scene;
+use crate::scenes::hexagon::{hexagon_scene};
 use crate::shape::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
@@ -31,7 +31,8 @@ use std::f64::consts::FRAC_PI_3;
 use std::process::Command;
 
 pub fn main_lib() {
-    let world = World::with_light(PointLight::default()).with_objects(cylinder_and_cone_scene());
+    let mut world = World::with_light(PointLight::default());
+    world = hexagon_scene(world);
 
     let (horizontal, vertical) = (640, 360);
     // let (horizontal, vertical) = (1280, 720);
