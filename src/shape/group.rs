@@ -19,19 +19,18 @@ mod group_test {
 
     #[test]
     fn shape_has_parent_attribute() {
-        let shape = Shape::sphere_glass();
-        let world = World::default().add_shape(shape);
+        let mut world = World::default();
+        let shape = world.add_shape(Shape::sphere_glass());
 
-        assert!(world.get_shape(world.current_index()).parent == None)
+        assert!(world.get_shape(shape).parent == None)
     }
 
     #[test]
     fn add_child_to_group() {
         let mut world = World::default();
-        let group = Shape::group();
-        let shape = Shape::sphere_glass();
-
-        world = world.with_group_and_children(group, vec![shape]);
+        let group = world.add_shape(Shape::group());
+        let shape = world.add_shape(Shape::sphere_glass());
+        world.add_shape_to_group(group, shape);
 
         let group = &world.objects[0];
         match &group.shape.shape_type {
@@ -49,12 +48,13 @@ mod group_test {
 
     #[test]
     fn intersecting_ray_with_empty_group() {
-        let world = World::default();
+        let mut world = World::default();
         let group = Shape::group();
+        let group_id = world.add_shape(group);
 
         let ray = Ray::with(point_i(0, 0, 0), vector_i(0, 0, 1));
 
-        let xs = group.intersects(&world, &ray);
+        let xs = world.get_shape(group_id).intersects(&world, &ray);
 
         assert_eq!(xs.len(), 0);
     }
@@ -62,13 +62,18 @@ mod group_test {
     #[test]
     fn intersecting_ray_with_nonempty_group() {
         let mut world = World::default();
-        let group = Shape::group();
-        let s1 = Shape::sphere_chrome();
-        let s2 = Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, -3.0));
-        let s3 =
-            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
+        let group = world.add_shape(Shape::group());
+        let s1 = world.add_shape(Shape::sphere_chrome());
+        let s2 = world.add_shape(
+            Shape::sphere_glass().with_transform(Matrix::identity().translate(0.0, 0.0, -3.0)),
+        );
+        let s3 = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
 
-        world = world.with_group_and_children(group, vec![s1, s2, s3]);
+        world.add_shape_to_group(group, s1);
+        world.add_shape_to_group(group, s2);
+        world.add_shape_to_group(group, s3);
 
         let ray = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
 
@@ -83,10 +88,14 @@ mod group_test {
 
     #[test]
     fn intersecting_transformed_group() {
-        let group = Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0));
-        let sphere =
-            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        let world = World::default().with_group_and_children(group, vec![sphere]);
+        let mut world = World::default();
+        let group = world
+            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
+        );
+        world.add_shape_to_group(group, sphere);
+
         let ray = Ray::with(point_i(10, 0, -10), vector_i(0, 0, 1));
 
         let xs = world.intersect_world(&ray);

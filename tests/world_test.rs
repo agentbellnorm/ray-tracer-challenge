@@ -187,9 +187,8 @@ mod world_test {
         let mut world = World::test_world();
         let mut material = Material::default();
         material.reflective = 0.5;
-        let plane = Shape::plane_from_material(material)
-            .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
-        world = world.add_shape(plane);
+        let plane = world.add_shape(Shape::plane_from_material(material)
+            .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0)));
         let ray = Ray::with(
             point(0.0, 0.0, -3.0),
             vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
@@ -230,10 +229,8 @@ mod world_test {
         let mut material = Material::default();
         material.reflective = 0.5;
 
-        let plane = Shape::plane_from_material(material)
-            .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0));
-
-        world = world.add_shape(plane);
+        world.add_shape(Shape::plane_from_material(material)
+            .with_transform(Matrix::identity().translate(0.0, -1.0, 0.0)));
 
         let ray = Ray::with(
             point(0.0, 0.0, -3.0),
