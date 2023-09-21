@@ -18,7 +18,7 @@ use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use crate::World;
 
-use self::bounds::{bound, CUBE_BOUNDS};
+use self::bounds::{group_bounds, CUBE_BOUNDS};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
@@ -154,9 +154,9 @@ impl Shape {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
             ShapeType::Group(child_ids) => {
-                let group_bounds = bound(world, self.id.unwrap());
-                if cube_intersects(&ray, group_bounds).is_empty() {
-                    return Intersections { xs: vec![] }
+                let group_bounds = group_bounds(world, self.id.unwrap());
+                if cube_intersects(&transformed_ray, group_bounds).is_empty() {
+                    return Intersections { xs: vec![] };
                 }
 
                 let mut xs: Vec<Intersection> =

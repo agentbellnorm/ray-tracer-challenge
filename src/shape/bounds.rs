@@ -11,12 +11,13 @@ use crate::{
 mod bounds_test {
     use crate::{
         matrix::Matrix,
-        shape::{bounds::Bounds, Shape},
+        shape::{
+            bounds::{group_bounds, Bounds},
+            Shape,
+        },
         tuple::point,
         world::World,
     };
-
-    use super::bound;
 
     #[test]
     fn test_transformed_sphere_bounds() {
@@ -24,8 +25,10 @@ mod bounds_test {
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)),
         );
+        let group = world.add_shape(Shape::group());
+        world.add_shape_to_group(group, sphere);
         assert_eq!(
-            bound(&world, sphere),
+            group_bounds(&world, group),
             Bounds {
                 min: point(-2.0, -2.0, -2.0),
                 max: point(2.0, 2.0, 2.0),
@@ -70,34 +73,48 @@ const NO_BOUNDS: Bounds = Bounds {
     max: point(0.0, 0.0, 0.0),
 };
 
-pub fn bound(world: &World, shape_id: usize) -> Bounds {
+fn bounds_of_transformed_corners(bounds: &Bounds, transformation: &Matrix) -> Bounds {
+    corners_to_bounds(transform_corners(bounds_to_corners(bounds), transformation))
+}
+
+pub fn group_bounds(world: &World, group_id: usize) -> Bounds {
+    let group = world.get_shape(group_id);
+    if let ShapeType::Group(children) = &group.shape_type {
+        return children
+            .into_iter()
+            .map(|child| {
+                bounds_of_transformed_corners(
+                    &bounds(world, *child),
+                    &world.get_shape(*child).inverse_transformation,
+                )
+            })
+            .fold(NO_BOUNDS, combine_bounds);
+    } else {
+        panic!("group id {:?} is not a group! [{:?}]", group_id, group)
+    }
+}
+
+fn bounds(world: &World, shape_id: usize) -> Bounds {
     let shape = world.get_shape(shape_id);
     let transformation = shape.inverse_transformation.inverse();
     match &shape.shape_type {
         ShapeType::Sphere => SPHERE_BOUND * &transformation,
         ShapeType::Plane => PLANE_BOUNDS * &transformation,
         ShapeType::Cube => CUBE_BOUNDS * &transformation,
-        ShapeType::Cylinder(y_min, y_max, _) => {
-            Bounds {
+        ShapeType::Cylinder(y_min, y_max, _) => bounds_of_transformed_corners(
+            &Bounds {
                 min: point(-1.0, *y_min, -1.0),
                 max: point(1.0, *y_max, 1.0),
-            } * &transformation
-        }
+            },
+            &transformation,
+        ),
         ShapeType::Cone(y_min, y_max, _) => {
             Bounds {
                 min: point(-1.0, *y_min, -1.0),
                 max: point(1.0, *y_max, 1.0),
             } * &transformation
         }
-        ShapeType::Group(children) => children
-            .into_iter()
-            .map(|child| {
-                let child_bounds = bound(world, *child);
-                let child_corners = bounds_to_corners(&child_bounds);
-                let transformed_corners = transform_corners(child_corners, &transformation);
-                corners_to_bounds(transformed_corners)
-            })
-            .fold(NO_BOUNDS, combine_bounds),
+        ShapeType::Group(children) => group_bounds(world, shape_id),
     }
 }
 
