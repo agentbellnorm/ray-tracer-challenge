@@ -39,8 +39,8 @@ pub fn main_lib() {
     // let (horizontal, vertical) = (1920, 1080);
 
     let camera = Camera::new(horizontal, vertical, FRAC_PI_3).set_transform(view_transformation(
-        point(0.0, 2.8, -5.0),
-        point(0.0, 1.5, 0.0),
+        point(-1.0, 1.5, -3.0),
+        point(0.0, 0.0, 0.0),
         vector(0.0, 1.0, 0.0),
     ));
 
