@@ -9,28 +9,28 @@ use crate::{
 
 #[cfg(test)]
 mod bounds_test {
-    use crate::{shape::bounds::SPHERE_BOUND, world::World};
+    use crate::{
+        matrix::Matrix,
+        shape::{bounds::Bounds, Shape},
+        tuple::point,
+        world::World,
+    };
 
     use super::bound;
 
-    // #[test]
-    // fn bounds_circle() {
-    //     let bounds = bound(Shape::sphere_default());
-    //     assert_eq!(bounds.min, point(-1.0, -1.0, -1.0));
-    //     assert_eq!(bounds.max, point(1.0, 1.0, 1.0));
-    // }
-    //
-    // #[test]
-    // fn bounds_plane() {
-    //     let bounds = bound(Shape::plane_default());
-    //     assert_eq!(bounds.min, point(-1.0, -1.0, -1.0));
-    //     assert_eq!(bounds.max, point(1.0, 1.0, 1.0));
-    // }
-
     #[test]
-    fn group_bounds_run() {
-        let world = World::test_world_with_group();
-        assert_eq!(bound(&world, 1), SPHERE_BOUND);
+    fn test_transformed_sphere_bounds() {
+        let mut world = World::default();
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)),
+        );
+        assert_eq!(
+            bound(&world, sphere),
+            Bounds {
+                min: point(-2.0, -2.0, -2.0),
+                max: point(2.0, 2.0, 2.0),
+            }
+        );
     }
 }
 
@@ -72,25 +72,29 @@ const NO_BOUNDS: Bounds = Bounds {
 
 pub fn bound(world: &World, shape_id: usize) -> Bounds {
     let shape = world.get_shape(shape_id);
+    let transformation = shape.inverse_transformation.inverse();
     match &shape.shape_type {
-        ShapeType::Sphere => SPHERE_BOUND,
-        ShapeType::Plane => PLANE_BOUNDS,
-        ShapeType::Cube => CUBE_BOUNDS,
-        ShapeType::Cylinder(y_min, y_max, _) => Bounds {
-            min: point(-1.0, *y_min, -1.0),
-            max: point(1.0, *y_max, 1.0),
-        },
-        ShapeType::Cone(y_min, y_max, _) => Bounds {
-            min: point(-1.0, *y_min, -1.0),
-            max: point(1.0, *y_max, 1.0),
-        },
+        ShapeType::Sphere => SPHERE_BOUND * &transformation,
+        ShapeType::Plane => PLANE_BOUNDS * &transformation,
+        ShapeType::Cube => CUBE_BOUNDS * &transformation,
+        ShapeType::Cylinder(y_min, y_max, _) => {
+            Bounds {
+                min: point(-1.0, *y_min, -1.0),
+                max: point(1.0, *y_max, 1.0),
+            } * &transformation
+        }
+        ShapeType::Cone(y_min, y_max, _) => {
+            Bounds {
+                min: point(-1.0, *y_min, -1.0),
+                max: point(1.0, *y_max, 1.0),
+            } * &transformation
+        }
         ShapeType::Group(children) => children
             .into_iter()
             .map(|child| {
                 let child_bounds = bound(world, *child);
                 let child_corners = bounds_to_corners(&child_bounds);
-                let transformed_corners =
-                    transform_corners(child_corners, &shape.inverse_transformation);
+                let transformed_corners = transform_corners(child_corners, &transformation);
                 corners_to_bounds(transformed_corners)
             })
             .fold(NO_BOUNDS, combine_bounds),
@@ -165,25 +169,3 @@ fn transform_corners(corners: Corners, transform: &Matrix) -> Corners {
         corners[7] * transform,
     ]
 }
-
-// // converts bounds of all children into group space and combines them to a single bounding box
-// fn group_bounds(world: &World, group_id: usize) -> Bounds {
-//     let group = world.get_shape(group_id);
-//
-//     if let ShapeType::Group(children) = &group.shape_type {
-//         return children
-//             .into_iter()
-//             .map(|child| {
-//                 let child_shape = world.get_shape(child.clone());
-//                 let child_bounds = bound(world, child.clone());
-//                 let child_transform = child_shape.inverse_transformation;
-//                 let child_corners = bounds_to_corners(&child_bounds);
-//                 let transformed_corners = transform_corners(child_corners, &child_transform);
-//                 corners_to_bounds(transformed_corners)
-//             })
-//             .fold(NO_BOUNDS, combine_bounds);
-//     } else {
-//         todo!("why would you write a function where this is possible?");
-//         panic!("why would you call this method with a non group");
-//     }
-// }

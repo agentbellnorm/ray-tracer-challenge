@@ -135,12 +135,11 @@ impl Shape {
     }
 
     pub fn intersects(&self, world: &World, ray: &Ray) -> Intersections {
-        let transform = match self.parent {
-            Some(parent_id) => {
-                &self.inverse_transformation * &world.get_shape(parent_id).inverse_transformation
-            }
-            None => self.inverse_transformation,
-        };
+        let mut transform = self.inverse_transformation;
+        if let Some(parent_id) = self.parent {
+            transform =
+                &self.inverse_transformation * &world.get_shape(parent_id).inverse_transformation;
+        }
 
         let transformed_ray = ray.transform(&transform);
 
@@ -156,7 +155,8 @@ impl Shape {
             }
             ShapeType::Group(child_ids) => {
                 let group_bounds = bound(world, self.id.unwrap());
-                if cube_intersects(ray, group_bounds).is_empty() {
+                if cube_intersects(&transformed_ray, group_bounds).is_empty() {
+                    println!("no hit!");
                     return Intersections { xs: vec![] };
                 }
 
@@ -250,8 +250,8 @@ mod shape_test {
         let mut world = World::default();
         let g1 =
             world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
-        let g2 = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let g2 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
         );
@@ -293,8 +293,8 @@ mod shape_test {
         let mut world = World::default();
         let g0 =
             world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
-        let g1 = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
+        let g1 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
         let sphere = world.add_shape(Shape::sphere_default());
 
         world.add_shape_to_group(g0, g1);
@@ -318,8 +318,8 @@ mod shape_test {
         let mut world = World::default();
         let g0 =
             world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
-        let g1 = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
+        let g1 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(1.0, 2.0, 3.0)));
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
         );
@@ -340,8 +340,8 @@ mod shape_test {
         let mut world = World::default();
         let g0 =
             world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
-        let g1 = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let g1 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
         );

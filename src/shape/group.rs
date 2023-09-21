@@ -89,8 +89,8 @@ mod group_test {
     #[test]
     fn intersecting_transformed_group() {
         let mut world = World::default();
-        let group = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let group =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
         );
