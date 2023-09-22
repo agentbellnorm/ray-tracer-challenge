@@ -1,6 +1,14 @@
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_6};
 
-use crate::{matrix::Matrix, shape::Shape, world::World};
+use crate::{
+    material::Material,
+    matrix::Matrix,
+    shape::{
+        bounds::{bounds_to_cube, group_bounds},
+        Shape, ShapeType,
+    },
+    world::World,
+};
 
 use super::Scene;
 
@@ -36,6 +44,12 @@ pub fn hexagon_scene(mut world: World) -> World {
         world.add_shape_to_group(side, corner);
         world.add_shape_to_group(side, edge);
         world.add_shape_to_group(hexagon, side);
+    }
+    let hexagon_group = world.get_shape(hexagon);
+    if let ShapeType::Group(_, bounds) = &hexagon_group.shape_type {
+        let hexagon_bounds = bounds_to_cube(bounds).with_material(Material::wrapper());
+        let box_id = world.add_shape(hexagon_bounds);
+        world.add_shape_to_group(hexagon, box_id);
     }
 
     world

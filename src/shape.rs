@@ -18,16 +18,16 @@ use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use crate::World;
 
-use self::bounds::{group_bounds, CUBE_BOUNDS};
+use self::bounds::{group_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
     Sphere,
     Plane,
     Cube,
-    Cylinder(f64, f64, bool), // Cylinder(min_y, max_y, closed)
-    Cone(f64, f64, bool),     // Cone(min_y, max_y, closed)
-    Group(Vec<ShapeId>),      // Group(children)
+    Cylinder(f64, f64, bool),    // Cylinder(min_y, max_y, closed)
+    Cone(f64, f64, bool),        // Cone(min_y, max_y, closed)
+    Group(Vec<ShapeId>, Bounds), // Group(children)
 }
 
 pub type ShapeId = usize;
@@ -81,11 +81,11 @@ impl Shape {
     }
 
     pub fn group() -> Self {
-        Shape::default(ShapeType::Group(vec![]))
+        Shape::default(ShapeType::Group(vec![], NO_BOUNDS))
     }
 
     pub fn is_group(&self) -> bool {
-        matches!(self.shape_type, ShapeType::Group(_))
+        matches!(self.shape_type, ShapeType::Group(_, _))
     }
 
     pub fn set_parent(mut self, parent_id: ShapeId) -> Self {
@@ -126,7 +126,7 @@ impl Shape {
                 cylinder_normal_at(object_point, *y_min, *y_max)
             }
             ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, *y_min, *y_max),
-            ShapeType::Group(_) => {
+            ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
         };
@@ -146,18 +146,17 @@ impl Shape {
         let v = match &self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
             ShapeType::Plane => plane_intersects(&transformed_ray),
-            ShapeType::Cube => cube_intersects(&transformed_ray, CUBE_BOUNDS),
+            ShapeType::Cube => cube_intersects(&transformed_ray, &CUBE_BOUNDS),
             ShapeType::Cylinder(y_min, y_max, closed) => {
                 cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
             ShapeType::Cone(y_min, y_max, closed) => {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
-            ShapeType::Group(child_ids) => {
-                let group_bounds = group_bounds(world, self.id.unwrap());
-                if cube_intersects(&transformed_ray, group_bounds).is_empty() {
-                    return Intersections { xs: vec![] };
-                }
+            ShapeType::Group(child_ids, group_bounds) => {
+                // if cube_intersects(&transformed_ray, group_bounds).is_empty() {
+                //     return Intersections { xs: vec![] };
+                // }
 
                 let mut xs: Vec<Intersection> =
                     child_ids

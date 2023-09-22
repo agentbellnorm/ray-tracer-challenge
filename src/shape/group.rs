@@ -10,7 +10,7 @@ mod group_test {
         let group = Shape::group();
 
         assert_eq!(group.inverse_transformation, Matrix::identity().inverse());
-        if let ShapeType::Group(children) = group.shape_type {
+        if let ShapeType::Group(children, _) = group.shape_type {
             assert!(children.is_empty())
         } else {
             panic!("group was not group")
@@ -34,7 +34,7 @@ mod group_test {
 
         let group = &world.objects[0];
         match &group.shape.shape_type {
-            ShapeType::Group(children) => {
+            ShapeType::Group(children, _) => {
                 assert!(!children.is_empty());
                 assert!(children
                     .into_iter()

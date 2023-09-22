@@ -1,4 +1,4 @@
-use crate::color::{black, white, Color};
+use crate::color::{black, rgb, white, Color};
 use crate::lights::PointLight;
 use crate::pattern::Pattern;
 use crate::shape::Shape;
@@ -90,6 +90,20 @@ impl Material {
             shininess: 300.0,
             reflective: 0.9,
             transparency: 0.9,
+            refractive_index: 1.0000034,
+            pattern: None,
+        }
+    }
+
+    pub fn wrapper() -> Self {
+        Material {
+            color: rgb(255, 0, 0),
+            ambient: 0.1,
+            diffuse: 0.9,
+            specular: 0.9,
+            shininess: 1.0,
+            reflective: 0.0,
+            transparency: 0.8,
             refractive_index: 1.0000034,
             pattern: None,
         }

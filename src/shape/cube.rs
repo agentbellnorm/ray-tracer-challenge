@@ -17,7 +17,7 @@ fn check_axis(origin: f64, direction: f64, axis_min: f64, axis_max: f64) -> (f64
     (tmin, tmax)
 }
 
-pub fn cube_intersects(ray: &Ray, bounds: Bounds) -> Vec<f64> {
+pub fn cube_intersects(ray: &Ray, bounds: &Bounds) -> Vec<f64> {
     let (xt_min, xt_max) = check_axis(ray.origin.x, ray.direction.x, bounds.min.x, bounds.max.x);
     let (yt_min, yt_max) = check_axis(ray.origin.y, ray.direction.y, bounds.min.y, bounds.max.y);
     let (zt_min, zt_max) = check_axis(ray.origin.z, ray.direction.z, bounds.min.z, bounds.max.x);

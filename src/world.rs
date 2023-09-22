@@ -4,6 +4,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
+use crate::shape::bounds::group_bounds;
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
 use std::borrow::BorrowMut;
@@ -49,12 +50,13 @@ impl World {
         shape.shape.parent = Some(group_id);
 
         let mut group_members = match &self.get_shape(group_id).shape_type {
-            ShapeType::Group(children) => children.clone(),
+            ShapeType::Group(children, _) => children.clone(),
             _ => panic!("group id did not belong to a group"),
         };
         group_members.push(shape_id);
 
-        self.objects.get_mut(group_id).unwrap().shape.shape_type = ShapeType::Group(group_members);
+        self.objects.get_mut(group_id).unwrap().shape.shape_type =
+            ShapeType::Group(group_members, group_bounds(self, group_id));
 
         shape_id
     }
@@ -88,8 +90,8 @@ impl World {
         let mut world = World::default();
         let g1 =
             world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_y(FRAC_PI_2)));
-        let g2 = world
-            .add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
+        let g2 =
+            world.add_shape(Shape::group().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)));
         let sphere = world.add_shape(
             Shape::sphere_default().with_transform(Matrix::identity().translate(5.0, 0.0, 0.0)),
         );

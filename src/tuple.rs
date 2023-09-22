@@ -1,4 +1,7 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::{
+    f64::{INFINITY, NEG_INFINITY},
+    ops::{Add, Div, Mul, Neg, Sub},
+};
 
 pub const EPSILON: f64 = 0.00001;
 
@@ -139,7 +142,15 @@ impl Div<f64> for Tuple {
 }
 
 fn is_equal_float(a: f64, b: f64) -> bool {
-    (a - b).abs() < EPSILON
+    if (a - b).abs() < EPSILON {
+        return true;
+    } else if a == INFINITY && b == INFINITY {
+        return true;
+    } else if a == NEG_INFINITY && b == NEG_INFINITY {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 pub const fn vector(x: f64, y: f64, z: f64) -> Tuple {
@@ -150,11 +161,11 @@ pub const fn point(x: f64, y: f64, z: f64) -> Tuple {
     Tuple { x, y, z, w: 1.0 }
 }
 
-pub fn point_i(x: i32, y: i32, z: i32) -> Tuple {
+pub const fn point_i(x: i32, y: i32, z: i32) -> Tuple {
     point(x as f64, y as f64, z as f64)
 }
 
-pub fn vector_i(x: i32, y: i32, z: i32) -> Tuple {
+pub const fn vector_i(x: i32, y: i32, z: i32) -> Tuple {
     vector(x as f64, y as f64, z as f64)
 }
 
