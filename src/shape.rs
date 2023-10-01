@@ -18,7 +18,7 @@ use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use crate::World;
 
-use self::bounds::{bounds, ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
+use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {

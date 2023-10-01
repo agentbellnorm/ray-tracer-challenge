@@ -1,15 +1,6 @@
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_6};
 
-use crate::{
-    matrix::Matrix,
-    shape::{
-        bounds::{bounds_to_cube, parent_space_bounds_of},
-        Shape, ShapeType,
-    },
-    world::World,
-};
-
-use super::Scene;
+use crate::{matrix::Matrix, shape::Shape, world::World};
 
 fn hexagon_corner() -> Shape {
     Shape::sphere_default().with_transform(

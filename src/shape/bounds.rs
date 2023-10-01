@@ -11,16 +11,11 @@ use crate::{
     world::World,
 };
 
-use super::{cube::cube_intersects, Shape};
+use super::cube::cube_intersects;
 
 #[cfg(test)]
 mod bounds_test {
     use std::f64::{consts::FRAC_PI_4, INFINITY, NEG_INFINITY};
-
-    const TEST_BOUNDS: Bounds = Bounds {
-        min: point_i(-1, -1, -1),
-        max: point_i(1, 1, 1),
-    };
 
     use parameterized::parameterized;
 
@@ -34,7 +29,7 @@ mod bounds_test {
             },
             Shape,
         },
-        tuple::{point, point_i, vector, vector_i, Tuple},
+        tuple::{point, point_i, vector_i, Tuple},
         world::World,
     };
 
@@ -45,8 +40,8 @@ mod bounds_test {
         let p1 = point_i(-5, 2, 0);
         let p2 = point_i(7, 0, -3);
 
-        let mut bounds = add_point_to_bounds(p1, &NO_BOUNDS);
-        let mut bounds = add_point_to_bounds(p2, &bounds);
+        let bounds = add_point_to_bounds(p1, &NO_BOUNDS);
+        let bounds = add_point_to_bounds(p2, &bounds);
 
         assert_eq!(bounds.min, point_i(-5, 0, -3));
         assert_eq!(bounds.max, point_i(7, 2, 0));
@@ -286,23 +281,6 @@ mod bounds_test {
 
         assert_eq!(ray_misses_bounds(&bounds, &ray), result)
     }
-
-    // #[test]
-    // fn test_transformed_sphere_bounds() {
-    //     let mut world = World::default();
-    //     let sphere = world.add_shape(
-    //         Shape::sphere_default().with_transform(Matrix::identity().scale(2.0, 2.0, 2.0)),
-    //     );
-    //     let group = world.add_shape(Shape::group());
-    //     world.add_shape_to_group(group, sphere);
-    //     assert_eq!(
-    //         group_bounds(&world, group),
-    //         Bounds {
-    //             min: point(-2.0, -2.0, -2.0),
-    //             max: point(2.0, 2.0, 2.0),
-    //         }
-    //     );
-    // }
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -394,16 +372,6 @@ fn bounds_to_corners(bounds: &Bounds) -> Corners {
         point(max.x, min.y, max.z),
         point(min.x, max.y, min.z),
     ]
-}
-
-pub fn bounds_to_cube(bounds: &Bounds) -> Shape {
-    let width = bounds.max.x - bounds.min.x;
-    let height = bounds.max.y - bounds.min.y;
-    let depth = bounds.max.z - bounds.min.z;
-
-    println!("{:?}, {:?}, {:?}", width, height, depth);
-
-    Shape::cube_default().with_transform(Matrix::identity().scale(width, height, width))
 }
 
 /*

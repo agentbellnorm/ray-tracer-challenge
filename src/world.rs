@@ -4,7 +4,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
-use crate::shape::bounds::{bounds, parent_space_bounds_of};
+use crate::shape::bounds::parent_space_bounds_of;
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
 use std::f64::consts::FRAC_PI_2;
