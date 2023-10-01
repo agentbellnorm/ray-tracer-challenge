@@ -5,16 +5,17 @@ use std::{
 
 use crate::{
     matrix::Matrix,
+    rays::Ray,
     shape::ShapeType,
     tuple::{point, Tuple},
     world::World,
 };
 
-use super::Shape;
+use super::{cube::cube_intersects, Shape};
 
 #[cfg(test)]
 mod bounds_test {
-    use std::f64::{INFINITY, NEG_INFINITY};
+    use std::f64::{consts::FRAC_PI_4, INFINITY, NEG_INFINITY};
 
     const TEST_BOUNDS: Bounds = Bounds {
         min: point_i(-1, -1, -1),
@@ -24,18 +25,20 @@ mod bounds_test {
     use parameterized::parameterized;
 
     use crate::{
+        matrix::Matrix,
+        rays::Ray,
         shape::{
             bounds::{
-                add_point_to_bounds, bounds_contain_other_bounds, bounds_contains_point, combine_bounds,
-                Bounds,
+                add_point_to_bounds, bounds_contain_other_bounds, bounds_contains_point,
+                bounds_of_transformed_corners, combine_bounds, ray_misses_bounds, Bounds,
             },
             Shape,
         },
-        tuple::{point, point_i, Tuple},
+        tuple::{point, point_i, vector, vector_i, Tuple},
         world::World,
     };
 
-    use super::{bounds, NO_BOUNDS};
+    use super::{bounds, parent_space_bounds_of, NO_BOUNDS};
 
     #[test]
     fn add_point_to_empty_bounds() {
@@ -147,15 +150,6 @@ mod bounds_test {
         )
     }
 
-    // #[parameterized(
-    // scenario= {     "+x",                   "-x",                   "+y",                   "-y",                   "+z",                   "-z",                   "inside"                },
-    // origin = {      point(5.0, 0.5, 0.0),   point(-5.0, 0.5, 0.0),  point(0.5, 5.0, 0.0),   point(0.5, -5.0, 0.0),  point(0.5, 0.0, 5.0),   point(0.5, 0.0, -5.0),  point(0.0, 0.5, 0.0)    },
-    // direction = {   vector_i(-1, 0, 0),     vector_i(1, 0, 0),      vector_i(0, -1, 0),     vector_i(0, 1, 0),      vector_i(0, 0, -1),     vector_i(0, 0, 1),      vector_i(0, 0, 1)       },
-    // t1 = {          4.0,                    4.0,                    4.0,                    4.0,                    4.0,                    4.0,                    -1.0                    },
-    // t2 = {          6.0,                    6.0,                    6.0,                    6.0,                    6.0,                    6.0,                    1.0                     }
-    // )]
-    // pub fn ray_intersects_cube(scenario: &str, origin: Tuple, direction: Tuple, t1: f64, t2: f64) {
-
     #[parameterized(
         point =  { point_i(5, -2, 0), point_i(11, 4, 7), point_i(8, 1, 3), point_i(3, 0, 3), point_i(8, -4, 3), point_i(8, 1, -1), point_i(13, 1, 3), point_i(8, 5, 3), point_i(8, 1, 8) },
         result = { true,              true,              true,             false,            false,             false,             false,             false,            false      },
@@ -173,7 +167,7 @@ mod bounds_test {
         min = {point_i(5, -2, 0), point_i(6, -1, 1), point_i(4, -3, -1), point_i(6, -1, 1)},
         max = {point_i(11, 4, 7), point_i(10, 3, 6), point_i(10, 3, 6),  point_i(12, 5, 8)},
         res = {true,              true,              false,              false}
-   )]
+    )]
     fn bounds_contains_bounds(min: Tuple, max: Tuple, res: bool) {
         let b1 = Bounds {
             min: point_i(5, -2, 0),
@@ -182,6 +176,115 @@ mod bounds_test {
         let b2 = Bounds { min, max };
 
         assert_eq!(bounds_contain_other_bounds(&b1, &b2), res)
+    }
+
+    #[test]
+    fn transforming_bounding_box() {
+        let b = Bounds {
+            min: point_i(-1, -1, -1),
+            max: point_i(1, 1, 1),
+        };
+
+        let transformation = Matrix::identity().rotate_y(FRAC_PI_4).rotate_x(FRAC_PI_4);
+
+        assert_eq!(
+            bounds_of_transformed_corners(&b, &transformation),
+            Bounds {
+                min: point(-1.414213, -1.707106, -1.707106),
+                max: point(1.414213, 1.707106, 1.707106)
+            }
+        )
+    }
+
+    #[test]
+    fn querying_shapes_bounding_box_in_parent_space() {
+        let mut world = World::default();
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(
+                Matrix::identity()
+                    .scale(0.5, 2.0, 4.0)
+                    .translate(1.0, -3.0, 5.0),
+            ),
+        );
+
+        let bounds = parent_space_bounds_of(&world, sphere);
+
+        assert_eq!(
+            bounds,
+            Bounds {
+                min: point(0.5, -5.0, 1.0),
+                max: point(1.5, -1.0, 9.0)
+            }
+        )
+    }
+
+    #[test]
+    fn group_has_bounding_box_containing_children() {
+        let mut world = World::default();
+
+        let sphere = world.add_shape(
+            Shape::sphere_default().with_transform(
+                Matrix::identity()
+                    .scale(2.0, 2.0, 2.0)
+                    .translate(2.0, 5.0, -3.0),
+            ),
+        );
+
+        let cylinder = world.add_shape(
+            Shape::cylinder(-2.0, 2.0, false).with_transform(
+                Matrix::identity()
+                    .scale(0.5, 1.0, 0.5)
+                    .translate(-4.0, -1.0, 4.0),
+            ),
+        );
+
+        let group = world.add_shape(Shape::group());
+
+        world.add_shape_to_group(group, sphere);
+        world.add_shape_to_group(group, cylinder);
+
+        let bounds = bounds(&world, group);
+
+        assert_eq!(
+            bounds,
+            Bounds {
+                min: point(-4.5, -3.0, -5.0),
+                max: point(4.0, 7.0, 4.5)
+            }
+        )
+    }
+
+    #[parameterized(
+        origin =    { point(5.0, 0.5, 0.0), point(-5.0, 0.5, 0.0), point(0.5, 5.0, 0.0), point(0.5, 5.0, 0.0), point(0.5, 0.0, 5.0), point(0.5, 0.0, -5.0), point(0.0, 0.5, 0.0), point_i(-2, 0, 0), point_i(0, 2, 0),  point_i(0, 0, -2), point_i(2, 0, 2),   point_i(0, 2, 2),   point_i(2, 2, 0)},
+        direction = { vector_i(-1, 0, 0),   vector_i(1, 0, 0),     vector_i(0, -1, 0),   vector_i(0, 1, 0),    vector_i(0, 0, -1),   vector_i(0, 0, 1),     vector_i(0, 0, 1),    vector_i(2, 4, 6), vector_i(6, 2, 4), vector_i(4, 6, 2), vector_i(0, 0, -1), vector_i(0, -1, 0), vector_i(-1, 0, 0)},
+        result =    { false,                false,                 false,                false,                false,                false,                 false,                true,              true,              true,              true,               true,               true}
+    )]
+    fn intersecting_ray_with_bounding_box_at_origin(origin: Tuple, direction: Tuple, result: bool) {
+        let bounds = Bounds {
+            min: point_i(-1, -1, -1),
+            max: point_i(1, 1, 1),
+        };
+        let normalized_direction = direction.normalize();
+        let ray = Ray::with(origin, normalized_direction);
+
+        assert_eq!(ray_misses_bounds(&bounds, &ray), result)
+    }
+
+    #[parameterized(
+        origin =    { point_i(15, 1, 2),  point_i(-5, -1, 4), point_i(7, 6, 5),   point_i(9, -5, 6), point_i(8, 2, 12),  point_i(6, 0, -5), point(8.0, 1.0, 3.5), point_i(9, -1, -8), point_i(8, 3, -4), point_i(9, -1, -2), point_i(4, 0, 9),   point_i(8, 6, -1),  point_i(12, 5, 4)},
+        direction = { vector_i(-1, 0, 0), vector_i(1, 0,0),   vector_i(0, -1, 0), vector_i(0, 1, 0), vector_i(0, 0, -1), vector_i(0, 0, 1), vector_i(0, 0, 1),    vector_i(2, 4, 6),  vector_i(6, 2, 4), vector_i(4, 6, 2),  vector_i(0, 0, -1), vector_i(0, -1, 0), vector_i(-1, 0, 0)},
+        result =    { false,              false,              false,              false,             false,              false,             false,                true,               true,              true,               true,               true,               true},
+
+    )]
+    fn intersecting_ray_with_non_cubic_bounds(origin: Tuple, direction: Tuple, result: bool) {
+        let bounds = Bounds {
+            min: point_i(5, -2, 0),
+            max: point_i(11, 4, 7),
+        };
+        let normalized_direction = direction.normalize();
+        let ray = Ray::with(origin, normalized_direction);
+
+        assert_eq!(ray_misses_bounds(&bounds, &ray), result)
     }
 
     // #[test]
@@ -242,30 +345,21 @@ fn bounds_of_transformed_corners(bounds: &Bounds, transformation: &Matrix) -> Bo
     corners_to_bounds(transform_corners(bounds_to_corners(bounds), transformation))
 }
 
-pub fn group_bounds(world: &World, group_id: usize) -> Bounds {
-    let group = world.get_shape(group_id);
-    if let ShapeType::Group(children, _) = &group.shape_type {
-        return children
-            .into_iter()
-            .map(|child| {
-                bounds_of_transformed_corners(
-                    &bounds(world, *child),
-                    &group.inverse_transformation.inverse(),
-                )
-            })
-            .fold(NO_BOUNDS, combine_bounds);
-    } else {
-        panic!("group id {:?} is not a group! [{:?}]", group_id, group)
-    }
+pub fn parent_space_bounds_of(world: &World, shape: usize) -> Bounds {
+    let bounds = bounds(world, shape);
+    bounds_of_transformed_corners(&bounds, &world.get_shape(shape).inverse_transformation)
 }
 
-fn bounds(world: &World, shape_id: usize) -> Bounds {
+pub fn ray_misses_bounds(bounds: &Bounds, ray: &Ray) -> bool {
+    cube_intersects(ray, bounds).is_empty()
+}
+
+pub fn bounds(world: &World, shape_id: usize) -> Bounds {
     let shape = world.get_shape(shape_id);
-    let transformation = shape.inverse_transformation.inverse();
     match &shape.shape_type {
         ShapeType::Sphere => SPHERE_BOUND,
         ShapeType::Plane => PLANE_BOUNDS,
-        ShapeType::Cube => CUBE_BOUNDS * &transformation,
+        ShapeType::Cube => CUBE_BOUNDS,
         ShapeType::Cylinder(y_min, y_max, _) => Bounds {
             min: point(-1.0, *y_min, -1.0),
             max: point(1.0, *y_max, 1.0),
@@ -279,7 +373,10 @@ fn bounds(world: &World, shape_id: usize) -> Bounds {
                 max: point(limit, *y_max, limit),
             }
         }
-        ShapeType::Group(children, _) => group_bounds(world, shape_id),
+        ShapeType::Group(children, _) => children
+            .into_iter()
+            .map(|child: &usize| parent_space_bounds_of(&world, *child))
+            .fold(NO_BOUNDS, combine_bounds),
     }
 }
 

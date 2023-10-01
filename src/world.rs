@@ -4,10 +4,9 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
-use crate::shape::bounds::group_bounds;
+use crate::shape::bounds::{bounds, parent_space_bounds_of};
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
-use std::borrow::BorrowMut;
 use std::f64::consts::FRAC_PI_2;
 use std::vec;
 
@@ -56,7 +55,7 @@ impl World {
         group_members.push(shape_id);
 
         self.objects.get_mut(group_id).unwrap().shape.shape_type =
-            ShapeType::Group(group_members, group_bounds(self, group_id));
+            ShapeType::Group(group_members, parent_space_bounds_of(&self, group_id));
 
         shape_id
     }
