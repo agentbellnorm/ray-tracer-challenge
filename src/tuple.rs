@@ -142,15 +142,9 @@ impl Div<f64> for Tuple {
 }
 
 fn is_equal_float(a: f64, b: f64) -> bool {
-    if (a - b).abs() < EPSILON {
-        return true;
-    } else if a == INFINITY && b == INFINITY {
-        return true;
-    } else if a == NEG_INFINITY && b == NEG_INFINITY {
-        return true;
-    } else {
-        return false;
-    }
+    (a - b).abs() < EPSILON
+        || a == INFINITY && b == INFINITY
+        || a == NEG_INFINITY && b == NEG_INFINITY
 }
 
 pub const fn vector(x: f64, y: f64, z: f64) -> Tuple {
