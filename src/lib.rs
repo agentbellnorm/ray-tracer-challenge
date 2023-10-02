@@ -22,7 +22,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::pattern::Pattern;
-use crate::scenes::hexagon::{hexagon_scene};
+use crate::scenes::hexagon::hexagon_scene;
 use crate::shape::Shape;
 use crate::transformation::view_transformation;
 use crate::tuple::{point, vector};
@@ -35,7 +35,7 @@ pub fn main_lib() {
     world = hexagon_scene(world);
 
     let (horizontal, vertical) = (640, 360);
-// let (horizontal, vertical) = (1280, 720);
+    // let (horizontal, vertical) = (1280, 720);
     // let (horizontal, vertical) = (1920, 1080);
 
     let camera = Camera::new(horizontal, vertical, FRAC_PI_3).set_transform(view_transformation(
