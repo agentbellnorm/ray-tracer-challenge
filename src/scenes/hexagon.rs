@@ -1,4 +1,4 @@
-use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_6};
+use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_6, FRAC_PI_8};
 
 use crate::{matrix::Matrix, shape::Shape, world::World};
 
@@ -21,7 +21,8 @@ fn hexagon_edge() -> Shape {
 }
 
 pub fn hexagon_scene(mut world: World) -> World {
-    let hexagon = world.add_shape(Shape::group());
+    let hexagon =
+        world.add_shape(Shape::group().with_transform(Matrix::identity().rotate_z(-FRAC_PI_8 / 3.0)));
 
     for i in 0..6 {
         let corner = world.add_shape(hexagon_corner());

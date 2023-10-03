@@ -135,13 +135,7 @@ impl Shape {
     }
 
     pub fn intersects(&self, world: &World, ray: &Ray) -> Intersections {
-        let mut transform = self.inverse_transformation;
-        if let Some(parent_id) = self.parent {
-            transform =
-                &self.inverse_transformation * &world.get_shape(parent_id).inverse_transformation;
-        }
-
-        let transformed_ray = ray.transform(&transform);
+        let transformed_ray = ray.transform(&self.inverse_transformation);
 
         let v = match &self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray),
@@ -165,7 +159,7 @@ impl Shape {
                             intersections.append(
                                 world
                                     .get_shape(*child_id)
-                                    .intersects(world, &ray)
+                                    .intersects(world, &transformed_ray)
                                     .xs
                                     .as_mut(),
                             );
