@@ -21,6 +21,9 @@ cargo run --release
 
 ## Examples
 
+### Chapter 14, Groups
+![](./doc/hexagon.png)
+
 ### Chapter 13, Cylinders and Cones
 ![cylcone](./doc/cylinder_and_cone.png)
 
