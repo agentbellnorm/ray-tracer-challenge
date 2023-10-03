@@ -5,6 +5,7 @@ pub mod cylinder;
 pub mod group;
 pub mod plane;
 pub mod sphere;
+pub mod triangle;
 
 use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
@@ -15,7 +16,7 @@ use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
-use crate::tuple::Tuple;
+use crate::tuple::{point, Tuple, vector};
 use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
@@ -28,6 +29,7 @@ pub enum ShapeType {
     Cylinder(f64, f64, bool),    // Cylinder(min_y, max_y, closed)
     Cone(f64, f64, bool),        // Cone(min_y, max_y, closed)
     Group(Vec<ShapeId>, Bounds), // Group(children)
+    Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
 }
 
 pub type ShapeId = usize;
@@ -84,6 +86,14 @@ impl Shape {
         Shape::default(ShapeType::Group(vec![], NO_BOUNDS))
     }
 
+    pub fn triangle(p1: Tuple, p2: Tuple, p3: Tuple) -> Self {
+        let e1 = p2 - p1;
+        let e2 = p3 - p1;
+        let normal = e2.cross(&e1).normalize();
+
+        Shape::default(ShapeType::Triangle(p1, p2, p3, e1, e2, normal))
+    }
+
     pub fn is_group(&self) -> bool {
         matches!(self.shape_type, ShapeType::Group(_, _))
     }
@@ -126,6 +136,7 @@ impl Shape {
                 cylinder_normal_at(object_point, *y_min, *y_max)
             }
             ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, *y_min, *y_max),
+            ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
@@ -147,6 +158,7 @@ impl Shape {
             ShapeType::Cone(y_min, y_max, closed) => {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
+            ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };

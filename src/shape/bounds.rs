@@ -241,7 +241,7 @@ mod bounds_test {
         let bounds = bounds(&world, group);
         let computed_bounds = match &world.get_shape(group).shape_type {
             crate::shape::ShapeType::Group(_, group_bounds) => group_bounds,
-            _ => panic!("wat")
+            _ => panic!("wat"),
         };
 
         assert_eq!(
@@ -366,6 +366,7 @@ pub fn bounds(world: &World, shape_id: usize) -> Bounds {
                 max: point(limit, *y_max, limit),
             }
         }
+        ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
         ShapeType::Group(children, _) => children
             .into_iter()
             .map(|child: &usize| parent_space_bounds_of(&world, *child))
