@@ -154,7 +154,7 @@ impl Shape {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
             ShapeType::Group(child_ids, group_bounds) => {
-                if ray_misses_bounds(group_bounds, &ray) {
+                if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };
                 }
 

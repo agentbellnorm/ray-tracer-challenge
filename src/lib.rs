@@ -34,9 +34,9 @@ pub fn main_lib() {
     let mut world = World::with_light(PointLight::default());
     world = hexagon_scene(world);
 
-    let (horizontal, vertical) = (640, 360);
+    // let (horizontal, vertical) = (640, 360);
     // let (horizontal, vertical) = (1280, 720);
-    // let (horizontal, vertical) = (1920, 1080);
+    let (horizontal, vertical) = (1920, 1080);
 
     let camera = Camera::new(horizontal, vertical, FRAC_PI_3).set_transform(view_transformation(
         point(2.0, 2.0, -3.0),

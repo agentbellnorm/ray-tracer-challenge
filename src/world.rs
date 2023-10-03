@@ -4,7 +4,7 @@ use crate::lights::PointLight;
 use crate::material::Material;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
-use crate::shape::bounds::parent_space_bounds_of;
+use crate::shape::bounds::{self, bounds, parent_space_bounds_of, Bounds};
 use crate::shape::{Shape, ShapeType};
 use crate::tuple::{point, Tuple};
 use std::f64::consts::FRAC_PI_2;
@@ -48,14 +48,15 @@ impl World {
         let mut shape = self.objects.get_mut(shape_id).unwrap();
         shape.shape.parent = Some(group_id);
 
-        let mut group_members = match &self.get_shape(group_id).shape_type {
-            ShapeType::Group(children, _) => children.clone(),
-            _ => panic!("group id did not belong to a group"),
-        };
-        group_members.push(shape_id);
-
+        let mut children = self.get_children(group_id);
+        let current_bounds = self.get_bounds(group_id);
+        children.push(shape_id);
         self.objects.get_mut(group_id).unwrap().shape.shape_type =
-            ShapeType::Group(group_members, parent_space_bounds_of(&self, group_id));
+            ShapeType::Group(children, current_bounds);
+
+        let children = self.get_children(group_id);
+        let group_with_new_bounds = ShapeType::Group(children, bounds(&self, group_id));
+        self.objects.get_mut(group_id).unwrap().shape.shape_type = group_with_new_bounds;
 
         shape_id
     }
@@ -70,6 +71,20 @@ impl World {
         self.objects.push(world_shape);
 
         shape_id
+    }
+
+    pub fn get_children(&self, group_id: usize) -> Vec<usize> {
+        match &self.get_shape(group_id).shape_type {
+            ShapeType::Group(children, _) => children.clone(),
+            _ => panic!("{} is not a group!", group_id),
+        }
+    }
+
+    pub fn get_bounds(&self, group_id: usize) -> Bounds {
+        match &self.get_shape(group_id).shape_type {
+            ShapeType::Group(_, bounds) => bounds.clone(),
+            _ => panic!("{} is not a group!", group_id),
+        }
     }
 
     pub fn test_world() -> World {

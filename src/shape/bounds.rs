@@ -239,9 +239,21 @@ mod bounds_test {
         world.add_shape_to_group(group, cylinder);
 
         let bounds = bounds(&world, group);
+        let computed_bounds = match &world.get_shape(group).shape_type {
+            crate::shape::ShapeType::Group(_, group_bounds) => group_bounds,
+            _ => panic!("wat")
+        };
 
         assert_eq!(
             bounds,
+            Bounds {
+                min: point(-4.5, -3.0, -5.0),
+                max: point(4.0, 7.0, 4.5)
+            }
+        );
+
+        assert_eq!(
+            computed_bounds.clone(),
             Bounds {
                 min: point(-4.5, -3.0, -5.0),
                 max: point(4.0, 7.0, 4.5)
@@ -325,7 +337,10 @@ fn bounds_of_transformed_corners(bounds: &Bounds, transformation: &Matrix) -> Bo
 
 pub fn parent_space_bounds_of(world: &World, shape: usize) -> Bounds {
     let bounds = bounds(world, shape);
-    bounds_of_transformed_corners(&bounds, &world.get_shape(shape).inverse_transformation)
+    bounds_of_transformed_corners(
+        &bounds,
+        &world.get_shape(shape).inverse_transformation.inverse(),
+    )
 }
 
 pub fn ray_misses_bounds(bounds: &Bounds, ray: &Ray) -> bool {
@@ -378,25 +393,13 @@ fn bounds_to_corners(bounds: &Bounds) -> Corners {
  * The bounding box of a set of (potentially rotated) corners of a box
  * */
 fn corners_to_bounds(corners: Corners) -> Bounds {
-    let mut x = (f64::INFINITY, -f64::INFINITY);
-    let mut y = (f64::INFINITY, -f64::INFINITY);
-    let mut z = (f64::INFINITY, -f64::INFINITY);
+    let mut bounds = NO_BOUNDS;
 
-    for point in corners {
-        x.0 = f64::min(point.x, x.0);
-        x.1 = f64::max(point.x, x.1);
-
-        y.0 = f64::min(point.y, y.0);
-        y.1 = f64::max(point.y, y.1);
-
-        z.0 = f64::min(point.z, z.0);
-        z.1 = f64::max(point.z, z.1);
+    for corner in corners {
+        bounds = add_point_to_bounds(corner, &bounds);
     }
 
-    Bounds {
-        min: point(x.0, y.0, z.0),
-        max: point(x.1, y.1, z.1),
-    }
+    bounds
 }
 
 fn add_point_to_bounds(p: Tuple, bounds: &Bounds) -> Bounds {
