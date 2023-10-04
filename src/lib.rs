@@ -15,6 +15,7 @@ pub mod shape;
 pub mod transformation;
 pub mod tuple;
 pub mod world;
+pub mod obj_file;
 
 use crate::camera::Camera;
 use crate::color::{black, color, rgb, white};
