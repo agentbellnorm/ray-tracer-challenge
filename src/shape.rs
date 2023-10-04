@@ -136,7 +136,7 @@ impl Shape {
                 cylinder_normal_at(object_point, *y_min, *y_max)
             }
             ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, *y_min, *y_max),
-            ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
+            ShapeType::Triangle(_, _, _, _, _, normal) => normal.clone(),
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
