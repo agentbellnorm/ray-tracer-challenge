@@ -54,8 +54,8 @@ impl Camera {
 
         let inv_transform = self.inverse_transform;
 
-        let pixel = point(world_x, world_y, -1.0) * &inv_transform;
-        let origin = point(0.0, 0.0, 0.0) * &inv_transform;
+        let pixel = &point(world_x, world_y, -1.0) * &inv_transform;
+        let origin = &point(0.0, 0.0, 0.0) * &inv_transform;
         let direction = (pixel - origin).normalize();
 
         Ray::with(origin, direction)

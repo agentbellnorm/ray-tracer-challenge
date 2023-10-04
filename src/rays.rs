@@ -20,8 +20,8 @@ impl Ray {
 
     pub fn transform(&self, transformation: &Matrix) -> Ray {
         Ray {
-            origin: self.origin * transformation,
-            direction: self.direction * transformation,
+            origin: &self.origin * transformation,
+            direction: &self.direction * transformation,
         }
     }
 }

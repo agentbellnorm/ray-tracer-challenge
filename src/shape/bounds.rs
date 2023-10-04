@@ -305,8 +305,8 @@ impl Mul<&Matrix> for Bounds {
     type Output = Self;
     fn mul(self, matrix: &Matrix) -> Self {
         Self {
-            min: self.min * matrix,
-            max: self.max * matrix,
+            min: &self.min * matrix,
+            max: &self.max * matrix,
         }
     }
 }
@@ -448,13 +448,13 @@ fn combine_bounds(a: Bounds, b: Bounds) -> Bounds {
 
 fn transform_corners(corners: Corners, transform: &Matrix) -> Corners {
     [
-        corners[0] * transform,
-        corners[1] * transform,
-        corners[2] * transform,
-        corners[3] * transform,
-        corners[4] * transform,
-        corners[5] * transform,
-        corners[6] * transform,
-        corners[7] * transform,
+        &corners[0] * transform,
+        &corners[1] * transform,
+        &corners[2] * transform,
+        &corners[3] * transform,
+        &corners[4] * transform,
+        &corners[5] * transform,
+        &corners[6] * transform,
+        &corners[7] * transform,
     ]
 }

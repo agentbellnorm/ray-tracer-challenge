@@ -130,7 +130,7 @@ mod matrix_test {
         };
 
         assert_eq!(
-            tuple * &matrix,
+            &tuple * &matrix,
             Tuple {
                 x: 18.0,
                 y: 24.0,
@@ -406,7 +406,7 @@ mod matrix_test {
     #[test]
     fn multiplying_by_translation_matrix() {
         let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
-        let p = point(-3.0, 4.0, 5.0);
+        let p = &point(-3.0, 4.0, 5.0);
 
         assert_eq!(p * &transform, point(2.0, 1.0, 7.0));
     }
@@ -415,7 +415,7 @@ mod matrix_test {
     fn multiplying_with_inverse_of_translation_matrix() {
         let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
         let inv = transform.inverse();
-        let p = point(-3.0, 4.0, 5.0);
+        let p = &point(-3.0, 4.0, 5.0);
 
         assert_eq!(p * &inv, point(-8.0, 7.0, 3.0));
     }
@@ -423,15 +423,15 @@ mod matrix_test {
     #[test]
     fn translation_does_not_affect_vectors() {
         let transform = Matrix::identity().translate(5.0, -3.0, 2.0);
-        let v = vector(-3.0, 4.0, 5.0);
+        let v = &vector(-3.0, 4.0, 5.0);
 
-        assert_eq!(v * &transform, v);
+        assert_eq!(v * &transform, v.clone());
     }
 
     #[test]
     fn scaling_matrix_applied_to_point() {
         let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
-        let p = point(-4.0, 6.0, 8.0);
+        let p = &point(-4.0, 6.0, 8.0);
 
         assert_eq!(p * &scaling, point(-8.0, 18.0, 32.0));
     }
@@ -439,7 +439,7 @@ mod matrix_test {
     #[test]
     fn scaling_matrix_applied_to_vector() {
         let scaling = Matrix::identity().scale(2.0, 3.0, 4.0);
-        let v = vector(-4.0, 6.0, 8.0);
+        let v = &vector(-4.0, 6.0, 8.0);
 
         assert_eq!(v * &scaling, vector(-8.0, 18.0, 32.0));
     }
@@ -448,7 +448,7 @@ mod matrix_test {
     fn multiplying_with_invers_of_scaling_matrix() {
         let s = Matrix::identity().scale(2.0, 3.0, 4.0);
         let inv_s = s.inverse();
-        let v = vector(-4.0, 6.0, 8.0);
+        let v = &vector(-4.0, 6.0, 8.0);
 
         assert_eq!(v * &inv_s, vector(-2.0, 2.0, 2.0));
     }
@@ -456,14 +456,14 @@ mod matrix_test {
     #[test]
     fn reflection_by_scaling_with_negative() {
         let s = Matrix::identity().scale(-1.0, 1.0, 1.0);
-        let p = vector(2.0, 3.0, 4.0);
+        let p = &vector(2.0, 3.0, 4.0);
 
         assert_eq!(p * &s, vector(-2.0, 3.0, 4.0));
     }
 
     #[test]
     fn rotating_point_around_x_axis() {
-        let p = point(0.0, 1.0, 0.0);
+        let p = &point(0.0, 1.0, 0.0);
         let half_quarter = Matrix::identity().rotate_x(PI / 4.0);
         let full_quarter = Matrix::identity().rotate_x(PI / 2.0);
 
@@ -476,7 +476,7 @@ mod matrix_test {
 
     #[test]
     fn inverse_of_x_rotation_rotates_in_opposite_direction() {
-        let p = point(0.0, 1.0, 0.0);
+        let p = &point(0.0, 1.0, 0.0);
         let half_quarter = Matrix::identity().rotate_x(PI / 4.0);
         let inv = half_quarter.inverse();
 
@@ -488,7 +488,7 @@ mod matrix_test {
 
     #[test]
     fn rotating_point_around_y_axis() {
-        let p = point(0.0, 0.0, 1.0);
+        let p = &point(0.0, 0.0, 1.0);
         let half_quarter = Matrix::identity().rotate_y(PI / 4.0);
         let full_quarter = Matrix::identity().rotate_y(PI / 2.0);
 
@@ -501,7 +501,7 @@ mod matrix_test {
 
     #[test]
     fn rotating_point_around_z_axis() {
-        let p = point(0.0, 1.0, 0.0);
+        let p = &point(0.0, 1.0, 0.0);
         let half_quarter = Matrix::identity().rotate_z(PI / 4.0);
         let full_quarter = Matrix::identity().rotate_z(PI / 2.0);
 
@@ -515,7 +515,7 @@ mod matrix_test {
     #[test]
     fn shearing_x_y() {
         let transform = Matrix::identity().shear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(5.0, 3.0, 4.0));
     }
@@ -523,7 +523,7 @@ mod matrix_test {
     #[test]
     fn shearing_x_z() {
         let transform = Matrix::identity().shear(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(6.0, 3.0, 4.0));
     }
@@ -531,7 +531,7 @@ mod matrix_test {
     #[test]
     fn shearing_y_x() {
         let transform = Matrix::identity().shear(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(2.0, 5.0, 4.0));
     }
@@ -539,7 +539,7 @@ mod matrix_test {
     #[test]
     fn shearing_y_z() {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(2.0, 7.0, 4.0));
     }
@@ -547,7 +547,7 @@ mod matrix_test {
     #[test]
     fn shearing_z_x() {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(2.0, 3.0, 6.0));
     }
@@ -555,14 +555,14 @@ mod matrix_test {
     #[test]
     fn shearing_z_y() {
         let transform = Matrix::identity().shear(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-        let p = point(2.0, 3.0, 4.0);
+        let p = &point(2.0, 3.0, 4.0);
 
         assert_eq!(p * &transform, point(2.0, 3.0, 7.0));
     }
 
     #[test]
     fn chained_transformations() {
-        let p = point(1.0, 0.0, 1.0);
+        let p = &point(1.0, 0.0, 1.0);
 
         let transform = Matrix::identity()
             .rotate_x(PI / 2.0)
@@ -577,7 +577,7 @@ mod matrix_test {
         let mut canvas = ray_tracer_challenge::canvas::Canvas::new(200, 200, black());
 
         for i in 0..12 {
-            let p = point(0.0, 0.0, 0.0);
+            let p = &point(0.0, 0.0, 0.0);
             let t = Matrix::identity()
                 .translate(0.0, 1.0, 0.0)
                 .rotate_z(i as f64 * ((2.0 * PI) / 12.0))

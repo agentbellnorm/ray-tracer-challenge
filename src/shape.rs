@@ -16,10 +16,11 @@ use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
-use crate::tuple::{point, Tuple, vector};
+use crate::tuple::{point, vector, Tuple};
 use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
+use self::triangle::triangle_intersect;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
@@ -128,21 +129,21 @@ impl Shape {
 
         let object_point = self.world_to_object(world, world_point);
 
-        let object_normal = match &self.shape_type {
+        let object_normal = match self.shape_type {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
             ShapeType::Cylinder(y_min, y_max, _) => {
-                cylinder_normal_at(object_point, *y_min, *y_max)
+                cylinder_normal_at(object_point, y_min.clone(), y_max.clone())
             }
-            ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, *y_min, *y_max),
-            ShapeType::Triangle(_, _, _, _, _, normal) => normal.clone(),
+            ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min.clone(), y_max.clone()),
+            ShapeType::Triangle(_, _, _, _, _, normal) => normal,
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
         };
 
-        self.normal_to_world(world, object_normal)
+        self.normal_to_world(world, &object_normal)
     }
 
     pub fn intersects(&self, world: &World, ray: &Ray) -> Intersections {
@@ -158,7 +159,9 @@ impl Shape {
             ShapeType::Cone(y_min, y_max, closed) => {
                 cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
             }
-            ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
+            ShapeType::Triangle(p1, _, _, e1, e2, _) => {
+                triangle_intersect(p1, e1, e2, &transformed_ray)
+            }
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };
@@ -205,22 +208,19 @@ impl Shape {
                 .world_to_object(world, point_to_transform),
             None => point_to_transform,
         };
-        point_to_transform * &self.inverse_transformation
+        &point_to_transform * &self.inverse_transformation
     }
 
-    pub fn normal_to_world(&self, world: &World, mut normal_to_transform: Tuple) -> Tuple {
-        normal_to_transform = normal_to_transform * &self.inverse_transformation.transpose();
-        normal_to_transform.w = 0.0;
-        normal_to_transform = normal_to_transform.normalize();
+    pub fn normal_to_world(&self, world: &World, normal_to_transform: &Tuple) -> Tuple {
+        let mut normal = normal_to_transform * &self.inverse_transformation.transpose();
+        normal.w = 0.0;
+        normal = normal.normalize();
 
-        normal_to_transform = match self.parent {
-            Some(parent_id) => world
-                .get_shape(parent_id)
-                .normal_to_world(world, normal_to_transform),
-            None => normal_to_transform,
-        };
+        if let Some(parent_id) = self.parent {
+            normal = world.get_shape(parent_id).normal_to_world(world, &normal)
+        }
 
-        normal_to_transform
+        normal
     }
 
     pub fn with_transform(mut self, transformation: Matrix) -> Self {
@@ -307,7 +307,7 @@ mod shape_test {
         let sphere = world.get_shape(2);
         let transformed_vector = sphere.normal_to_world(
             &world,
-            vector(
+            &vector(
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
