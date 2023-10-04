@@ -134,9 +134,9 @@ impl Shape {
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
             ShapeType::Cylinder(y_min, y_max, _) => {
-                cylinder_normal_at(object_point, y_min.clone(), y_max.clone())
+                cylinder_normal_at(object_point, y_min, y_max)
             }
-            ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min.clone(), y_max.clone()),
+            ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min, y_max),
             ShapeType::Triangle(_, _, _, _, _, normal) => normal,
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
