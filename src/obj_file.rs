@@ -76,6 +76,41 @@ mod obj_file_test {
         assert_eq!(t2p2, result.vertices[3]);
         assert_eq!(t2p3, result.vertices[4]);
     }
+
+    #[test]
+    fn triangulating_polygons() {
+        let file = "
+            v -1 1 0
+            v -1 0 0
+            v 1 0 0
+            v 1 1 0
+            v 0 2 0
+
+            f 1 2 3 4 5
+            ";
+
+        let result = parse_obj(file);
+        assert_eq!(result.vertices.len(), 5 + 1);
+        assert_eq!(result.triangles.len(), 3);
+        let t1 = &result.triangles[0];
+        let t2 = &result.triangles[1];
+        let t3 = &result.triangles[2];
+        let (t1p1, t1p2, t1p3) = get_points(t1);
+        let (t2p1, t2p2, t2p3) = get_points(t2);
+        let (t3p1, t3p2, t3p3) = get_points(t3);
+
+        assert_eq!(t1p1, result.vertices[1]);
+        assert_eq!(t1p2, result.vertices[2]);
+        assert_eq!(t1p3, result.vertices[3]);
+
+        assert_eq!(t2p1, result.vertices[1]);
+        assert_eq!(t2p2, result.vertices[3]);
+        assert_eq!(t2p3, result.vertices[4]);
+
+        assert_eq!(t3p1, result.vertices[1]);
+        assert_eq!(t3p2, result.vertices[4]);
+        assert_eq!(t3p3, result.vertices[5]);
+    }
 }
 
 pub struct ParsedObj {
@@ -93,12 +128,7 @@ pub fn parse_obj(content: &str) -> ParsedObj {
         }
 
         if line.starts_with("f ") {
-            let ids = parse_vertex_ids(line);
-            triangles.push(Shape::triangle(
-                vertices[ids[0]],
-                vertices[ids[1]],
-                vertices[ids[2]],
-            ));
+            triangles.append(&mut fan_triangulation(&vertices, parse_vertex_ids(line)))
         }
     }
 
@@ -106,6 +136,20 @@ pub fn parse_obj(content: &str) -> ParsedObj {
         vertices,
         triangles,
     }
+}
+
+pub fn fan_triangulation(vertices: &Vec<Tuple>, vertex_ids: Vec<usize>) -> Vec<Shape> {
+    let mut triangles = vec![];
+
+    for index in 1..(vertex_ids.len() - 1) {
+        triangles.push(Shape::triangle(
+            vertices[vertex_ids[0]],
+            vertices[vertex_ids[index]],
+            vertices[vertex_ids[index + 1]],
+        ))
+    }
+
+    triangles
 }
 
 pub fn parse_vertex(line: &str) -> Tuple {
