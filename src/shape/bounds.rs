@@ -40,8 +40,8 @@ mod bounds_test {
         let p1 = point_i(-5, 2, 0);
         let p2 = point_i(7, 0, -3);
 
-        let bounds = add_point_to_bounds(p1, &NO_BOUNDS);
-        let bounds = add_point_to_bounds(p2, &bounds);
+        let bounds = add_point_to_bounds(&NO_BOUNDS, p1);
+        let bounds = add_point_to_bounds(&bounds, p2);
 
         assert_eq!(bounds.min, point_i(-5, 0, -3));
         assert_eq!(bounds.max, point_i(7, 2, 0));
@@ -366,7 +366,9 @@ pub fn bounds(world: &World, shape_id: usize) -> Bounds {
                 max: point(limit, *y_max, limit),
             }
         }
-        ShapeType::Triangle(_, _, _, _, _, _) => todo!(),
+        ShapeType::Triangle(p1, p2, p3, _, _, _) => vec![p1, p2, p3]
+            .into_iter()
+            .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
         ShapeType::Group(children, _) => children
             .into_iter()
             .map(|child: &usize| parent_space_bounds_of(&world, *child))
@@ -397,13 +399,13 @@ fn corners_to_bounds(corners: Corners) -> Bounds {
     let mut bounds = NO_BOUNDS;
 
     for corner in corners {
-        bounds = add_point_to_bounds(corner, &bounds);
+        bounds = add_point_to_bounds(&bounds, corner);
     }
 
     bounds
 }
 
-fn add_point_to_bounds(p: Tuple, bounds: &Bounds) -> Bounds {
+fn add_point_to_bounds(bounds: &Bounds, p: Tuple) -> Bounds {
     Bounds {
         min: point(
             p.x.min(bounds.min.x),
