@@ -6,6 +6,8 @@ use crate::World;
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Intersection {
     pub t: f64,
+    pub u: Option<f64>,
+    pub v: Option<f64>,
     pub object_id: ShapeId,
 }
 
@@ -52,7 +54,21 @@ impl PreparedComputation {
 
 impl Intersection {
     pub fn new(t: f64, object_id: ShapeId) -> Intersection {
-        Intersection { t, object_id }
+        Intersection {
+            t,
+            object_id,
+            u: None,
+            v: None,
+        }
+    }
+
+    pub fn with_u_and_v(t: f64, object_id: ShapeId, u: f64, v: f64) -> Intersection {
+        Intersection {
+            t,
+            object_id,
+            u: Some(u),
+            v: Some(v),
+        }
     }
 
     pub fn prepare_computations(
@@ -165,11 +181,21 @@ impl Intersections {
         self.xs.is_empty()
     }
 
+    pub fn push(&mut self, intersection: Intersection) -> &Intersections {
+        self.xs.push(intersection);
+        self
+
+    }
+
     pub fn get(&self, index: usize) -> &Intersection {
         &self.xs[index]
     }
 
     pub fn from(xs: Vec<Intersection>) -> Self {
         Intersections { xs }
+    }
+
+    pub fn empty() -> Self {
+        Intersections { xs: vec![] }
     }
 }

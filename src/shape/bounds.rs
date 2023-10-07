@@ -344,7 +344,7 @@ pub fn parent_space_bounds_of(world: &World, shape: usize) -> Bounds {
 }
 
 pub fn ray_misses_bounds(bounds: &Bounds, ray: &Ray) -> bool {
-    cube_intersects(ray, bounds).is_empty()
+    cube_intersects(ray, bounds, 0).is_empty() // bogus id
 }
 
 pub fn bounds(world: &World, shape_id: usize) -> Bounds {
@@ -369,6 +369,7 @@ pub fn bounds(world: &World, shape_id: usize) -> Bounds {
         ShapeType::Triangle(p1, p2, p3, _, _, _) => vec![p1, p2, p3]
             .into_iter()
             .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
+            ShapeType::SmoothTriangle(_, _, _, _, _, _) => todo!(),
         ShapeType::Group(children, _) => children
             .into_iter()
             .map(|child: &usize| parent_space_bounds_of(&world, *child))

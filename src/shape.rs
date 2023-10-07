@@ -4,6 +4,7 @@ pub mod cube;
 pub mod cylinder;
 pub mod group;
 pub mod plane;
+pub mod smooth_triangle;
 pub mod sphere;
 pub mod triangle;
 
@@ -16,7 +17,7 @@ use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
-use crate::tuple::{point, vector, Tuple};
+use crate::tuple::Tuple;
 use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
@@ -31,6 +32,7 @@ pub enum ShapeType {
     Cone(f64, f64, bool),        // Cone(min_y, max_y, closed)
     Group(Vec<ShapeId>, Bounds), // Group(children)
     Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
+    SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, n1, n2, n3)
 }
 
 pub type ShapeId = usize;
@@ -95,6 +97,17 @@ impl Shape {
         Shape::default(ShapeType::Triangle(p1, p2, p3, e1, e2, normal))
     }
 
+    pub fn smooth_triangle(
+        p1: Tuple,
+        p2: Tuple,
+        p3: Tuple,
+        n1: Tuple,
+        n2: Tuple,
+        n3: Tuple,
+    ) -> Self {
+        Shape::default(ShapeType::SmoothTriangle(p1, p2, p3, n1, n2, n3))
+    }
+
     pub fn is_group(&self) -> bool {
         matches!(self.shape_type, ShapeType::Group(_, _))
     }
@@ -133,11 +146,10 @@ impl Shape {
             ShapeType::Sphere => sphere_normal_at(object_point),
             ShapeType::Plane => plane_normal_at(object_point),
             ShapeType::Cube => cube_normal_at(object_point),
-            ShapeType::Cylinder(y_min, y_max, _) => {
-                cylinder_normal_at(object_point, y_min, y_max)
-            }
+            ShapeType::Cylinder(y_min, y_max, _) => cylinder_normal_at(object_point, y_min, y_max),
             ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min, y_max),
             ShapeType::Triangle(_, _, _, _, _, normal) => normal,
+            ShapeType::SmoothTriangle(_, _, _, _, _, _) => todo!(),
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
@@ -148,20 +160,22 @@ impl Shape {
 
     pub fn intersects(&self, world: &World, ray: &Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.inverse_transformation);
+        let id = self.id.unwrap();
 
-        let v = match &self.shape_type {
-            ShapeType::Sphere => sphere_intersects(&transformed_ray),
-            ShapeType::Plane => plane_intersects(&transformed_ray),
-            ShapeType::Cube => cube_intersects(&transformed_ray, &CUBE_BOUNDS),
+        match &self.shape_type {
+            ShapeType::Sphere => sphere_intersects(&transformed_ray, id),
+            ShapeType::Plane => plane_intersects(&transformed_ray, id),
+            ShapeType::Cube => cube_intersects(&transformed_ray, &CUBE_BOUNDS, id),
             ShapeType::Cylinder(y_min, y_max, closed) => {
-                cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed)
+                cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed, id)
             }
             ShapeType::Cone(y_min, y_max, closed) => {
-                cone_intersects(&transformed_ray, *y_min, *y_max, *closed)
+                cone_intersects(&transformed_ray, *y_min, *y_max, *closed, id)
             }
             ShapeType::Triangle(p1, _, _, e1, e2, _) => {
-                triangle_intersect(p1, e1, e2, &transformed_ray)
+                triangle_intersect(p1, e1, e2, &transformed_ray, id)
             }
+            ShapeType::SmoothTriangle(_, _, _, _, _, _) => todo!(),
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };
@@ -185,19 +199,6 @@ impl Shape {
 
                 return Intersections { xs };
             }
-        };
-
-        Intersections {
-            xs: v
-                .into_iter()
-                .map(|t| {
-                    Intersection::new(
-                        t,
-                        self.id
-                            .unwrap_or_else(|| panic!("Shape did not have id in .intersects()")),
-                    )
-                })
-                .collect(),
         }
     }
 

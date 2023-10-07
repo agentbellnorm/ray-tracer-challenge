@@ -1,10 +1,8 @@
 use crate::{
+    intersection::{Intersection, Intersections},
     rays::Ray,
-    shape::ShapeType,
     tuple::{Tuple, EPSILON},
 };
-
-use super::Shape;
 
 #[cfg(test)]
 mod triangle_test {
@@ -65,7 +63,7 @@ mod triangle_test {
             _ => panic!("wtf"),
         };
 
-        assert!(triangle_intersect(p1, e1, e2, &ray).is_empty());
+        assert!(triangle_intersect(p1, e1, e2, &ray, 0).is_empty());
     }
 
     #[test]
@@ -79,7 +77,7 @@ mod triangle_test {
             _ => panic!("wtf"),
         };
 
-        assert!(triangle_intersect(p1, e1, e2, &ray).is_empty());
+        assert!(triangle_intersect(p1, e1, e2, &ray, 0).is_empty());
     }
 
     #[test]
@@ -93,7 +91,7 @@ mod triangle_test {
             _ => panic!("wtf"),
         };
 
-        assert!(triangle_intersect(p1, e1, e2, &ray).is_empty());
+        assert!(triangle_intersect(p1, e1, e2, &ray, 0).is_empty());
     }
 
     #[test]
@@ -107,7 +105,7 @@ mod triangle_test {
             _ => panic!("wtf"),
         };
 
-        assert!(triangle_intersect(p1, e1, e2, &ray).is_empty());
+        assert!(triangle_intersect(p1, e1, e2, &ray, 0).is_empty());
     }
 
     #[test]
@@ -121,7 +119,14 @@ mod triangle_test {
             _ => panic!("wtf"),
         };
 
-        assert_eq!(triangle_intersect(p1, e1, e2, &ray), vec![2.0]);
+        assert_eq!(
+            triangle_intersect(p1, e1, e2, &ray, 0)
+                .xs
+                .first()
+                .unwrap()
+                .t,
+            2.0
+        );
     }
 }
 
@@ -130,11 +135,12 @@ pub fn triangle_intersect(
     e1: &Tuple,
     e2: &Tuple,
     ray: &Ray,
-) -> Vec<f64> {
+    shape_id: usize,
+) -> Intersections {
     let dir_cross_e2 = ray.direction.cross(e2);
     let det = e1.dot(&dir_cross_e2);
     if det.abs() < EPSILON {
-        return vec![];
+        return Intersections::empty();
     }
 
     let f = 1.0 / det;
@@ -142,14 +148,19 @@ pub fn triangle_intersect(
     let p1_to_origin = &ray.origin - p1;
     let u = f * p1_to_origin.dot(&dir_cross_e2);
     if u < 0.0 || u > 1.0 {
-        return vec![];
+        return Intersections::empty();
     }
 
     let origin_cross_el = p1_to_origin.cross(e1);
     let v = f * ray.direction.dot(&origin_cross_el);
     if v < 0.0 || (u + v) > 1.0 {
-        return vec![];
+        return Intersections::empty();
     }
 
-    vec![f * e2.dot(&origin_cross_el)]
+    Intersections::from(vec![Intersection::with_u_and_v(
+        f * e2.dot(&origin_cross_el),
+        shape_id,
+        u,
+        v,
+    )])
 }

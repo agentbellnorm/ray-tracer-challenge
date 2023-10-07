@@ -1,3 +1,4 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::rays::Ray;
 use crate::tuple::{point, Tuple};
 
@@ -5,7 +6,7 @@ pub fn sphere_normal_at(object_point: Tuple) -> Tuple {
     object_point - point(0.0, 0.0, 0.0)
 }
 
-pub fn sphere_intersects(transformed_ray: &Ray) -> Vec<f64> {
+pub fn sphere_intersects(transformed_ray: &Ray, shape_id: usize) -> Intersections {
     let sphere_to_ray = transformed_ray.origin - point(0.0, 0.0, 0.0);
 
     let a = transformed_ray.direction.dot(&transformed_ray.direction);
@@ -15,13 +16,16 @@ pub fn sphere_intersects(transformed_ray: &Ray) -> Vec<f64> {
     let discriminant = b.powi(2) - 4.0 * a * c;
 
     if discriminant < 0.0 {
-        return Vec::new();
+        return Intersections::empty();
     }
 
     let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
     let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
 
-    vec![t1, t2]
+    Intersections::from(vec![
+        Intersection::new(t1, shape_id),
+        Intersection::new(t2, shape_id),
+    ])
 }
 
 #[cfg(test)]
@@ -64,9 +68,11 @@ mod sphere_test {
 
     #[test]
     fn intersecting_translated_sphere_with_ray() {
+        let mut world = World::default();
+        let sphere_id = world.add_shape(Shape::sphere_from_transform(Matrix::identity().translate(5.0, 0.0, 0.0)));
+        let sphere = world.get_shape(sphere_id);
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let s = Shape::sphere_from_transform(Matrix::identity().translate(5.0, 0.0, 0.0));
-        let xs = s.intersects(&World::default(), &r);
+        let xs = sphere.intersects(&world, &r);
 
         assert_eq!(xs.len(), 0);
     }
