@@ -54,6 +54,7 @@ mod cube_test {
     use crate::tuple::Tuple;
     use crate::tuple::{point, point_i, vector, vector_i};
     use crate::{Shape, World};
+    use crate::intersection::Intersection;
     use parameterized::{ide, parameterized};
 
     ide!();
@@ -97,7 +98,7 @@ mod cube_test {
     )]
     fn normal_on_surface_of_cube(point: Tuple, normal: Tuple) {
         assert_eq!(
-            Shape::cube_default().normal_at(&World::default(), point),
+            Shape::cube_default().normal_at(&World::default(), point, &Intersection::new(0.0, 0)),
             normal
         )
     }

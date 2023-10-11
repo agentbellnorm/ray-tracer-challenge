@@ -10,7 +10,7 @@ mod triangle_test {
         rays::Ray,
         shape::{triangle::triangle_intersect, Shape, ShapeType},
         tuple::{point, point_i, vector_i},
-        world::World,
+        world::World, intersection::Intersection,
     };
 
     #[test]
@@ -38,9 +38,12 @@ mod triangle_test {
 
         let triangle_shape = world.get_shape(triangle);
 
-        let n1 = triangle_shape.normal_at(&world, point(0.0, 0.5, 0.0));
-        let n2 = triangle_shape.normal_at(&world, point(-0.5, 0.75, 0.0));
-        let n3 = triangle_shape.normal_at(&world, point(0.5, 0.25, 0.0));
+        let irrelevant_i =
+            &Intersection::new(0.0, triangle);
+
+        let n1 = triangle_shape.normal_at(&world, point(0.0, 0.5, 0.0), irrelevant_i);
+        let n2 = triangle_shape.normal_at(&world, point(-0.5, 0.75, 0.0), irrelevant_i);
+        let n3 = triangle_shape.normal_at(&world, point(0.5, 0.25, 0.0), irrelevant_i);
 
         let triangle_normal = match triangle_shape.shape_type {
             ShapeType::Triangle(_, _, _, _, _, normal) => normal,

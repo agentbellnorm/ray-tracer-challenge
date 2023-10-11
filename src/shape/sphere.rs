@@ -32,6 +32,7 @@ pub fn sphere_intersects(transformed_ray: &Ray, shape_id: usize) -> Intersection
 mod sphere_test {
     use crate::canvas::Canvas;
     use crate::color::{black, color};
+    use crate::intersection::Intersection;
     use crate::material::Material;
     use crate::matrix::Matrix;
     use crate::rays::Ray;
@@ -69,7 +70,9 @@ mod sphere_test {
     #[test]
     fn intersecting_translated_sphere_with_ray() {
         let mut world = World::default();
-        let sphere_id = world.add_shape(Shape::sphere_from_transform(Matrix::identity().translate(5.0, 0.0, 0.0)));
+        let sphere_id = world.add_shape(Shape::sphere_from_transform(
+            Matrix::identity().translate(5.0, 0.0, 0.0),
+        ));
         let sphere = world.get_shape(sphere_id);
         let r = Ray::with(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let xs = sphere.intersects(&world, &r);
@@ -117,7 +120,11 @@ mod sphere_test {
         let s = Shape::sphere_default();
 
         assert_eq!(
-            s.normal_at(&World::default(), point(1.0, 0.0, 0.0)),
+            s.normal_at(
+                &World::default(),
+                point(1.0, 0.0, 0.0),
+                &Intersection::bogus()
+            ),
             vector(1.0, 0.0, 0.0)
         );
     }
@@ -127,7 +134,11 @@ mod sphere_test {
         let s = Shape::sphere_default();
 
         assert_eq!(
-            s.normal_at(&World::default(), point(0.0, 1.0, 0.0)),
+            s.normal_at(
+                &World::default(),
+                point(0.0, 1.0, 0.0),
+                &Intersection::bogus()
+            ),
             vector(0.0, 1.0, 0.0)
         );
     }
@@ -137,7 +148,11 @@ mod sphere_test {
         let s = Shape::sphere_default();
 
         assert_eq!(
-            s.normal_at(&World::default(), point(0.0, 0.0, 1.0)),
+            s.normal_at(
+                &World::default(),
+                point(0.0, 0.0, 1.0),
+                &Intersection::bogus()
+            ),
             vector(0.0, 0.0, 1.0)
         );
     }
@@ -153,7 +168,8 @@ mod sphere_test {
                     f64::sqrt(3.0) / 3.0,
                     f64::sqrt(3.0) / 3.0,
                     f64::sqrt(3.0) / 3.0
-                )
+                ),
+                &Intersection::bogus()
             ),
             vector(
                 f64::sqrt(3.0) / 3.0,
@@ -174,6 +190,7 @@ mod sphere_test {
                 f64::sqrt(3.0) / 3.0,
                 f64::sqrt(3.0) / 3.0,
             ),
+            &Intersection::bogus(),
         );
 
         assert_eq!(n.normalize(), n);
@@ -186,7 +203,8 @@ mod sphere_test {
         assert_eq!(
             s.normal_at(
                 &World::default(),
-                point(0.0, 1.70711, -std::f64::consts::FRAC_1_SQRT_2)
+                point(0.0, 1.70711, -std::f64::consts::FRAC_1_SQRT_2),
+                &Intersection::bogus()
             ),
             vector(
                 0.0,
@@ -204,7 +222,8 @@ mod sphere_test {
         assert_eq!(
             s.normal_at(
                 &World::default(),
-                point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0)
+                point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0),
+                &Intersection::bogus(),
             ),
             vector(0.0, 0.97014, -0.24254)
         );

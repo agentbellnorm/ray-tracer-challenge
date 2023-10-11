@@ -16,6 +16,7 @@ use crate::shape::cone::{cone_intersects, cone_normal_at};
 use crate::shape::cube::{cube_intersects, cube_normal_at};
 use crate::shape::cylinder::{cylinder_intersects, cylinder_normal_at};
 use crate::shape::plane::{plane_intersects, plane_normal_at};
+use crate::shape::smooth_triangle::smooth_triangle_normal_at;
 use crate::shape::sphere::{sphere_intersects, sphere_normal_at};
 use crate::tuple::Tuple;
 use crate::World;
@@ -32,7 +33,7 @@ pub enum ShapeType {
     Cone(f64, f64, bool),        // Cone(min_y, max_y, closed)
     Group(Vec<ShapeId>, Bounds), // Group(children)
     Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
-    SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, n1, n2, n3)
+    SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, e1, e2, n1, n2, n3)
 }
 
 pub type ShapeId = usize;
@@ -105,7 +106,9 @@ impl Shape {
         n2: Tuple,
         n3: Tuple,
     ) -> Self {
-        Shape::default(ShapeType::SmoothTriangle(p1, p2, p3, n1, n2, n3))
+        let e1 = p2 - p1;
+        let e2 = p3 - p1;
+        Shape::default(ShapeType::SmoothTriangle(p1, p2, p3, e1, e2, n1, n2, n3))
     }
 
     pub fn is_group(&self) -> bool {
@@ -137,7 +140,7 @@ impl Shape {
         Shape::sphere_from_material(Material::chrome())
     }
 
-    pub fn normal_at(&self, world: &World, world_point: Tuple) -> Tuple {
+    pub fn normal_at(&self, world: &World, world_point: Tuple, hit: &Intersection) -> Tuple {
         assert!(world_point.is_point());
 
         let object_point = self.world_to_object(world, world_point);
@@ -149,7 +152,9 @@ impl Shape {
             ShapeType::Cylinder(y_min, y_max, _) => cylinder_normal_at(object_point, y_min, y_max),
             ShapeType::Cone(y_min, y_max, _) => cone_normal_at(object_point, y_min, y_max),
             ShapeType::Triangle(_, _, _, _, _, normal) => normal,
-            ShapeType::SmoothTriangle(_, _, _, _, _, _) => todo!(),
+            ShapeType::SmoothTriangle(_, _, _, _, _, n1, n2, n3) => {
+                smooth_triangle_normal_at(n1, n2, n3, hit)
+            }
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
@@ -175,7 +180,9 @@ impl Shape {
             ShapeType::Triangle(p1, _, _, e1, e2, _) => {
                 triangle_intersect(p1, e1, e2, &transformed_ray, id)
             }
-            ShapeType::SmoothTriangle(_, _, _, _, _, _) => todo!(),
+            ShapeType::SmoothTriangle(p1, _, _, e1, e2, _, _, _) => {
+                triangle_intersect(p1, e1, e2, &transformed_ray, id)
+            }
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };
@@ -245,6 +252,7 @@ impl Shape {
 
 #[cfg(test)]
 mod shape_test {
+    use crate::intersection::Intersection;
     use crate::shape::ShapeType;
     use crate::tuple::point_i;
     use crate::{point, vector, Matrix, Shape, World};
@@ -332,9 +340,11 @@ mod shape_test {
         world.add_shape_to_group(g0, g1);
         world.add_shape_to_group(g1, sphere);
 
-        let normal = world
-            .get_shape(2)
-            .normal_at(&world, point(1.7321, 1.1547, -5.5774));
+        let normal = world.get_shape(2).normal_at(
+            &world,
+            point(1.7321, 1.1547, -5.5774),
+            &Intersection::new(1.0, sphere),
+        );
 
         assert_eq!(normal, vector(0.285703, 0.42854, -0.85716));
     }

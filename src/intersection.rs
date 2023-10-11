@@ -71,6 +71,10 @@ impl Intersection {
         }
     }
 
+    pub fn bogus() -> Intersection {
+        Self::new(0.0, 0)
+    }
+
     pub fn prepare_computations(
         &self,
         world: &World,
@@ -78,7 +82,7 @@ impl Intersection {
         intersections: &Intersections,
     ) -> PreparedComputation {
         let point = ray.position(self.t);
-        let mut normal_vector = world.get_shape(self.object_id).normal_at(world, point);
+        let mut normal_vector = world.get_shape(self.object_id).normal_at(world, point, self);
         let eye_vector = -ray.direction;
         let inside = normal_vector.dot(&eye_vector) < 0.0;
 

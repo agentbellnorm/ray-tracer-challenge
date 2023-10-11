@@ -95,6 +95,7 @@ mod cylinder_test {
     use crate::rays::Ray;
     use crate::shape::ShapeType::Cylinder;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
+    use crate::intersection::Intersection;
     use crate::{Shape, World};
     use parameterized::parameterized;
 
@@ -136,7 +137,7 @@ mod cylinder_test {
     fn normal_vector_on_cylinder(point: Tuple, normal: Tuple) {
         let cylinder = Shape::cylinder_default();
 
-        assert_eq!(cylinder.normal_at(&World::default(), point), normal);
+        assert_eq!(cylinder.normal_at(&World::default(), point, &Intersection::bogus()), normal);
     }
 
     #[test]
@@ -195,6 +196,6 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
         let world = World::default().with_objects(vec![cylinder]);
 
-        assert_eq!(world.get_shape(0).normal_at(&world, point), normal)
+        assert_eq!(world.get_shape(0).normal_at(&world, point, &Intersection::bogus()), normal)
     }
 }
