@@ -48,10 +48,18 @@ mod obj_file_test {
     }
 
     fn get_points(triangle: &Shape) -> (Tuple, Tuple, Tuple) {
-        if let ShapeType::Triangle(p1, p2, p3, _, _, _) = triangle.shape_type {
-            return (p1, p2, p3);
+        match triangle.shape_type {
+            ShapeType::Triangle(p1, p2, p3, _, _, _) => (p1, p2, p3),
+            ShapeType::SmoothTriangle(p1, p2, p3, _, _, _, _, _) => (p1, p2, p3),
+            _ => panic!("{:?} was not a triangle", triangle),
         }
-        panic!("{:?} was not a triangle", triangle);
+    }
+
+    fn get_normals(triangle: &Shape) -> (Tuple, Tuple, Tuple) {
+        if let ShapeType::SmoothTriangle(_, _, _, _, _, n1, n2, n3) = triangle.shape_type {
+            return (n1, n2, n3);
+        }
+        panic!("{:?} was not a smooth triangle", triangle);
     }
 
     #[test]
@@ -184,8 +192,48 @@ mod obj_file_test {
         assert_eq!(result.normals[2], vector(0.707, 0.0, -0.707));
         assert_eq!(result.normals[3], vector_i(1, 2, 3));
     }
+
+    #[test]
+    fn faces_with_normals() {
+        let file = "
+            v 0 1 0
+            v -1 0 0
+            v 1 0 0
+
+            vn -1 0 0
+            vn 1 0 0
+            vn 0 1 0
+
+            f 1//3 2//1 3//2
+            f 1/0/3 2/102/1 3/14/2
+            ";
+
+        let result = parse_obj(file);
+
+        let g = &result.groups[0];
+        let t1 = &g.items[0];
+        let t2 = &g.items[1];
+
+        let (t1p1, t1p2, t1p3) = get_points(t1);
+        let (t1n1, t1n2, t1n3) = get_normals(t1);
+
+        assert_eq!(result.normals.len(), 3 + 1);
+        assert_eq!(result.vertices.len(), 3 + 1);
+        assert_eq!(result.groups[0].items.len(), 2);
+
+        assert_eq!(t1p1, result.vertices[1]);
+        assert_eq!(t1p2, result.vertices[2]);
+        assert_eq!(t1p3, result.vertices[3]);
+
+        assert_eq!(t1n1, result.normals[3]);
+        assert_eq!(t1n2, result.normals[1]);
+        assert_eq!(t1n3, result.normals[2]);
+
+        assert_eq!(t1, t2);
+    }
 }
 
+#[derive(Debug)]
 struct TriangleGroup {
     pub name: String,
     pub items: Vec<Shape>,
@@ -248,11 +296,9 @@ fn parse_obj(content: &str) -> ParsedObj {
                 groups.push(TriangleGroup::default())
             }
 
-            groups
-                .last_mut()
-                .unwrap()
-                .items
-                .append(&mut fan_triangulation(&vertices, parse_vertex_ids(line)))
+            let face = &mut fan_triangulation(&vertices, &normals, parse_vertex_ids(line));
+
+            groups.last_mut().unwrap().items.append(face)
         }
 
         if line.starts_with("g ") {
@@ -272,15 +318,30 @@ fn parse_obj(content: &str) -> ParsedObj {
     }
 }
 
-fn fan_triangulation(vertices: &Vec<Tuple>, vertex_ids: Vec<usize>) -> Vec<Shape> {
+fn fan_triangulation(
+    vertices: &Vec<Tuple>,
+    normals: &Vec<Tuple>,
+    vertex_ids: Vec<(usize, Option<usize>)>,
+) -> Vec<Shape> {
     let mut triangles = vec![];
 
     for index in 1..(vertex_ids.len() - 1) {
-        triangles.push(Shape::triangle(
-            vertices[vertex_ids[0]],
-            vertices[vertex_ids[index]],
-            vertices[vertex_ids[index + 1]],
-        ))
+        match (vertex_ids[0], vertex_ids[index], vertex_ids[index + 1]) {
+            ((p1, Some(n1)), (p2, Some(n2)), (p3, Some(n3))) => {
+                triangles.push(Shape::smooth_triangle(
+                    vertices[p1],
+                    vertices[p2],
+                    vertices[p3],
+                    normals[n1],
+                    normals[n2],
+                    normals[n3],
+                ))
+            }
+            ((p1, None), (p2, None), (p3, None)) => {
+                triangles.push(Shape::triangle(vertices[p1], vertices[p2], vertices[p3]))
+            }
+            _ => panic!("There was a mix of things"),
+        }
     }
 
     triangles
@@ -305,11 +366,23 @@ fn parse_normal(line: &str) -> Tuple {
     )
 }
 
-fn parse_vertex_ids(line: &str) -> Vec<usize> {
+fn parse_vertex_ids(line: &str) -> Vec<(usize, Option<usize>)> {
     line.split(" ")
         .skip(1)
-        .map(parse_integer)
-        .collect::<Vec<usize>>()
+        .map(|group| {
+            if group.contains("/") {
+                let mut iter = group.split("/");
+
+                let v_id = iter.next().unwrap();
+
+                //
+                let v_normal_id = iter.skip(1).next().unwrap();
+                return (parse_integer(v_id), Some(parse_integer(v_normal_id)));
+            } else {
+                return (parse_integer(group), None);
+            }
+        })
+        .collect::<Vec<(usize, Option<usize>)>>()
 }
 
 fn parse_integer(s: &str) -> usize {
