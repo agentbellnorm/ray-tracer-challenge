@@ -1,6 +1,6 @@
 use crate::{
     shape::Shape,
-    tuple::{point, point_i, Tuple},
+    tuple::{point, point_i, vector, Tuple},
     world::World,
 };
 
@@ -9,7 +9,7 @@ mod obj_file_test {
     use crate::{
         obj_file::parse_obj,
         shape::{Shape, ShapeType},
-        tuple::{point, point_i, Tuple},
+        tuple::{point, point_i, vector, vector_i, Tuple},
         world::World,
     };
 
@@ -152,7 +152,6 @@ mod obj_file_test {
         assert_eq!(t2p3, result.vertices[4]);
     }
 
-
     #[test]
     fn converting_obj_file_to_group() {
         let mut world = World::default();
@@ -169,6 +168,21 @@ mod obj_file_test {
 
         assert_eq!(g1_children.len(), 1);
         assert_eq!(g2_children.len(), 1);
+    }
+
+    #[test]
+    fn vertex_normal_records() {
+        let file = "
+            vn 0 0 1
+            vn 0.707 0 -0.707
+            vn 1 2 3
+            ";
+
+        let result = parse_obj(file);
+
+        assert_eq!(result.normals[1], vector_i(0, 0, 1));
+        assert_eq!(result.normals[2], vector(0.707, 0.0, -0.707));
+        assert_eq!(result.normals[3], vector_i(1, 2, 3));
     }
 }
 
@@ -198,6 +212,7 @@ type Groups = Vec<TriangleGroup>;
 struct ParsedObj {
     pub vertices: Vec<Tuple>,
     pub groups: Groups,
+    pub normals: Vec<Tuple>,
 }
 
 pub fn add_obj_file(world: &mut World, content: &str) -> () {
@@ -220,6 +235,7 @@ pub fn add_obj_file(world: &mut World, content: &str) -> () {
 
 fn parse_obj(content: &str) -> ParsedObj {
     let mut vertices = vec![point_i(6, 6, 6)]; // bogus point to make it 1 indexed
+    let mut normals = vec![point_i(6, 6, 6)]; // bogus point to make it 1 indexed
     let mut groups = vec![];
 
     for line in content.lines().map(&str::trim) {
@@ -243,9 +259,17 @@ fn parse_obj(content: &str) -> ParsedObj {
             let name = line.split(" ").skip(1).next().unwrap();
             groups.push(TriangleGroup::with_name(name))
         }
+
+        if line.starts_with("vn ") {
+            normals.push(parse_normal(line))
+        }
     }
 
-    ParsedObj { vertices, groups }
+    ParsedObj {
+        vertices,
+        groups,
+        normals,
+    }
 }
 
 fn fan_triangulation(vertices: &Vec<Tuple>, vertex_ids: Vec<usize>) -> Vec<Shape> {
@@ -265,6 +289,16 @@ fn fan_triangulation(vertices: &Vec<Tuple>, vertex_ids: Vec<usize>) -> Vec<Shape
 fn parse_vertex(line: &str) -> Tuple {
     let mut iter = line.split(" ").skip(1).map(parse_float);
     point(
+        iter.next().unwrap(),
+        iter.next().unwrap(),
+        iter.next().unwrap(),
+    )
+}
+
+fn parse_normal(line: &str) -> Tuple {
+    let mut iter = line.split(" ").skip(1).map(parse_float);
+
+    vector(
         iter.next().unwrap(),
         iter.next().unwrap(),
         iter.next().unwrap(),
@@ -292,11 +326,4 @@ fn parse_float(s: &str) -> f64 {
     }
 
     panic!("Could not parse {} to f64", s)
-}
-
-fn int_big(string: &str) -> i64 {
-    match string.parse::<i64>() {
-        Ok(number) => number,
-        Err(_) => panic!("Could not parse {:?} to i64", string),
-    }
 }

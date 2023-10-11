@@ -80,7 +80,6 @@ mod smooth_triangle_test {
     fn preparing_normal_on_smooth_triangle() {
         let mut world = World::default();
         let tri_id = world.add_shape(tri());
-        let triangle = world.get_shape(tri_id);
 
         let i = Intersection::with_u_and_v(1.0, tri_id, 0.45, 0.25);
         let r = Ray::with(point(-0.2, 0.3, -2.0), vector_i(0, 0, 1));
