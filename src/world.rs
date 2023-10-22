@@ -103,6 +103,18 @@ impl World {
         csg_id
     }
 
+    pub fn includes(&self, root_or_leaf_id: usize, child: usize) -> bool {
+        match &self.get_shape(root_or_leaf_id).shape_type {
+            ShapeType::Group(children, _) => children
+                .iter()
+                .any(|child_id| self.includes(*child_id, child)),
+            ShapeType::CSG(_, left, right) => {
+                self.includes(*left, child) || self.includes(*right, child)
+            }
+            _ => root_or_leaf_id == child,
+        }
+    }
+
     pub fn get_bounds(&self, group_id: usize) -> Bounds {
         match &self.get_shape(group_id).shape_type {
             ShapeType::Group(_, bounds) => bounds.clone(),
