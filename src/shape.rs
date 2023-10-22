@@ -1,5 +1,6 @@
 pub mod bounds;
 pub mod cone;
+pub mod csg;
 pub mod cube;
 pub mod cylinder;
 pub mod group;
@@ -22,7 +23,15 @@ use crate::tuple::Tuple;
 use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
+use self::csg::csg_intersects;
 use self::triangle::triangle_intersect;
+
+#[derive(PartialEq, Clone, Debug)]
+pub enum CsgType {
+    UNION,
+    INTERSECTION,
+    DIFFERENCE,
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum ShapeType {
@@ -34,6 +43,7 @@ pub enum ShapeType {
     Group(Vec<ShapeId>, Bounds), // Group(children)
     Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
     SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, e1, e2, n1, n2, n3)
+    CSG(CsgType, ShapeId, ShapeId), //CSG(operation, left, right)
 }
 
 pub type ShapeId = usize;
@@ -41,6 +51,7 @@ pub type ShapeId = usize;
 #[derive(PartialEq, Clone, Debug)]
 pub struct Shape {
     pub inverse_transformation: Matrix,
+    pub transformation: Matrix,
     pub material: Material,
     pub shape_type: ShapeType,
     pub parent: Option<ShapeId>,
@@ -49,10 +60,12 @@ pub struct Shape {
 
 impl Shape {
     fn default(shape_type: ShapeType) -> Self {
+        let transformation = Matrix::identity();
         Shape {
             shape_type,
             material: Material::default(),
-            inverse_transformation: Matrix::identity().inverse(),
+            inverse_transformation: transformation.inverse(),
+            transformation,
             parent: None,
             id: None,
         }
@@ -139,6 +152,9 @@ impl Shape {
     pub fn sphere_chrome() -> Self {
         Shape::sphere_from_material(Material::chrome())
     }
+    pub fn csg(csg_type: CsgType, left: ShapeId, right: ShapeId) -> Self {
+        Shape::default(ShapeType::CSG(csg_type, left, right))
+    }
 
     pub fn normal_at(&self, world: &World, world_point: Tuple, hit: &Intersection) -> Tuple {
         assert!(world_point.is_point());
@@ -158,6 +174,7 @@ impl Shape {
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
+            ShapeType::CSG(_, _, _) => panic!("Should never calculate normal for a CSG."),
         };
 
         self.normal_to_world(world, &object_normal)
@@ -170,7 +187,9 @@ impl Shape {
         match &self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray, id),
             ShapeType::Plane => plane_intersects(&transformed_ray, id),
-            ShapeType::Cube => cube_intersects(&transformed_ray, &CUBE_BOUNDS, id),
+            ShapeType::Cube => {
+                cube_intersects(&transformed_ray, &(CUBE_BOUNDS * &self.transformation), id)
+            }
             ShapeType::Cylinder(y_min, y_max, closed) => {
                 cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed, id)
             }
@@ -182,6 +201,9 @@ impl Shape {
             }
             ShapeType::SmoothTriangle(p1, _, _, e1, e2, _, _, _) => {
                 triangle_intersect(p1, e1, e2, &transformed_ray, id)
+            }
+            ShapeType::CSG(_, left, right) => {
+                csg_intersects(world, &transformed_ray, *left, *right, id)
             }
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
@@ -232,6 +254,7 @@ impl Shape {
     }
 
     pub fn with_transform(mut self, transformation: Matrix) -> Self {
+        self.transformation = transformation;
         self.inverse_transformation = transformation.inverse();
         self
     }

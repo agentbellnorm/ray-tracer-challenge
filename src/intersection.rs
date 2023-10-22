@@ -164,6 +164,7 @@ impl Intersection {
     }
 }
 
+#[derive(Clone)]
 pub struct Intersections {
     pub xs: Vec<Intersection>,
 }
