@@ -5,7 +5,7 @@ use crate::material::Material;
 use crate::matrix::{is_equal_float, Matrix};
 use crate::rays::Ray;
 use crate::shape::bounds::{bounds, Bounds};
-use crate::shape::{Shape, ShapeType};
+use crate::shape::{CsgType, Shape, ShapeType};
 use crate::tuple::{point, Tuple};
 use std::f64::consts::FRAC_PI_2;
 use std::vec;
@@ -90,6 +90,17 @@ impl World {
             ShapeType::Group(children, _) => children.clone(),
             _ => panic!("{} is not a group!", group_id),
         }
+    }
+
+    pub fn create_csg(&mut self, csg_type: CsgType, left: usize, right: usize) -> usize {
+        let csg = Shape::csg(csg_type, left, right);
+
+        let csg_id = self.add_shape(csg);
+
+        self.objects.get_mut(left).unwrap().shape.parent = Some(csg_id);
+        self.objects.get_mut(right).unwrap().shape.parent = Some(csg_id);
+
+        csg_id
     }
 
     pub fn get_bounds(&self, group_id: usize) -> Bounds {
