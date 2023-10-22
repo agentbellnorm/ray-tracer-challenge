@@ -39,11 +39,11 @@ impl Tuple {
     }
 
     pub fn is_vector(&self) -> bool {
-        self.w == 0.0
+        is_equal_float(self.w, 0.0)
     }
 
     pub fn is_point(&self) -> bool {
-        self.w == 1.0
+        is_equal_float(self.w, 1.0)
     }
 
     pub fn reflect(&self, n: &Tuple) -> Tuple {

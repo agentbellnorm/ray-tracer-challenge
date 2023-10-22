@@ -263,7 +263,7 @@ struct ParsedObj {
     pub normals: Vec<Tuple>,
 }
 
-pub fn add_obj_file(world: &mut World, content: &str) -> () {
+pub fn add_obj_file(world: &mut World, content: &str) -> usize {
     let parse_result = parse_obj(content);
 
     let root_group = world.add_shape(Shape::group());
@@ -278,7 +278,11 @@ pub fn add_obj_file(world: &mut World, content: &str) -> () {
         world.add_shape_to_group(root_group, group_id);
     }
 
+    let bounds = world.calculate_bounds_for_group(root_group);
     println!("parsed {} vertices", parse_result.vertices.len());
+    println!("bounds is {:#?}", bounds);
+
+    root_group
 }
 
 fn parse_obj(content: &str) -> ParsedObj {

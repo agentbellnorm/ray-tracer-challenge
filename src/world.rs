@@ -45,20 +45,32 @@ impl World {
     }
 
     pub fn add_shape_to_group(&mut self, group_id: ShapeId, shape_id: ShapeId) -> usize {
-        let mut shape = self.objects.get_mut(shape_id).unwrap();
-        shape.shape.parent = Some(group_id);
+        self.objects.get_mut(shape_id).unwrap().shape.parent = Some(group_id);
 
-        let mut children = self.get_children(group_id);
-        let current_bounds = self.get_bounds(group_id);
-        children.push(shape_id);
-        self.objects.get_mut(group_id).unwrap().shape.shape_type =
-            ShapeType::Group(children, current_bounds);
+        let group = self.objects.get_mut(group_id).unwrap();
 
-        let children = self.get_children(group_id);
-        let group_with_new_bounds = ShapeType::Group(children, bounds(&self, group_id));
-        self.objects.get_mut(group_id).unwrap().shape.shape_type = group_with_new_bounds;
+        match group.shape.shape_type {
+            ShapeType::Group(ref mut children, _) => {
+                children.push(shape_id);
+            }
+            _ => panic!("not a group!!"),
+        }
 
         shape_id
+    }
+
+    pub fn calculate_bounds_for_group(&mut self, group_id: ShapeId) -> Bounds {
+        let new_bounds = bounds(&self, group_id);
+        println!("{:?}", new_bounds);
+
+        match self.objects.get_mut(group_id).unwrap().shape.shape_type {
+            ShapeType::Group(_, ref mut bo) => {
+                bo.min = new_bounds.min;
+                bo.max = new_bounds.max;
+                new_bounds.clone()
+            }
+            _ => panic!(),
+        }
     }
 
     pub fn add_shape(&mut self, mut shape: Shape) -> usize {

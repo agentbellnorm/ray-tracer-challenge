@@ -7,6 +7,6 @@ pub mod first_demo;
 pub mod maggie;
 pub mod shiny;
 pub mod hexagon;
-pub mod teapot;
+pub mod astronaut;
 
 type Scene = Vec<Shape>;

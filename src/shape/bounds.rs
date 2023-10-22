@@ -237,6 +237,7 @@ mod bounds_test {
 
         world.add_shape_to_group(group, sphere);
         world.add_shape_to_group(group, cylinder);
+        world.calculate_bounds_for_group(group);
 
         let bounds = bounds(&world, group);
         let computed_bounds = match &world.get_shape(group).shape_type {
@@ -369,7 +370,9 @@ pub fn bounds(world: &World, shape_id: usize) -> Bounds {
         ShapeType::Triangle(p1, p2, p3, _, _, _) => vec![p1, p2, p3]
             .into_iter()
             .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
-            ShapeType::SmoothTriangle(_, _, _, _, _, _, _, _) => todo!(),
+            ShapeType::SmoothTriangle(p1, p2, p3, _, _, _, _, _) => vec![p1, p2, p3]
+            .into_iter()
+            .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
         ShapeType::Group(children, _) => children
             .into_iter()
             .map(|child: &usize| parent_space_bounds_of(&world, *child))
