@@ -46,6 +46,22 @@ mod csg_test {
     #[case(CsgType::UNION, false, true, false, false)]
     #[case(CsgType::UNION, false, false, true, true)]
     #[case(CsgType::UNION, false, false, false, true)]
+    #[case(CsgType::INTERSECTION, true, true, true, true)]
+    #[case(CsgType::INTERSECTION, true, true, false, false)]
+    #[case(CsgType::INTERSECTION, true, false, true, true)]
+    #[case(CsgType::INTERSECTION, true, false, false, false)]
+    #[case(CsgType::INTERSECTION, false, true, true, true)]
+    #[case(CsgType::INTERSECTION, false, true, false, true)]
+    #[case(CsgType::INTERSECTION, false, false, true, false)]
+    #[case(CsgType::INTERSECTION, false, false, false, false)]
+    #[case(CsgType::DIFFERENCE, true, true, true, false)]
+    #[case(CsgType::DIFFERENCE, true, true, false, true)]
+    #[case(CsgType::DIFFERENCE, true, false, true, false)]
+    #[case(CsgType::DIFFERENCE, true, false, false, true)]
+    #[case(CsgType::DIFFERENCE, false, true, true, true)]
+    #[case(CsgType::DIFFERENCE, false, true, false, true)]
+    #[case(CsgType::DIFFERENCE, false, false, true, false)]
+    #[case(CsgType::DIFFERENCE, false, false, false, false)]
     fn evaluating_rule_for_csg_operation(
         #[case] op: CsgType,
         #[case] lhit: bool,
@@ -65,7 +81,7 @@ pub fn intersection_allowed(
 ) -> bool {
     match operand {
         CsgType::UNION => (left_hit && !inside_right) || (!left_hit && !inside_left),
-        CsgType::INTERSECTION => todo!(),
-        CsgType::DIFFERENCE => todo!(),
+        CsgType::INTERSECTION => (left_hit && inside_right) || (!left_hit && inside_left),
+        CsgType::DIFFERENCE => (left_hit && !inside_right) || (!left_hit && inside_left),
     }
 }
