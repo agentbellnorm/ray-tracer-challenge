@@ -17,7 +17,7 @@ pub mod transformation;
 pub mod tuple;
 pub mod world;
 
-use scenes::astronaut::astronaut;
+use scenes::csg::csg;
 
 use crate::camera::Camera;
 use crate::color::{black, color, rgb, white};
@@ -33,8 +33,8 @@ use std::f64::consts::FRAC_PI_3;
 use std::process::Command;
 
 pub fn main_lib() {
-    let mut world = World::with_light(PointLight::with(point(50.0, 50.0, 50.0), white()));
-    world = astronaut(world);
+    let mut world = World::with_light(PointLight::with(point(-10.0, 10.0, -10.0), white()));
+    world = csg(world);
 
     // let (horizontal, vertical) = (320, 180);
     // let (horizontal, vertical) = (640, 360);
@@ -42,8 +42,8 @@ pub fn main_lib() {
     let (horizontal, vertical) = (1920, 1080);
 
     let camera = Camera::new(horizontal, vertical, FRAC_PI_3).set_transform(view_transformation(
-        point(-20.0, 20.0, 130.0),
-        point(0.0, -10.0, 0.0),
+        point(-4.0, 3.0, -10.0),
+        point(0.0, 0.0, 0.0),
         vector(0.0, 1.0, 0.0),
     ));
 

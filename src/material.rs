@@ -81,6 +81,20 @@ impl Material {
         }
     }
 
+    pub fn darker_chrome() -> Self {
+        Material {
+            color: rgb(169, 169, 169),
+            ambient: 0.0,
+            diffuse: 0.0,
+            specular: 1.0,
+            shininess: 400.0,
+            reflective: 0.3,
+            transparency: 0.0,
+            refractive_index: 1.0,
+            pattern: None,
+        }
+    }
+
     pub fn air() -> Self {
         Material {
             color: white(),

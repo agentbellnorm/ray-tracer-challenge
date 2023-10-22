@@ -38,12 +38,12 @@ pub enum ShapeType {
     Sphere,
     Plane,
     Cube,
-    Cylinder(f64, f64, bool),                                               // Cylinder(min_y, max_y, closed)
-    Cone(f64, f64, bool),                                                   // Cone(min_y, max_y, closed)
-    Group(Vec<ShapeId>, Bounds),                                            // Group(children)
-    Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple),                     // Triangle(p1, p2, p3, e1, e2, normal)
+    Cylinder(f64, f64, bool),    // Cylinder(min_y, max_y, closed)
+    Cone(f64, f64, bool),        // Cone(min_y, max_y, closed)
+    Group(Vec<ShapeId>, Bounds), // Group(children)
+    Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
     SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, e1, e2, n1, n2, n3)
-    CSG(CsgType, ShapeId, ShapeId),                                         //CSG(operation, left, right)
+    CSG(CsgType, ShapeId, ShapeId), //CSG(operation, left, right)
 }
 
 pub type ShapeId = usize;
@@ -51,6 +51,7 @@ pub type ShapeId = usize;
 #[derive(PartialEq, Clone, Debug)]
 pub struct Shape {
     pub inverse_transformation: Matrix,
+    pub transformation: Matrix,
     pub material: Material,
     pub shape_type: ShapeType,
     pub parent: Option<ShapeId>,
@@ -59,10 +60,12 @@ pub struct Shape {
 
 impl Shape {
     fn default(shape_type: ShapeType) -> Self {
+        let transformation = Matrix::identity();
         Shape {
             shape_type,
             material: Material::default(),
-            inverse_transformation: Matrix::identity().inverse(),
+            inverse_transformation: transformation.inverse(),
+            transformation,
             parent: None,
             id: None,
         }
@@ -184,7 +187,9 @@ impl Shape {
         match &self.shape_type {
             ShapeType::Sphere => sphere_intersects(&transformed_ray, id),
             ShapeType::Plane => plane_intersects(&transformed_ray, id),
-            ShapeType::Cube => cube_intersects(&transformed_ray, &CUBE_BOUNDS, id),
+            ShapeType::Cube => {
+                cube_intersects(&transformed_ray, &(CUBE_BOUNDS * &self.transformation), id)
+            }
             ShapeType::Cylinder(y_min, y_max, closed) => {
                 cylinder_intersects(&transformed_ray, *y_min, *y_max, *closed, id)
             }
@@ -249,6 +254,7 @@ impl Shape {
     }
 
     pub fn with_transform(mut self, transformation: Matrix) -> Self {
+        self.transformation = transformation;
         self.inverse_transformation = transformation.inverse();
         self
     }

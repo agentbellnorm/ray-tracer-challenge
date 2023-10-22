@@ -8,5 +8,6 @@ pub mod maggie;
 pub mod shiny;
 pub mod hexagon;
 pub mod astronaut;
+pub mod csg;
 
 type Scene = Vec<Shape>;
