@@ -23,6 +23,7 @@ use crate::tuple::Tuple;
 use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
+use self::csg::csg_intersects;
 use self::triangle::triangle_intersect;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -37,12 +38,12 @@ pub enum ShapeType {
     Sphere,
     Plane,
     Cube,
-    Cylinder(f64, f64, bool),       // Cylinder(min_y, max_y, closed)
-    Cone(f64, f64, bool),           // Cone(min_y, max_y, closed)
-    Group(Vec<ShapeId>, Bounds),    // Group(children)
-    Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // Triangle(p1, p2, p3, e1, e2, normal)
+    Cylinder(f64, f64, bool),                                               // Cylinder(min_y, max_y, closed)
+    Cone(f64, f64, bool),                                                   // Cone(min_y, max_y, closed)
+    Group(Vec<ShapeId>, Bounds),                                            // Group(children)
+    Triangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple),                     // Triangle(p1, p2, p3, e1, e2, normal)
     SmoothTriangle(Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple, Tuple), // SmoothTriangle (p1, p2, p3, e1, e2, n1, n2, n3)
-    CSG(CsgType, ShapeId, ShapeId), //CSG(operation, left, right)
+    CSG(CsgType, ShapeId, ShapeId),                                         //CSG(operation, left, right)
 }
 
 pub type ShapeId = usize;
@@ -170,7 +171,7 @@ impl Shape {
             ShapeType::Group(_, _) => {
                 panic!("should never calculate normal for a group, it doesn't exist.")
             }
-            ShapeType::CSG(_, _, _) => todo!(),
+            ShapeType::CSG(_, _, _) => panic!("Should never calculate normal for a CSG."),
         };
 
         self.normal_to_world(world, &object_normal)
@@ -196,7 +197,9 @@ impl Shape {
             ShapeType::SmoothTriangle(p1, _, _, e1, e2, _, _, _) => {
                 triangle_intersect(p1, e1, e2, &transformed_ray, id)
             }
-            ShapeType::CSG(_, _, _) => todo!(),
+            ShapeType::CSG(_, left, right) => {
+                csg_intersects(world, &transformed_ray, self.id.unwrap(), *left, *right)
+            }
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
                     return Intersections { xs: vec![] };
