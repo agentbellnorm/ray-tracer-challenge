@@ -121,7 +121,7 @@ mod csg_test {
 
         let ray = Ray::with(point_i(0, 2, -5), vector_i(0, 0, 1));
 
-        let xs = csg_intersects(&world, &ray, c_id, s1_id, s2_id);
+        let xs = csg_intersects(&world, &ray, s1_id, s2_id, c_id);
 
         assert!(xs.xs.is_empty())
     }
@@ -139,7 +139,7 @@ mod csg_test {
 
         let ray = Ray::with(point_i(0, 0, -5), vector_i(0, 0, 1));
 
-        let xs = csg_intersects(&world, &ray, c_id, s1_id, s2_id);
+        let xs = csg_intersects(&world, &ray, s1_id, s2_id, c_id);
 
         assert_eq!(xs.xs.len(), 2);
 
@@ -204,9 +204,9 @@ pub fn filter_intersections(
 pub fn csg_intersects(
     world: &World,
     ray: &Ray,
-    csg_id: usize,
     left: usize,
     right: usize,
+    csg_id: usize,
 ) -> Intersections {
     let left = world.get_shape(left);
     let right = world.get_shape(right);

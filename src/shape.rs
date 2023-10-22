@@ -198,7 +198,7 @@ impl Shape {
                 triangle_intersect(p1, e1, e2, &transformed_ray, id)
             }
             ShapeType::CSG(_, left, right) => {
-                csg_intersects(world, &transformed_ray, self.id.unwrap(), *left, *right)
+                csg_intersects(world, &transformed_ray, *left, *right, id)
             }
             ShapeType::Group(child_ids, group_bounds) => {
                 if ray_misses_bounds(group_bounds, &transformed_ray) {
