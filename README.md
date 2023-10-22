@@ -21,6 +21,9 @@ cargo run --release
 
 ## Examples
 
+### Chapter 16, Constructive Solid Geometry
+![](./doc/csg.png)
+
 ### Chapter 15, Triangles
 ![](./doc/astronaut.png)
 
