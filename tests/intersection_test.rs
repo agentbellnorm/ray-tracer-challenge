@@ -26,10 +26,14 @@ mod intersection_test {
         let i1 = Intersection {
             t: 1.0,
             object_id: 1,
+            u: None,
+            v: None,
         };
         let i2 = Intersection {
             t: 2.0,
             object_id: 2,
+            u: None,
+            v: None,
         };
         let xs = Intersections { xs: vec![i1, i2] };
 
@@ -41,10 +45,14 @@ mod intersection_test {
         let i1 = Intersection {
             t: -1.0,
             object_id: 1,
+            u: None,
+            v: None,
         };
         let i2 = Intersection {
             t: 1.0,
             object_id: 2,
+            u: None,
+            v: None,
         };
         let xs = Intersections { xs: vec![i1, i2] };
 
@@ -56,10 +64,14 @@ mod intersection_test {
         let i1 = Intersection {
             t: -2.0,
             object_id: 1,
+            u: None,
+            v: None,
         };
         let i2 = Intersection {
             t: -1.0,
             object_id: 2,
+            u: None,
+            v: None,
         };
         let xs = Intersections { xs: vec![i1, i2] };
 
@@ -71,18 +83,26 @@ mod intersection_test {
         let i1 = Intersection {
             t: 5.0,
             object_id: 1,
+            u: None,
+            v: None,
         };
         let i2 = Intersection {
             t: 7.0,
             object_id: 2,
+            u: None,
+            v: None,
         };
         let i3 = Intersection {
             t: -3.0,
             object_id: 3,
+            u: None,
+            v: None,
         };
         let i4 = Intersection {
             t: 2.0,
             object_id: 4,
+            u: None,
+            v: None,
         };
         let xs = Intersections {
             xs: vec![i1, i2, i3, i4],

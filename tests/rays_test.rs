@@ -55,8 +55,10 @@ mod rays_test {
 
     #[test]
     fn ray_misses_square() {
+        let mut world = World::default();
+        let sphere_id = world.add_shape(Shape::sphere_default());
+        let sphere = world.get_shape(sphere_id);
         let ray = Ray::with(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
-        let sphere = Shape::sphere_default();
 
         let xs = sphere.intersects(&World::default(), &ray);
 

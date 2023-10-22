@@ -6,6 +6,8 @@ use crate::World;
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Intersection {
     pub t: f64,
+    pub u: Option<f64>,
+    pub v: Option<f64>,
     pub object_id: ShapeId,
 }
 
@@ -52,7 +54,25 @@ impl PreparedComputation {
 
 impl Intersection {
     pub fn new(t: f64, object_id: ShapeId) -> Intersection {
-        Intersection { t, object_id }
+        Intersection {
+            t,
+            object_id,
+            u: None,
+            v: None,
+        }
+    }
+
+    pub fn with_u_and_v(t: f64, object_id: ShapeId, u: f64, v: f64) -> Intersection {
+        Intersection {
+            t,
+            object_id,
+            u: Some(u),
+            v: Some(v),
+        }
+    }
+
+    pub fn bogus() -> Intersection {
+        Self::new(0.0, 0)
     }
 
     pub fn prepare_computations(
@@ -62,7 +82,7 @@ impl Intersection {
         intersections: &Intersections,
     ) -> PreparedComputation {
         let point = ray.position(self.t);
-        let mut normal_vector = world.get_shape(self.object_id).normal_at(world, point);
+        let mut normal_vector = world.get_shape(self.object_id).normal_at(world, point, self);
         let eye_vector = -ray.direction;
         let inside = normal_vector.dot(&eye_vector) < 0.0;
 
@@ -165,11 +185,21 @@ impl Intersections {
         self.xs.is_empty()
     }
 
+    pub fn push(&mut self, intersection: Intersection) -> &Intersections {
+        self.xs.push(intersection);
+        self
+
+    }
+
     pub fn get(&self, index: usize) -> &Intersection {
         &self.xs[index]
     }
 
     pub fn from(xs: Vec<Intersection>) -> Self {
         Intersections { xs }
+    }
+
+    pub fn empty() -> Self {
+        Intersections { xs: vec![] }
     }
 }

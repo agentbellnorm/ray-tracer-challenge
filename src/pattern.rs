@@ -67,7 +67,7 @@ impl Pattern {
 
     pub fn color_at_object(self, world: &World, object: &Shape, p: Tuple) -> Color {
         let object_space = object.world_to_object(world, p);
-        let mut pattern_space = object_space * &self.inverse_transformation;
+        let mut pattern_space = &object_space * &self.inverse_transformation;
 
         if self.has_noise() {
             let factor = self.noise * noise3(pattern_space.x, pattern_space.y, pattern_space.z);

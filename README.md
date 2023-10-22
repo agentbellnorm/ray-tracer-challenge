@@ -21,6 +21,9 @@ cargo run --release
 
 ## Examples
 
+### Chapter 15, Triangles
+![](./doc/astronaut.png)
+
 ### Chapter 14, Groups
 ![](./doc/hexagon.png)
 

@@ -54,8 +54,8 @@ impl Camera {
 
         let inv_transform = self.inverse_transform;
 
-        let pixel = point(world_x, world_y, -1.0) * &inv_transform;
-        let origin = point(0.0, 0.0, 0.0) * &inv_transform;
+        let pixel = &point(world_x, world_y, -1.0) * &inv_transform;
+        let origin = &point(0.0, 0.0, 0.0) * &inv_transform;
         let direction = (pixel - origin).normalize();
 
         Ray::with(origin, direction)
@@ -82,11 +82,14 @@ impl Camera {
             }
         }
 
-        let duration = start_time.elapsed().as_millis();
+        let duration = start_time.elapsed();
 
         println!("Rendered {} pixels", n_pixels);
-        println!("Total duration: {} ms", duration);
-        println!("ms per pixel: {}", duration as f64 / n_pixels as f64);
+        println!("Total duration: {}s", duration.as_secs());
+        println!(
+            "ms per pixel: {}",
+            duration.as_millis() as f64 / n_pixels as f64
+        );
 
         image
     }

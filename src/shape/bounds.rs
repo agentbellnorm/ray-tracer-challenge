@@ -40,8 +40,8 @@ mod bounds_test {
         let p1 = point_i(-5, 2, 0);
         let p2 = point_i(7, 0, -3);
 
-        let bounds = add_point_to_bounds(p1, &NO_BOUNDS);
-        let bounds = add_point_to_bounds(p2, &bounds);
+        let bounds = add_point_to_bounds(&NO_BOUNDS, p1);
+        let bounds = add_point_to_bounds(&bounds, p2);
 
         assert_eq!(bounds.min, point_i(-5, 0, -3));
         assert_eq!(bounds.max, point_i(7, 2, 0));
@@ -237,11 +237,12 @@ mod bounds_test {
 
         world.add_shape_to_group(group, sphere);
         world.add_shape_to_group(group, cylinder);
+        world.calculate_bounds_for_group(group);
 
         let bounds = bounds(&world, group);
         let computed_bounds = match &world.get_shape(group).shape_type {
             crate::shape::ShapeType::Group(_, group_bounds) => group_bounds,
-            _ => panic!("wat")
+            _ => panic!("wat"),
         };
 
         assert_eq!(
@@ -305,8 +306,8 @@ impl Mul<&Matrix> for Bounds {
     type Output = Self;
     fn mul(self, matrix: &Matrix) -> Self {
         Self {
-            min: self.min * matrix,
-            max: self.max * matrix,
+            min: &self.min * matrix,
+            max: &self.max * matrix,
         }
     }
 }
@@ -344,7 +345,7 @@ pub fn parent_space_bounds_of(world: &World, shape: usize) -> Bounds {
 }
 
 pub fn ray_misses_bounds(bounds: &Bounds, ray: &Ray) -> bool {
-    cube_intersects(ray, bounds).is_empty()
+    cube_intersects(ray, bounds, 0).is_empty() // bogus id
 }
 
 pub fn bounds(world: &World, shape_id: usize) -> Bounds {
@@ -366,6 +367,12 @@ pub fn bounds(world: &World, shape_id: usize) -> Bounds {
                 max: point(limit, *y_max, limit),
             }
         }
+        ShapeType::Triangle(p1, p2, p3, _, _, _) => vec![p1, p2, p3]
+            .into_iter()
+            .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
+            ShapeType::SmoothTriangle(p1, p2, p3, _, _, _, _, _) => vec![p1, p2, p3]
+            .into_iter()
+            .fold(NO_BOUNDS, |b, p| add_point_to_bounds(&b, p.clone())),
         ShapeType::Group(children, _) => children
             .into_iter()
             .map(|child: &usize| parent_space_bounds_of(&world, *child))
@@ -396,13 +403,13 @@ fn corners_to_bounds(corners: Corners) -> Bounds {
     let mut bounds = NO_BOUNDS;
 
     for corner in corners {
-        bounds = add_point_to_bounds(corner, &bounds);
+        bounds = add_point_to_bounds(&bounds, corner);
     }
 
     bounds
 }
 
-fn add_point_to_bounds(p: Tuple, bounds: &Bounds) -> Bounds {
+fn add_point_to_bounds(bounds: &Bounds, p: Tuple) -> Bounds {
     Bounds {
         min: point(
             p.x.min(bounds.min.x),
@@ -447,13 +454,13 @@ fn combine_bounds(a: Bounds, b: Bounds) -> Bounds {
 
 fn transform_corners(corners: Corners, transform: &Matrix) -> Corners {
     [
-        corners[0] * transform,
-        corners[1] * transform,
-        corners[2] * transform,
-        corners[3] * transform,
-        corners[4] * transform,
-        corners[5] * transform,
-        corners[6] * transform,
-        corners[7] * transform,
+        &corners[0] * transform,
+        &corners[1] * transform,
+        &corners[2] * transform,
+        &corners[3] * transform,
+        &corners[4] * transform,
+        &corners[5] * transform,
+        &corners[6] * transform,
+        &corners[7] * transform,
     ]
 }

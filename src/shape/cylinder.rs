@@ -1,3 +1,4 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::matrix::{is_equal_float, is_zero_float};
 use crate::rays::Ray;
 use crate::tuple::{Tuple, EPSILON};
@@ -10,30 +11,43 @@ fn check_cap(ray: &Ray, t: f64) -> bool {
     x.powi(2) + z.powi(2) <= 1.0
 }
 
-fn intersect_caps(y_min: f64, y_max: f64, closed: bool, ray: &Ray, mut xs: Vec<f64>) -> Vec<f64> {
+fn intersect_caps(
+    y_min: f64,
+    y_max: f64,
+    closed: bool,
+    ray: &Ray,
+    mut xs: Intersections,
+    shape_id: usize,
+) -> Intersections {
     if !closed || is_equal_float(ray.direction.y, 0.0) {
         return xs;
     }
 
     let t = (y_min - ray.origin.y) / ray.direction.y;
     if check_cap(ray, t) {
-        xs.push(t);
+        xs.push(Intersection::new(t, shape_id));
     }
 
     let t = (y_max - ray.origin.y) / ray.direction.y;
     if check_cap(ray, t) {
-        xs.push(t);
+        xs.push(Intersection::new(t, shape_id));
     }
 
     xs
 }
 
-pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> Vec<f64> {
+pub fn cylinder_intersects(
+    ray: &Ray,
+    y_min: f64,
+    y_max: f64,
+    closed: bool,
+    shape_id: usize,
+) -> Intersections {
     let a = ray.direction.x.powi(2) + ray.direction.z.powi(2);
-    let mut xs: Vec<f64> = Vec::with_capacity(2);
+    let mut intersections: Intersections = Intersections::from(Vec::with_capacity(2));
 
     if is_zero_float(a) {
-        return intersect_caps(y_min, y_max, closed, ray, xs);
+        return intersect_caps(y_min, y_max, closed, ray, intersections, shape_id);
     }
 
     let b = 2.0 * ray.origin.x * ray.direction.x + 2.0 * ray.origin.z * ray.direction.z;
@@ -42,7 +56,7 @@ pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> V
     let disc = b.powi(2) - 4.0 * a * c;
 
     if disc < 0.0 {
-        return vec![];
+        return Intersections::empty();
     }
 
     let t0 = (-b - disc.sqrt()) / (2.0 * a);
@@ -50,15 +64,15 @@ pub fn cylinder_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> V
 
     let y0 = ray.origin.y + t0 * ray.direction.y;
     if y_min < y0 && y0 < y_max {
-        xs.push(t0);
+        intersections.push(Intersection::new(t0, shape_id));
     }
 
     let y1 = ray.origin.y + t1 * ray.direction.y;
     if y_min < y1 && y1 < y_max {
-        xs.push(t1);
+        intersections.push(Intersection::new(t1, shape_id));
     }
 
-    intersect_caps(y_min, y_max, closed, ray, xs)
+    intersect_caps(y_min, y_max, closed, ray, intersections, shape_id)
 }
 
 pub fn cylinder_normal_at(point: Tuple, y_min: f64, y_max: f64) -> Tuple {
@@ -81,6 +95,7 @@ mod cylinder_test {
     use crate::rays::Ray;
     use crate::shape::ShapeType::Cylinder;
     use crate::tuple::{point, point_i, vector, vector_i, Tuple};
+    use crate::intersection::Intersection;
     use crate::{Shape, World};
     use parameterized::parameterized;
 
@@ -103,11 +118,12 @@ mod cylinder_test {
     t1 = {          5.0,                6.0,                7.08872},
     )]
     fn ray_strikes_cylinder(origin: Tuple, direction: Tuple, t0: f64, t1: f64) {
-        let cylinder = Shape::cylinder_default();
-        let world = World::default().with_objects(vec![cylinder]);
+        let mut world = World::default();
+        let cylinder = world.add_shape(Shape::cylinder_default());
+
         let ray = Ray::with(origin, direction.normalize());
 
-        let xs = world.get_shape(0).intersects(&World::default(), &ray);
+        let xs = world.get_shape(cylinder).intersects(&World::default(), &ray);
 
         assert_eq!(xs.len(), 2);
         assert!(is_equal_float(xs.get(0).t, t0));
@@ -121,7 +137,7 @@ mod cylinder_test {
     fn normal_vector_on_cylinder(point: Tuple, normal: Tuple) {
         let cylinder = Shape::cylinder_default();
 
-        assert_eq!(cylinder.normal_at(&World::default(), point), normal);
+        assert_eq!(cylinder.normal_at(&World::default(), point, &Intersection::bogus()), normal);
     }
 
     #[test]
@@ -143,11 +159,11 @@ mod cylinder_test {
     count = {       0,                      0,                  0,                  0,                  0,                  2}
     )]
     fn intersecting_constrained_cylinder(point: Tuple, direction: Tuple, count: usize) {
-        let cylinder = Shape::cylinder(1.0, 2.0, false);
-        let world = World::default().with_objects(vec![cylinder]);
+        let mut world = World::default();
+        let cylinder = world.add_shape(Shape::cylinder(1.0, 2.0, false));
         let ray = Ray::with(point, direction.normalize());
 
-        assert_eq!(world.get_shape(0).intersects(&world, &ray).xs.len(), count)
+        assert_eq!(world.get_shape(cylinder).intersects(&world, &ray).xs.len(), count)
     }
 
     #[test]
@@ -180,6 +196,6 @@ mod cylinder_test {
         let cylinder = Shape::cylinder(1.0, 2.0, true);
         let world = World::default().with_objects(vec![cylinder]);
 
-        assert_eq!(world.get_shape(0).normal_at(&world, point), normal)
+        assert_eq!(world.get_shape(0).normal_at(&world, point, &Intersection::bogus()), normal)
     }
 }

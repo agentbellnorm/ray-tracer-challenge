@@ -240,7 +240,7 @@ impl<'a> Mul for &'a Matrix {
     }
 }
 
-impl Mul<&Matrix> for Tuple {
+impl Mul<&Matrix> for &Tuple {
     type Output = Tuple;
 
     fn mul(self, matrix: &Matrix) -> Tuple {

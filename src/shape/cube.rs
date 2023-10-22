@@ -1,3 +1,4 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::rays::Ray;
 use crate::shape::bounds::Bounds;
 use crate::tuple::Tuple;
@@ -17,7 +18,7 @@ fn check_axis(origin: f64, direction: f64, axis_min: f64, axis_max: f64) -> (f64
     (tmin, tmax)
 }
 
-pub fn cube_intersects(ray: &Ray, bounds: &Bounds) -> Vec<f64> {
+pub fn cube_intersects(ray: &Ray, bounds: &Bounds, shape_id: usize) -> Intersections {
     let (xt_min, xt_max) = check_axis(ray.origin.x, ray.direction.x, bounds.min.x, bounds.max.x);
     let (yt_min, yt_max) = check_axis(ray.origin.y, ray.direction.y, bounds.min.y, bounds.max.y);
     let (zt_min, zt_max) = check_axis(ray.origin.z, ray.direction.z, bounds.min.z, bounds.max.x);
@@ -26,10 +27,13 @@ pub fn cube_intersects(ray: &Ray, bounds: &Bounds) -> Vec<f64> {
     let t_max = xt_max.min(yt_max).min(zt_max);
 
     if t_min > t_max {
-        return vec![];
+        return Intersections::empty();
     }
 
-    vec![t_min, t_max]
+    Intersections::from(vec![
+        Intersection::new(t_min, shape_id),
+        Intersection::new(t_max, shape_id),
+    ])
 }
 
 pub fn cube_normal_at(point: Tuple) -> Tuple {
@@ -50,6 +54,7 @@ mod cube_test {
     use crate::tuple::Tuple;
     use crate::tuple::{point, point_i, vector, vector_i};
     use crate::{Shape, World};
+    use crate::intersection::Intersection;
     use parameterized::{ide, parameterized};
 
     ide!();
@@ -78,7 +83,8 @@ mod cube_test {
     direction = {   vector(0.2673, 0.5345, 0.8018), vector(0.8018, 0.2673, 0.5345), vector(0.5345, 0.8018, 0.2673), vector_i(0, 0, -1), vector_i(0, -1, 0), vector_i(-1, 0, 0)  }
     )]
     pub fn ray_misses_cube(origin: Tuple, direction: Tuple) {
-        let cube = Shape::cube_default();
+        let mut cube = Shape::cube_default();
+        cube.id = Some(0);
         let ray = Ray::with(origin, direction);
 
         let xs = cube.intersects(&World::default(), &ray);
@@ -92,7 +98,7 @@ mod cube_test {
     )]
     fn normal_on_surface_of_cube(point: Tuple, normal: Tuple) {
         assert_eq!(
-            Shape::cube_default().normal_at(&World::default(), point),
+            Shape::cube_default().normal_at(&World::default(), point, &Intersection::new(0.0, 0)),
             normal
         )
     }

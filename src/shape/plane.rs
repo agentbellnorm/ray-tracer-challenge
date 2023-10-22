@@ -1,12 +1,16 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::rays::Ray;
 use crate::tuple::{vector, Tuple, EPSILON};
 
-pub fn plane_intersects(ray: &Ray) -> Vec<f64> {
+pub fn plane_intersects(ray: &Ray, shape_id: usize) -> Intersections {
     if f64::abs(ray.direction.y) < EPSILON {
-        return vec![];
+        return Intersections::empty();
     }
 
-    vec![-ray.origin.y / ray.direction.y]
+    Intersections::from(vec![Intersection::new(
+        -ray.origin.y / ray.direction.y,
+        shape_id,
+    )])
 }
 
 pub fn plane_normal_at(_object_point: Tuple) -> Tuple {

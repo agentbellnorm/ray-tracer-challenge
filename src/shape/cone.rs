@@ -1,3 +1,4 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::matrix::is_zero_float;
 use crate::rays::Ray;
 use crate::tuple::{Tuple, EPSILON};
@@ -10,38 +11,51 @@ fn check_cap(ray: &Ray, t: f64, radius: f64) -> bool {
     x.powi(2) + z.powi(2) <= radius.powi(2)
 }
 
-fn intersect_caps(y_min: f64, y_max: f64, closed: bool, ray: &Ray, mut xs: Vec<f64>) -> Vec<f64> {
+fn intersect_caps(
+    y_min: f64,
+    y_max: f64,
+    closed: bool,
+    ray: &Ray,
+    mut xs: Intersections,
+    shape_id: usize,
+) -> Intersections {
     if !closed || is_zero_float(ray.direction.y) {
         return xs;
     }
 
     let t = (y_min - ray.origin.y) / ray.direction.y;
     if check_cap(ray, t, y_min) {
-        xs.push(t);
+        xs.push(Intersection::new(t, shape_id));
     }
 
     let t = (y_max - ray.origin.y) / ray.direction.y;
     if check_cap(ray, t, y_max) {
-        xs.push(t);
+        xs.push(Intersection::new(t, shape_id));
     }
 
     xs
 }
 
-pub fn cone_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> Vec<f64> {
+pub fn cone_intersects(
+    ray: &Ray,
+    y_min: f64,
+    y_max: f64,
+    closed: bool,
+    shape_id: usize,
+) -> Intersections {
     let a = ray.direction.x.powi(2) - ray.direction.y.powi(2) + ray.direction.z.powi(2);
     let b = 2.0 * ray.origin.x * ray.direction.x - 2.0 * ray.origin.y * ray.direction.y
         + 2.0 * ray.origin.z * ray.direction.z;
     let c = ray.origin.x.powi(2) - ray.origin.y.powi(2) + ray.origin.z.powi(2);
 
-    let mut xs: Vec<f64> = Vec::with_capacity(4);
+    let mut xs: Intersections = Intersections::from(Vec::with_capacity(4));
 
     if is_zero_float(a) && is_zero_float(b) {
-        return intersect_caps(y_min, y_max, closed, ray, xs);
+        return intersect_caps(y_min, y_max, closed, ray, xs, shape_id);
     }
 
     if is_zero_float(a) && !is_zero_float(b) {
-        xs.push(-c / (2.0 * b));
+        xs.push(Intersection::new(-c / (2.0 * b), shape_id));
     }
 
     let disc = b.powi(2) - 4.0 * a * c;
@@ -55,15 +69,15 @@ pub fn cone_intersects(ray: &Ray, y_min: f64, y_max: f64, closed: bool) -> Vec<f
 
     let y0 = ray.origin.y + t0 * ray.direction.y;
     if y_min < y0 && y0 < y_max {
-        xs.push(t0);
+        xs.push(Intersection::new(t0, shape_id));
     }
 
     let y1 = ray.origin.y + t1 * ray.direction.y;
     if y_min < y1 && y1 < y_max {
-        xs.push(t1);
+        xs.push(Intersection::new(t1, shape_id));
     }
 
-    intersect_caps(y_min, y_max, closed, ray, xs)
+    intersect_caps(y_min, y_max, closed, ray, xs, shape_id)
 }
 
 pub fn cone_normal_at(point: Tuple, y_min: f64, y_max: f64) -> Tuple {
