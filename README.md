@@ -14,6 +14,9 @@ My objectives with this project is to
 * Learn about 3D graphics
 * Learn Rust
 
+## No dependencies
+Yay 🎉
+
 ## Run
 ```sh
 cargo run --release
