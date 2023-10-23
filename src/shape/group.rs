@@ -1,3 +1,11 @@
+use crate::{
+    intersection::{Intersection, Intersections},
+    rays::Ray,
+    world::World,
+};
+
+use super::bounds::{ray_misses_bounds, Bounds};
+
 #[cfg(test)]
 mod group_test {
     use crate::rays::Ray;
@@ -102,4 +110,33 @@ mod group_test {
 
         assert_eq!(xs.len(), 2);
     }
+}
+
+pub fn group_intersects(
+    world: &World,
+    transformed_ray: &Ray,
+    child_ids: &Vec<usize>,
+    group_bounds: &Bounds,
+) -> Intersections {
+    if ray_misses_bounds(group_bounds, &transformed_ray) {
+        return Intersections { xs: vec![] };
+    }
+
+    let mut xs: Vec<Intersection> =
+        child_ids
+            .iter()
+            .fold(Vec::new(), |mut intersections, child_id| {
+                intersections.append(
+                    world
+                        .get_shape(*child_id)
+                        .intersects(world, &transformed_ray)
+                        .xs
+                        .as_mut(),
+                );
+                intersections
+            });
+
+    xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+
+    return Intersections { xs };
 }

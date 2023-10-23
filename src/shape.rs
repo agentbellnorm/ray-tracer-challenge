@@ -24,6 +24,7 @@ use crate::World;
 
 use self::bounds::{ray_misses_bounds, Bounds, CUBE_BOUNDS, NO_BOUNDS};
 use self::csg::csg_intersects;
+use self::group::group_intersects;
 use self::triangle::triangle_intersect;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -206,27 +207,7 @@ impl Shape {
                 csg_intersects(world, &transformed_ray, *left, *right, id)
             }
             ShapeType::Group(child_ids, group_bounds) => {
-                if ray_misses_bounds(group_bounds, &transformed_ray) {
-                    return Intersections { xs: vec![] };
-                }
-
-                let mut xs: Vec<Intersection> =
-                    child_ids
-                        .iter()
-                        .fold(Vec::new(), |mut intersections, child_id| {
-                            intersections.append(
-                                world
-                                    .get_shape(*child_id)
-                                    .intersects(world, &transformed_ray)
-                                    .xs
-                                    .as_mut(),
-                            );
-                            intersections
-                        });
-
-                xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
-
-                return Intersections { xs };
+                group_intersects(world, &transformed_ray, child_ids, group_bounds)
             }
         }
     }
