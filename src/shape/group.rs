@@ -122,19 +122,15 @@ pub fn group_intersects(
         return Intersections { xs: vec![] };
     }
 
-    let mut xs: Vec<Intersection> =
-        child_ids
-            .iter()
-            .fold(Vec::new(), |mut intersections, child_id| {
-                intersections.append(
-                    world
-                        .get_shape(*child_id)
-                        .intersects(world, &transformed_ray)
-                        .xs
-                        .as_mut(),
-                );
-                intersections
-            });
+    let mut xs: Vec<Intersection> = child_ids
+        .iter()
+        .flat_map(|child_id| {
+            world
+                .get_shape(*child_id)
+                .intersects(world, &transformed_ray)
+                .xs
+        })
+        .collect::<Vec<Intersection>>();
 
     xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
 
